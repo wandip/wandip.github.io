@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dipak Wani on Dipak Wani</title>
+    <link>https://wandip.github.io/</link>
+    <description>Recent content in Dipak Wani on Dipak Wani</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Sun, 15 Oct 2017 00:00:00 +0530</lastBuildDate>
+    <atom:link href="/" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Hackathonexperience</title>
+      <link>https://wandip.github.io/post/hackathonexperience/</link>
+      <pubDate>Sun, 07 Oct 2018 14:09:34 +0530</pubDate>
+      
+      <guid>https://wandip.github.io/post/hackathonexperience/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Driverdrowsiness</title>
+      <link>https://wandip.github.io/project/driverdrowsiness/</link>
+      <pubDate>Sun, 07 Oct 2018 14:08:36 +0530</pubDate>
+      
+      <guid>https://wandip.github.io/project/driverdrowsiness/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
