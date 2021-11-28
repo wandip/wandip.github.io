@@ -10,7 +10,7 @@ title:            Dipak
 tagline:          ''
 description:      'MS CS at USC'
 url:              http://dipakwani.com
-baseurl:          '/'
+baseurl:          'http://dipakwani.com'
 
 author:
   name:           'Dipak Wani'
