@@ -21,5 +21,6 @@ paginate:         5
 version:          2.1.0
 plugins: [jekyll-paginate]
 
+google-analytics: UA-127095421-1
 github:
   repo:           https://github.com/wandip
