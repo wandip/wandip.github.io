@@ -13,7 +13,7 @@ zsh: command not found: jekyll
 ```
 
 Brew to the rescue! LOVE BREW - So much that my first blog is about brew.
-Check it out!
+[Check it out!](https://dipakwani.com/2023/09/01/coffee/)
 
 ```
 ❯ brew install ruby
@@ -24,10 +24,10 @@ Wait, what? Why am I not installing jekyll?
 So jekyll is a bundle that I can install using ruby gems.
 
 So, half an hour later, here is the status.
-I had to even upgrade my brew, then upgraded ruby, which allowed me to install jekyll.
+I had to even upgrade my brew, then upgrade ruby, which allowed me to install jekyll.
 Now jekyll was installed, but one of the gems, required a specific version on ruby, 3.1.2.
 
-Too many keywords, eh? Welcome to front end world! I hate it. Doesn't mean I won't work on it.
+Too many keywords? Welcome to front end world! I hate it. Doesn't mean I won't work on it.
 You don't always have to love what you do. Sometimes, its fine to hate it too.
 
 
