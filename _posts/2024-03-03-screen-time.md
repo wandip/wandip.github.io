@@ -60,7 +60,7 @@ To the friend who spoils the party,
 and to notification which takes you down the scrolling addiction.
 
 But certainly not my calendar.
-It was time to chop some veggies and call my dad. For he must be waiting for my routine cook with your family call too.
+It was time to chop some veggies and call my dad. For he must be waiting for my routine cook-with-your-family call too.
 
 Until next time, happy food, happy life.
 
