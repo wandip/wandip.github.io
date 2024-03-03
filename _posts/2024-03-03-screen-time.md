@@ -7,7 +7,7 @@ I am usually not hard on myself. At least I like to think so.
 
 That’s a lie though.
 
-I figured out that having a schedule works much better, because if I don’t ... I certainly can go haywire. I look at my phone once again to find another notification from my calendar. It was telling me to cook dinner, coz I had an early morning meeting the next day. I snoozed it.
+I figured out that having a schedule works much better, because if I don’t ... I certainly can go haywire. I look at my phone once again to find another notification from my calendar. It was telling me to cook dinner - I had an early morning meeting the next day. I snoozed it.
 
 It was 5:00 pm, not the best time to cook - I reassured myself. It was time to have a snack, snuggle in bed after a long day's work, and feed my brain with some scrolling dopamine. 
 
