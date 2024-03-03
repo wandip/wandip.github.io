@@ -48,10 +48,15 @@ _Ohh, maybe I am good at this._
 School was a torture. It was like being asked to be creative on demand. Remember writing essays on topics like “If I were the Prime Minister” or even worse “Autobiography of a broken tree”. I always felt it was impossible. Until I passed school and proved myself wrong. I do enjoy my freedom though, of writing what I like.
 
 After all, it is just about saying a big fat NO. 
+
 To every thought that says it’s impossible.
+
 To every trigger you hate,
+
 To the song that doesn’t fit the mood,
+
 To the friend who spoils the party,
+
 and to notification which takes you down the scrolling addiction.
 
 But certainly not my calendar.
