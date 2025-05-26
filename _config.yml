@@ -9,11 +9,12 @@ permalink:        pretty
 title:            Dipak
 tagline:          ''
 description:      'Curious'
-url:              http://dipakwani.com
+url:              http://dipakwani.com/
 baseurl:          '/'
 
 author:
   name:           'Dipak Wani'
+  email:          'blog@dipakwani.com'
 
 paginate:         5
 
