@@ -401,6 +401,22 @@ a.sidebar-nav-item:focus {
   margin-right: 0.5rem;
 }
 
+/* Mobile styles for social links */
+@media (max-width: 48em) {
+  .sidebar-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .social-link {
+    margin-bottom: 0;
+    justify-content: center;
+  }
+}
+
 /* Share Buttons */
 .share-buttons {
   margin: 3rem 0;
