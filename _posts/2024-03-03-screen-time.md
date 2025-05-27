@@ -1,6 +1,7 @@
 ---
 layout: post
 title: The unusual screen time
+tags: [fiction]
 ---
 
 I am usually not hard on myself. At least I like to think so. 
