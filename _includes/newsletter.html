@@ -1,0 +1,50 @@
+<div class="newsletter-form">
+  <h3>Stay updated!</h3>
+  <h5>I'll send you an email when I publish a new post.</h5>
+  <form id="newsletter-form" action="https://formspree.io/f/xpwdggaa" method="POST">
+    <input type="email" name="email" placeholder="Enter your email" required>
+    <button type="submit">Subscribe</button>
+  </form>
+  <div id="form-status" style="display: none; margin-top: 1rem; text-align: center;"></div>
+</div>
+
+<script>
+document.getElementById('newsletter-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const form = this;
+  const status = document.getElementById('form-status');
+  const button = form.querySelector('button');
+  const originalButtonText = button.textContent;
+  
+  // Disable the button and show loading state
+  button.disabled = true;
+  button.textContent = 'Subscribing...';
+  
+  fetch(form.action, {
+    method: 'POST',
+    body: new FormData(form),
+    headers: {
+      'Accept': 'application/json'
+    }
+  })
+  .then(response => {
+    if (response.ok) {
+      status.textContent = 'Thanks for subscribing!';
+      status.style.color = '#28a745';
+      form.reset();
+    } else {
+      throw new Error('Network response was not ok');
+    }
+  })
+  .catch(error => {
+    status.textContent = 'Oops! There was a problem. Please try again.';
+    status.style.color = '#dc3545';
+  })
+  .finally(() => {
+    status.style.display = 'block';
+    button.disabled = false;
+    button.textContent = originalButtonText;
+  });
+});
+</script> 
