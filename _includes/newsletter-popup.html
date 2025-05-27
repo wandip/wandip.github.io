@@ -1,0 +1,185 @@
+<div id="newsletter-popup" class="newsletter-popup">
+  <div class="newsletter-popup-content">
+    <button class="close-popup" onclick="closeNewsletterPopup()">&times;</button>
+    <h3>Stay connected!</h3>
+    <h5>I'll send you an email when I publish a new post.</h5>
+    <form id="newsletter-popup-form" action="https://formspree.io/f/xpwdggaa" method="POST">
+      <input type="email" name="email" placeholder="Enter your email" required>
+      <button type="submit">Subscribe</button>
+    </form>
+    <div id="popup-form-status" style="display: none; margin-top: 1rem; text-align: center;"></div>
+  </div>
+</div>
+
+<style>
+.newsletter-popup {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: -400px;
+  width: 350px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: right 0.5s ease-in-out;
+}
+
+.newsletter-popup.show {
+  display: block;
+  right: 20px;
+}
+
+.newsletter-popup-content {
+  padding: 20px;
+  position: relative;
+}
+
+.close-popup {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.newsletter-popup h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.newsletter-popup h5 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.newsletter-popup form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.newsletter-popup input[type="email"] {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
+}
+
+.newsletter-popup button[type="submit"] {
+  padding: 10px;
+  background: linear-gradient(135deg, #202020 0%, #1a472a 33%, #2d5a3f 66%, #3d6b4f 100%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.2);
+}
+
+.newsletter-popup button[type="submit"]:hover {
+  opacity: 0.9;
+}
+
+@media (prefers-color-scheme: dark) {
+  .newsletter-popup {
+    background: #1a1a1a;
+  }
+  
+  .newsletter-popup h3 {
+    color: #fff;
+  }
+  
+  .newsletter-popup h5 {
+    color: #ccc;
+  }
+  
+  .newsletter-popup input[type="email"] {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #fff;
+  }
+  
+  .close-popup {
+    color: #ccc;
+  }
+}
+</style>
+
+<script>
+// Check if user has seen the popup before
+function hasSeenPopup() {
+  return localStorage.getItem('hasSeenNewsletterPopup') === 'true';
+}
+
+// Set that user has seen the popup
+function setPopupSeen() {
+  localStorage.setItem('hasSeenNewsletterPopup', 'true');
+}
+
+// Show the popup
+function showNewsletterPopup() {
+  const popup = document.getElementById('newsletter-popup');
+  popup.classList.add('show');
+}
+
+// Close the popup
+function closeNewsletterPopup() {
+  const popup = document.getElementById('newsletter-popup');
+  popup.classList.remove('show');
+  setPopupSeen();
+}
+
+// Show popup after 3 seconds if user hasn't seen it before
+document.addEventListener('DOMContentLoaded', function() {
+  if (!hasSeenPopup()) {
+    setTimeout(showNewsletterPopup, 3000);
+  }
+});
+
+// Handle popup form submission
+document.getElementById('newsletter-popup-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const form = this;
+  const status = document.getElementById('popup-form-status');
+  const button = form.querySelector('button');
+  const originalButtonText = button.textContent;
+  
+  button.disabled = true;
+  button.textContent = 'Subscribing...';
+  
+  fetch(form.action, {
+    method: 'POST',
+    body: new FormData(form),
+    headers: {
+      'Accept': 'application/json'
+    }
+  })
+  .then(response => {
+    if (response.ok) {
+      status.textContent = 'Thanks for subscribing!';
+      status.style.color = '#28a745';
+      form.reset();
+      setTimeout(closeNewsletterPopup, 2000);
+    } else {
+      throw new Error('Network response was not ok');
+    }
+  })
+  .catch(error => {
+    status.textContent = 'Oops! There was a problem. Please try again.';
+    status.style.color = '#dc3545';
+  })
+  .finally(() => {
+    status.style.display = 'block';
+    button.disabled = false;
+    button.textContent = originalButtonText;
+  });
+});
+</script> 
