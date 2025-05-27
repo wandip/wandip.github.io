@@ -6,6 +6,41 @@
   <!-- Enable responsiveness on mobile devices-->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}In-depth analysis of LLMs, machine learning research, data science concepts, and technical notes. Weekly updates on AI papers, ML implementations, and tech insights.{% endif %}">
+  <meta name="keywords" content="{% if page.keywords %}{{ page.keywords }}{% else %}LLMs, machine learning, artificial intelligence, data science, deep learning, neural networks, AI research, technical notes, paper reviews, ML implementation, data analysis, AI papers, weekly tech updates{% endif %}">
+  <meta name="author" content="{{ site.author }}">
+  
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="{% if page.title == 'Home' %}{{ site.title }} &middot; {{ site.tagline }}{% else %}{{ page.title }} &middot; {{ site.title }}{% endif %}">
+  <meta property="og:description" content="{% if page.description %}{{ page.description }}{% else %}In-depth analysis of LLMs, machine learning research, data science concepts, and technical notes. Weekly updates on AI papers, ML implementations, and tech insights.{% endif %}">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="{{ page.url | absolute_url }}">
+  <meta property="article:section" content="{% if page.categories %}{{ page.categories | first }}{% else %}Technology{% endif %}">
+  <meta property="article:tag" content="{% if page.tags %}{{ page.tags | join: ', ' }}{% else %}LLMs, Machine Learning, Data Science{% endif %}">
+  
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{% if page.title == 'Home' %}{{ site.title }} &middot; {{ site.tagline }}{% else %}{{ page.title }} &middot; {{ site.title }}{% endif %}">
+  <meta name="twitter:description" content="{% if page.description %}{{ page.description }}{% else %}In-depth analysis of LLMs, machine learning research, data science concepts, and technical notes. Weekly updates on AI papers, ML implementations, and tech insights.{% endif %}">
+
+  <!-- Schema.org markup for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "{% if page.layout == 'post' %}Article{% else %}WebSite{% endif %}",
+    "headline": "{% if page.title == 'Home' %}{{ site.title }} &middot; {{ site.tagline }}{% else %}{{ page.title }} &middot; {{ site.title }}{% endif %}",
+    "description": "{% if page.description %}{{ page.description }}{% else %}In-depth analysis of LLMs, machine learning research, data science concepts, and technical notes. Weekly updates on AI papers, ML implementations, and tech insights.{% endif %}",
+    "author": {
+      "@type": "Person",
+      "name": "{{ site.author }}"
+    },
+    "keywords": "{% if page.keywords %}{{ page.keywords }}{% else %}LLMs, machine learning, artificial intelligence, data science, deep learning, neural networks, AI research, technical notes, paper reviews, ML implementation, data analysis, AI papers, weekly tech updates{% endif %}",
+    "url": "{{ page.url | absolute_url }}",
+    "datePublished": "{% if page.date %}{{ page.date | date_to_xmlschema }}{% else %}{{ site.time | date_to_xmlschema }}{% endif %}"
+  }
+  </script>
+
   <title>
     {% if page.title == "Home" %}
       {{ site.title }} &middot; {{ site.tagline }}
@@ -18,12 +53,15 @@
   <link rel="stylesheet" href="{{ "/" | relative_url }}public/css/poole.css">
   <link rel="stylesheet" href="{{ "/" | relative_url }}public/css/syntax.css">
   <link rel="stylesheet" href="{{ "/" | relative_url }}public/css/hyde.css">
-  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
 
   <!-- Icons -->
   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ "/" | relative_url }}public/apple-touch-icon-144-precomposed.png">
-                                 <link rel="shortcut icon" href="{{ "/" | relative_url }}public/favicon.ico">
+  <link rel="shortcut icon" href="{{ "/" | relative_url }}public/favicon.ico">
 
   <!-- RSS -->
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="{{ page.url | absolute_url }}">
 </head>
