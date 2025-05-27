@@ -9,7 +9,7 @@
   <!-- SEO Meta Tags -->
   <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}In-depth analysis of LLMs, machine learning research, data science concepts, and technical notes. Weekly updates on AI papers, ML implementations, and tech insights.{% endif %}">
   <meta name="keywords" content="{% if page.keywords %}{{ page.keywords }}{% else %}LLMs, machine learning, artificial intelligence, data science, deep learning, neural networks, AI research, technical notes, paper reviews, ML implementation, data analysis, AI papers, weekly tech updates{% endif %}">
-  <meta name="author" content="{{ site.author }}">
+  <meta name="author" content="{{ site.author.name }}">
   
   <!-- Open Graph Meta Tags -->
   <meta property="og:title" content="{% if page.title == 'Home' %}{{ site.title }} &middot; {{ site.tagline }}{% else %}{{ page.title }} &middot; {{ site.title }}{% endif %}">
@@ -33,7 +33,7 @@
     "description": "{% if page.description %}{{ page.description }}{% else %}In-depth analysis of LLMs, machine learning research, data science concepts, and technical notes. Weekly updates on AI papers, ML implementations, and tech insights.{% endif %}",
     "author": {
       "@type": "Person",
-      "name": "{{ site.author }}"
+      "name": "{{ site.author.name }}"
     },
     "keywords": "{% if page.keywords %}{{ page.keywords }}{% else %}LLMs, machine learning, artificial intelligence, data science, deep learning, neural networks, AI research, technical notes, paper reviews, ML implementation, data analysis, AI papers, weekly tech updates{% endif %}",
     "url": "{{ page.url | absolute_url }}",
