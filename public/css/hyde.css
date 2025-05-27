@@ -400,3 +400,62 @@ a.sidebar-nav-item:focus {
 .social-icon {
   margin-right: 0.5rem;
 }
+
+/* Share Buttons */
+.share-buttons {
+  margin: 3rem 0;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.share-buttons h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 600;
+  text-align: center;
+}
+
+.share-links {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: white !important;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: opacity 0.2s ease;
+}
+
+.share-button:hover {
+  opacity: 0.9;
+  text-decoration: none;
+  color: white !important;
+}
+
+.share-button .share-icon {
+  margin-right: 0.5rem;
+  fill: white;
+}
+
+.share-button.twitter {
+  background: #000000;
+}
+
+.share-button.linkedin {
+  background: #0077b5;
+}
+
+.share-button.reddit {
+  background: #ff4500;
+}
