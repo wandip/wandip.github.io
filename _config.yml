@@ -25,3 +25,7 @@ plugins: [jekyll-paginate, jekyll-feed]
 google-analytics: UA-127095421-1
 github:
   repo:           https://github.com/wandip
+
+# Social media
+github_username: wandip
+substack_username: dipakwani
