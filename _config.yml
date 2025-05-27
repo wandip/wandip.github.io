@@ -20,7 +20,12 @@ paginate:         5
 
 # Custom vars
 version:          2.1.0
-plugins: [jekyll-paginate, jekyll-feed]
+
+# Plugins
+plugins:
+  - jekyll-paginate
+  - jekyll-feed
+  - jekyll-seo-tag
 
 google-analytics: UA-127095421-1
 github:
