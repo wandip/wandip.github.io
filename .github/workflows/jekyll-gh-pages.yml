@@ -44,9 +44,15 @@ jobs:
         
       - name: Build with Jekyll
         run: |
+          # Create f1 directory and copy built files
           mkdir -p f1
           cp -r f1/dist/* f1/
+          
+          # Ensure assets directory exists and copy audio files
+          mkdir -p f1/assets
           cp -r f1/src/audio/* f1/assets/
+          
+          # Build Jekyll site
           bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
