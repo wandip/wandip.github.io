@@ -13,8 +13,14 @@ export default defineConfig({
       output: {
         assetFileNames: 'assets/[name][extname]',
         chunkFileNames: 'assets/[name].js',
-        entryFileNames: 'assets/[name].js'
+        entryFileNames: 'assets/[name].js',
+        manualChunks: undefined
       }
+    }
+  },
+  resolve: {
+    alias: {
+      '@': '/src'
     }
   }
 });
