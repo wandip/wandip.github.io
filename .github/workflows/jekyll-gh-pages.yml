@@ -44,17 +44,19 @@ jobs:
         
       - name: Build with Jekyll
         run: |
-          # Create f1 directory and copy built files
+          # Create f1 directory
           mkdir -p f1
-          cp -r f1/dist/* f1/
           
-          # Ensure assets directory exists and copy audio files
+          # Copy audio files first
           mkdir -p f1/assets
           cp -r f1/src/audio/* f1/assets/
           
-          # Copy the original index.html to ensure proper asset references
-          cp f1/index.html f1/index.html.bak
-          cp f1/dist/index.html f1/index.html
+          # Copy built files if they exist
+          if [ -d "f1/dist" ]; then
+            cp -r f1/dist/* f1/
+          else
+            echo "Warning: f1/dist directory not found. Skipping copy of built files."
+          fi
           
           # Build Jekyll site
           bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
