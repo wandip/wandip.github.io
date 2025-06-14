@@ -52,6 +52,10 @@ jobs:
           mkdir -p f1/assets
           cp -r f1/src/audio/* f1/assets/
           
+          # Copy the original index.html to ensure proper asset references
+          cp f1/index.html f1/index.html.bak
+          cp f1/dist/index.html f1/index.html
+          
           # Build Jekyll site
           bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:

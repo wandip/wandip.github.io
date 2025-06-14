@@ -7,6 +7,9 @@ export default defineConfig({
     assetsDir: 'assets',
     emptyOutDir: true,
     rollupOptions: {
+      input: {
+        main: './index.html'
+      },
       output: {
         assetFileNames: 'assets/[name][extname]',
         chunkFileNames: 'assets/[name].js',
