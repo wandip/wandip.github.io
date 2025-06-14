@@ -27,5 +27,11 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['three']
+  },
+  esbuild: {
+    target: 'esnext',
+    supported: {
+      'top-level-await': true
+    }
   }
 });
