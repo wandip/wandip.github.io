@@ -14,7 +14,9 @@ export default defineConfig({
         assetFileNames: 'assets/[name][extname]',
         chunkFileNames: 'assets/[name].js',
         entryFileNames: 'assets/[name].js',
-        manualChunks: undefined
+        manualChunks: undefined,
+        format: 'es',
+        inlineDynamicImports: true
       }
     }
   },
@@ -22,5 +24,8 @@ export default defineConfig({
     alias: {
       '@': '/src'
     }
+  },
+  optimizeDeps: {
+    include: ['three']
   }
 });
