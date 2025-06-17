@@ -35,18 +35,18 @@ export const TRACK_CONFIG = [
     {
         type: ROAD_TYPES.CURVED,
         start: { x: 0, z: 100 },
-        end: { x: 10, z: 110 },
+        end: { x: 20, z: 120 },
         direction: 'anticlockwise',
         greyAreaRotation: 'anticlockwise'
     },
     {
         type: ROAD_TYPES.STRAIGHT,
-        start: { x: 10, z: 110 },
-        end: { x: 30, z: 110 }
+        start: { x: 20, z: 120 },
+        end: { x: 40, z: 120 }
     },
     {
         type: ROAD_TYPES.CURVED,
-        start: { x: 30, z: 110 },
+        start: { x: 40, z: 120 },
         end: { x: 60, z: 100 },
         direction: 'anticlockwise',
         greyAreaRotation: 'clockwise'
