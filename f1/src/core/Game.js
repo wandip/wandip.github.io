@@ -10,6 +10,7 @@ import { TrackDashboard } from '../ui/TrackDashboard';
 import { CoordinateSystem } from '../ui/CoordinateSystem';
 import { StartLights } from '../ui/StartLights';
 import { LapTimer } from '../ui/LapTimer';
+import { GAME_CONFIG } from '../utils/Constants';
 
 /**
  * Main game class that orchestrates all components
@@ -58,10 +59,16 @@ export class Game {
         document.body.appendChild(this.speedDashboard.getObject());
         document.body.appendChild(this.trackDashboard.getObject());
 
-        // Add StartLights to the scene
-        this.startLights = new StartLights(this.scene.getScene(), this.camera.getCamera(), this.onRaceStart.bind(this));
-        // Animate the start lights at game start
-        this.startLights.animate();
+        // Check if we should skip start lights (dev mode)
+        if (GAME_CONFIG.SKIP_START_LIGHTS) {
+            // Skip traffic lights and start race immediately
+            this.onRaceStart();
+        } else {
+            // Add StartLights to the scene
+            this.startLights = new StartLights(this.scene.getScene(), this.camera.getCamera(), this.onRaceStart.bind(this));
+            // Animate the start lights at game start
+            this.startLights.animate();
+        }
     }
 
     /**

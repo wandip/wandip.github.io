@@ -8,7 +8,8 @@ export class Camera {
     constructor(scene) {
         this.scene = scene;
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.isTopView = false;
+        this.currentViewMode = 'behind-car'; // 'behind-car', 'top-view', 'first-person'
+        this.previousViewMode = 'behind-car'; // Track the previous view mode for transitions
         this.isTransitioning = false;
         this.transitionProgress = 0;
         this.transitionDuration = 0.5; // seconds
@@ -37,7 +38,7 @@ export class Camera {
     }
 
     /**
-     * Toggles between top view and behind car view
+     * Toggles between behind-car, top-view, and first-person camera views
      */
     toggleView() {
         const currentTime = performance.now() / 1000;
@@ -46,9 +47,15 @@ export class Camera {
             return;
         }
         this.lastToggleTime = currentTime;
-        this.isTopView = !this.isTopView;
+        
+        // Store the current view mode before changing it
+        const previousViewMode = this.currentViewMode;
+        this.currentViewMode = this.getNextViewMode();
         this.isTransitioning = true;
         this.transitionProgress = 0;
+        
+        // Store the previous view mode for transition calculations
+        this.previousViewMode = previousViewMode;
     }
 
     /**
@@ -59,8 +66,10 @@ export class Camera {
     update(carPosition, carRotation) {
         if (this.isTransitioning) {
             this.updateTransition(carPosition, carRotation);
-        } else if (this.isTopView) {
+        } else if (this.currentViewMode === 'top-view') {
             this.updateTopView(carPosition, carRotation);
+        } else if (this.currentViewMode === 'first-person') {
+            this.updateFirstPersonView(carPosition, carRotation);
         } else {
             this.updateBehindCarView(carPosition, carRotation);
         }
@@ -118,6 +127,34 @@ export class Camera {
     }
 
     /**
+     * Updates camera for first-person view (from car bonnet)
+     * @param {THREE.Vector3} carPosition - Current car position
+     * @param {number} carRotation - Current car rotation
+     */
+    updateFirstPersonView(carPosition, carRotation) {
+        // Position camera rigidly at car bonnet level, slightly forward and up
+        const cameraOffset = new THREE.Vector3(
+            Math.sin(carRotation) * CAMERA_CONFIG.FIRST_PERSON_FORWARD_OFFSET,
+            CAMERA_CONFIG.FIRST_PERSON_HEIGHT + CAMERA_CONFIG.FIRST_PERSON_UP_OFFSET,
+            Math.cos(carRotation) * CAMERA_CONFIG.FIRST_PERSON_FORWARD_OFFSET
+        );
+        
+        // Set camera position directly without lerping for rigid attachment
+        this.camera.position.copy(carPosition).add(cameraOffset);
+        
+        // Look in the direction the car is facing
+        const lookTarget = new THREE.Vector3().copy(carPosition).add(
+            new THREE.Vector3(
+                Math.sin(carRotation) * 50,
+                CAMERA_CONFIG.FIRST_PERSON_HEIGHT,
+                Math.cos(carRotation) * 50
+            )
+        );
+        
+        this.camera.lookAt(lookTarget);
+    }
+
+    /**
      * Updates camera during view transition
      * @param {THREE.Vector3} carPosition - Current car position
      * @param {number} carRotation - Current car rotation
@@ -131,7 +168,7 @@ export class Camera {
             this.isTransitioning = false;
         }
 
-        // Calculate interpolated positions
+        // Calculate positions for all three views
         const topViewPos = new THREE.Vector3(
             carPosition.x,
             CAMERA_CONFIG.HEIGHT,
@@ -145,26 +182,67 @@ export class Camera {
         );
         const behindCarPos = carPosition.clone().add(behindCarOffset);
 
-        // Interpolate between views
-        if (this.isTopView) {
-            this.camera.position.lerpVectors(behindCarPos, topViewPos, this.transitionProgress);
-            const lookTarget = new THREE.Vector3(
+        const firstPersonOffset = new THREE.Vector3(
+            Math.sin(carRotation) * CAMERA_CONFIG.FIRST_PERSON_FORWARD_OFFSET,
+            CAMERA_CONFIG.FIRST_PERSON_HEIGHT + CAMERA_CONFIG.FIRST_PERSON_UP_OFFSET,
+            Math.cos(carRotation) * CAMERA_CONFIG.FIRST_PERSON_FORWARD_OFFSET
+        );
+        const firstPersonPos = carPosition.clone().add(firstPersonOffset);
+
+        // Determine which views to interpolate between based on current mode
+        let fromPos, toPos, lookTarget;
+        
+        if (this.currentViewMode === 'top-view') {
+            // Transitioning to top view
+            if (this.previousViewMode === 'behind-car') {
+                fromPos = behindCarPos;
+                toPos = topViewPos;
+            } else {
+                fromPos = firstPersonPos;
+                toPos = topViewPos;
+            }
+            lookTarget = new THREE.Vector3(
                 carPosition.x + Math.sin(carRotation) * 20,
                 0,
                 carPosition.z + Math.cos(carRotation) * 20
             );
-            this.camera.lookAt(lookTarget);
+        } else if (this.currentViewMode === 'first-person') {
+            // Transitioning to first-person view
+            if (this.previousViewMode === 'behind-car') {
+                fromPos = behindCarPos;
+                toPos = firstPersonPos;
+            } else {
+                fromPos = topViewPos;
+                toPos = firstPersonPos;
+            }
+            lookTarget = new THREE.Vector3().copy(carPosition).add(
+                new THREE.Vector3(
+                    Math.sin(carRotation) * 50,
+                    CAMERA_CONFIG.FIRST_PERSON_HEIGHT,
+                    Math.cos(carRotation) * 50
+                )
+            );
         } else {
-            this.camera.position.lerpVectors(topViewPos, behindCarPos, this.transitionProgress);
-            const lookTarget = new THREE.Vector3().copy(carPosition).add(
+            // Transitioning to behind-car view
+            if (this.previousViewMode === 'top-view') {
+                fromPos = topViewPos;
+                toPos = behindCarPos;
+            } else {
+                fromPos = firstPersonPos;
+                toPos = behindCarPos;
+            }
+            lookTarget = new THREE.Vector3().copy(carPosition).add(
                 new THREE.Vector3(
                     Math.sin(carRotation) * 20,
                     CAMERA_CONFIG.BEHIND_CAR_HEIGHT * 0.3,
                     Math.cos(carRotation) * 20
                 )
             );
-            this.camera.lookAt(lookTarget);
         }
+
+        // Interpolate position
+        this.camera.position.lerpVectors(fromPos, toPos, this.transitionProgress);
+        this.camera.lookAt(lookTarget);
     }
 
     /**
@@ -173,5 +251,19 @@ export class Camera {
      */
     getCamera() {
         return this.camera;
+    }
+
+    getNextViewMode() {
+        const modes = ['behind-car', 'first-person', 'top-view'];
+        const currentIndex = modes.indexOf(this.currentViewMode);
+        const nextIndex = (currentIndex + 1) % modes.length;
+        return modes[nextIndex];
+    }
+
+    getPreviousViewMode() {
+        const modes = ['behind-car', 'first-person', 'top-view'];
+        const currentIndex = modes.indexOf(this.currentViewMode);
+        const previousIndex = (currentIndex - 1 + modes.length) % modes.length;
+        return modes[previousIndex];
     }
 } 

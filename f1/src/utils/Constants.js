@@ -2,6 +2,11 @@
  * Game constants and configuration values
  */
 
+export const GAME_CONFIG = {
+    // Skip traffic lights animation in dev mode
+    SKIP_START_LIGHTS: true
+};
+
 export const CAR_CONFIG = {
     // Maximum speed the car can reach (in units per frame)
     MAX_SPEED: 0.8,
@@ -36,7 +41,11 @@ export const CAMERA_CONFIG = {
     HEIGHT: 40,
     BEHIND_CAR_DISTANCE: 10,
     BEHIND_CAR_HEIGHT: 5,
-    LERP_FACTOR: 0.1
+    LERP_FACTOR: 0.1,
+    // First-person view configuration
+    FIRST_PERSON_HEIGHT: 0.8,  // Height above ground (close to bonnet level)
+    FIRST_PERSON_FORWARD_OFFSET: 0,  // Distance forward from car center
+    FIRST_PERSON_UP_OFFSET: 0.3  // Small upward offset for better visibility
 };
 
 export const ROAD_CONFIG = {
