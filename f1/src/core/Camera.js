@@ -60,7 +60,7 @@ export class Camera {
         if (this.isTransitioning) {
             this.updateTransition(carPosition, carRotation);
         } else if (this.isTopView) {
-            this.updateTopView(carPosition);
+            this.updateTopView(carPosition, carRotation);
         } else {
             this.updateBehindCarView(carPosition, carRotation);
         }
@@ -69,18 +69,22 @@ export class Camera {
     /**
      * Updates camera for top-down view
      * @param {THREE.Vector3} carPosition - Current car position
+     * @param {number} carRotation - Current car rotation
      */
-    updateTopView(carPosition) {
+    updateTopView(carPosition, carRotation) {
         this.camera.position.set(
             carPosition.x,
             CAMERA_CONFIG.HEIGHT,
             carPosition.z
         );
-        this.camera.lookAt(
-            carPosition.x,
+        
+        // Calculate look-at target based on car's direction
+        const lookTarget = new THREE.Vector3(
+            carPosition.x + Math.sin(carRotation) * 20,
             0,
-            carPosition.z + 20
+            carPosition.z + Math.cos(carRotation) * 20
         );
+        this.camera.lookAt(lookTarget);
     }
 
     /**
@@ -145,9 +149,9 @@ export class Camera {
         if (this.isTopView) {
             this.camera.position.lerpVectors(behindCarPos, topViewPos, this.transitionProgress);
             const lookTarget = new THREE.Vector3(
-                carPosition.x,
+                carPosition.x + Math.sin(carRotation) * 20,
                 0,
-                carPosition.z + 20
+                carPosition.z + Math.cos(carRotation) * 20
             );
             this.camera.lookAt(lookTarget);
         } else {
