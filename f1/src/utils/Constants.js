@@ -4,7 +4,7 @@
 
 export const GAME_CONFIG = {
     // Skip traffic lights animation in dev mode
-    SKIP_START_LIGHTS: false
+    SKIP_START_LIGHTS: true
 };
 
 export const CAR_CONFIG = {
@@ -63,7 +63,8 @@ export const CAR_DIMENSIONS = {
 };
 
 export const COLORS = {
-    CAR_BODY: 0xff0000,
+    CAR_BODY: 0xffffff,
+    WINGS: 0xffa500, // Orange
     COCKPIT: 0x000000,
     WHEELS: 0x000000,
     ROAD: 0x333333,

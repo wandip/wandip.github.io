@@ -10,6 +10,7 @@ import { TrackDashboard } from '../ui/TrackDashboard';
 import { CoordinateSystem } from '../ui/CoordinateSystem';
 import { StartLights } from '../ui/StartLights';
 import { LapTimer } from '../ui/LapTimer';
+import { Garage } from './Garage';
 import { GAME_CONFIG } from '../utils/Constants';
 
 /**
@@ -31,6 +32,7 @@ export class Game {
         this.lapTimer = new LapTimer();
         this.startLights = null;
         this.raceStarted = false;
+        this.garage = new Garage();
 
         this.init();
         this.animate();
@@ -42,22 +44,45 @@ export class Game {
     init() {
         // Setup renderer
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.domElement.style.position = 'absolute';
+        this.renderer.domElement.style.top = '0';
+        this.renderer.domElement.style.left = '0';
+        this.renderer.domElement.style.zIndex = '1';
+        this.renderer.domElement.style.pointerEvents = 'auto';
         document.getElementById('game-container').appendChild(this.renderer.domElement);
 
         // Add road segments to scene
-        this.road.getSegments().forEach(segment => {
-            this.scene.add(segment);
+        const roadSegments = this.road.getSegments();
+        roadSegments.forEach((segment, index) => {
+            if (segment) {
+                this.scene.add(segment);
+            } else {
+                console.error(`Road segment ${index} is null!`);
+            }
         });
 
         // Add car to scene
-        this.scene.add(this.car.getObject());
+        const carObject = this.car.getObject();
+        if (carObject) {
+            this.scene.add(carObject);
+        } else {
+            console.error('Car object is null!');
+        }
         
         // Add coordinate system grid to scene
-        this.scene.add(this.coordinateSystem.getObject());
+        const coordSystemObject = this.coordinateSystem.getObject();
+        if (coordSystemObject) {
+            this.scene.add(coordSystemObject);
+        }
         
         // Add UI elements to document (not to scene)
         document.body.appendChild(this.speedDashboard.getObject());
         document.body.appendChild(this.trackDashboard.getObject());
+
+        // Setup garage button with a small delay to ensure renderer is ready
+        setTimeout(() => {
+            this.setupGarageButton();
+        }, 100);
 
         // Check if we should skip start lights (dev mode)
         if (GAME_CONFIG.SKIP_START_LIGHTS) {
@@ -68,6 +93,60 @@ export class Game {
             this.startLights = new StartLights(this.scene.getScene(), this.camera.getCamera(), this.onRaceStart.bind(this));
             // Animate the start lights at game start
             this.startLights.animate();
+        }
+    }
+
+    /**
+     * Sets up the garage button event listener
+     */
+    setupGarageButton() {
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.setupGarageButton();
+            });
+            return;
+        }
+
+        let garageBtn = document.getElementById('garage-btn');
+        
+        if (!garageBtn) {
+            garageBtn = document.createElement('button');
+            garageBtn.id = 'garage-btn';
+            garageBtn.innerHTML = '🏎️ Garage';
+            garageBtn.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 25px;
+                padding: 12px 20px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                z-index: 9999;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                pointer-events: auto;
+            `;
+            document.body.appendChild(garageBtn);
+        } else {
+            // Ensure existing button has correct z-index and position
+            garageBtn.style.zIndex = '9999';
+            garageBtn.style.pointerEvents = 'auto';
+            garageBtn.style.bottom = '20px';
+            garageBtn.style.left = '20px';
+            garageBtn.style.top = 'auto';
+        }
+        
+        if (garageBtn) {
+            garageBtn.addEventListener('click', () => {
+                this.garage.open();
+            });
+        } else {
+            console.error('Failed to create garage button!');
         }
     }
 
