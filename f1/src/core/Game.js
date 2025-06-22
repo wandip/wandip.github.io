@@ -25,7 +25,12 @@ export class Game {
         this.road = new Road();
         this.physics = new CarPhysics();
         this.controls = new Controls();
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer = new THREE.WebGLRenderer({ 
+            antialias: true,
+            alpha: false,
+            depth: true,
+            stencil: false
+        });
         this.speedDashboard = new SpeedDashboard();
         this.trackDashboard = new TrackDashboard();
         this.coordinateSystem = new CoordinateSystem();
@@ -49,6 +54,11 @@ export class Game {
         this.renderer.domElement.style.left = '0';
         this.renderer.domElement.style.zIndex = '1';
         this.renderer.domElement.style.pointerEvents = 'auto';
+        
+        // Ensure proper depth testing
+        this.renderer.sortObjects = true;
+        this.renderer.depthTest = true;
+        
         document.getElementById('game-container').appendChild(this.renderer.domElement);
 
         // Add road segments to scene

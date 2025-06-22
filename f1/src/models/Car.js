@@ -21,15 +21,15 @@ export class Car {
         this.createCockpit();
         this.createWings();
         this.createSidePods();
-        this.createEngineCover();
         this.createWheels();
-        this.createSuspension();
-        this.createBrakeDiscs();
         this.createDetails();
         
         // Position car
         this.car.position.set(0, 0, 5);
         this.car.rotation.y = -Math.PI / 2; // Align car with z-axis
+        
+        // Ensure car renders after road lines
+        this.car.renderOrder = 1;
     }
 
     /**
@@ -78,16 +78,11 @@ export class Car {
         this.car.add(nosePart2);
 
         // Integrated Nose Section - Part 3: Final taper
-        const nosePart3Geometry = new THREE.BoxGeometry(0.4, 0.12, 0.6);
+        const nosePart3Geometry = new THREE.BoxGeometry(0.4, 0.12, 0.3);
         const nosePart3 = new THREE.Mesh(nosePart3Geometry, chassisMaterial);
-        nosePart3.position.set(0, 0.15, 4.2);
+        nosePart3.position.set(0, 0.15, 4.1);
         this.car.add(nosePart3);
 
-        // Nose Tip - Rounded end
-        const noseTipGeometry = new THREE.SphereGeometry(0.08, 8, 8);
-        const noseTip = new THREE.Mesh(noseTipGeometry, blackMaterial);
-        noseTip.position.set(0, 0.15, 4.6);
-        this.car.add(noseTip);
 
         // Nose Pillar - Central support structure
         const nosePillarGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.2, 8);
@@ -171,27 +166,26 @@ export class Car {
             metalness: 0.9,
             roughness: 0.1
         });
-
         // Front Wing Assembly - Lower main plane
         const frontWingMainGeometry = new THREE.BoxGeometry(2.0, 0.03, 0.15);
         const frontWingMain = new THREE.Mesh(frontWingMainGeometry, blackMaterial);
-        frontWingMain.position.set(0, -0.05, 4.3);
+        frontWingMain.position.set(0, 0.15, 4.3);
         this.car.add(frontWingMain);
 
         // Front Wing - Upper flap
         const frontWingFlapGeometry = new THREE.BoxGeometry(1.8, 0.02, 0.12);
         const frontWingFlap = new THREE.Mesh(frontWingFlapGeometry, darkGrayMaterial);
-        frontWingFlap.position.set(0, 0.02, 4.35);
+        frontWingFlap.position.set(0, 0.22, 4.35);
         this.car.add(frontWingFlap);
 
         // Front Wing End Plates
         const frontEndPlateGeometry = new THREE.BoxGeometry(0.03, 0.3, 0.15);
         const frontEndPlateL = new THREE.Mesh(frontEndPlateGeometry, redMaterial);
-        frontEndPlateL.position.set(1.1, 0.1, 4.3);
+        frontEndPlateL.position.set(1.0, 0.3, 4.3);
         this.car.add(frontEndPlateL);
         
         const frontEndPlateR = new THREE.Mesh(frontEndPlateGeometry, redMaterial);
-        frontEndPlateR.position.set(-1.1, 0.1, 4.3);
+        frontEndPlateR.position.set(-1.0, 0.3, 4.3);
         this.car.add(frontEndPlateR);
 
         // Rear Wing - Main Element (Much larger and properly proportioned)
@@ -255,44 +249,14 @@ export class Car {
     }
 
     /**
-     * Creates the engine cover
-     */
-    createEngineCover() {
-        const chassisMaterial = new THREE.MeshStandardMaterial({
-            color: 0xcc0000,
-            metalness: 0.8,
-            roughness: 0.2
-        });
-
-        const darkGrayMaterial = new THREE.MeshStandardMaterial({
-            color: 0x333333,
-            metalness: 0.8,
-            roughness: 0.3
-        });
-
-        // Engine Cover - Tapered rear section, extended
-        const engineCoverGeometry = new THREE.BoxGeometry(1.2, 0.6, 1.8);
-        const engineCover = new THREE.Mesh(engineCoverGeometry, chassisMaterial);
-        engineCover.position.set(0, 0.3, -1.8);
-        this.car.add(engineCover);
-
-        // Exhaust Pipe
-        const exhaustGeometry = new THREE.CylinderGeometry(0.04, 0.04, 0.15, 8);
-        const exhaust = new THREE.Mesh(exhaustGeometry, darkGrayMaterial);
-        exhaust.position.set(0, 0.2, -2.6);
-        exhaust.rotation.x = Math.PI / 2;
-        this.car.add(exhaust);
-    }
-
-    /**
      * Creates all four wheels with proper F1 proportions
      */
     createWheels() {
         const wheelPositions = [
-            { x: 1.0, y: 0.3, z: 3.5, isFront: true, compound: 'MEDIUM' },     // Front Left
-            { x: -1.0, y: 0.3, z: 3.5, isFront: true, compound: 'MEDIUM' },    // Front Right
-            { x: 1.1, y: 0.3, z: -2.0, isFront: false, compound: 'MEDIUM' },  // Rear Left
-            { x: -1.1, y: 0.3, z: -2.0, isFront: false, compound: 'MEDIUM' }  // Rear Right
+            { x: 1.0, y: 0.35, z: 3.0, isFront: true, compound: 'MEDIUM' },     // Front Left
+            { x: -1.0, y: 0.35, z: 3.0, isFront: true, compound: 'MEDIUM' },    // Front Right
+            { x: 1.1, y: 0.35, z: -2.0, isFront: false, compound: 'MEDIUM' },  // Rear Left
+            { x: -1.1, y: 0.35, z: -2.0, isFront: false, compound: 'MEDIUM' }  // Rear Right
         ];
 
         wheelPositions.forEach(pos => {
@@ -303,83 +267,13 @@ export class Car {
     }
 
     /**
-     * Creates suspension arms
-     */
-    createSuspension() {
-        const suspensionMaterial = new THREE.MeshStandardMaterial({
-            color: 0x666666,
-            metalness: 0.8,
-            roughness: 0.2
-        });
-
-        // Front Suspension Arms
-        const frontSuspensionGeometry = new THREE.CylinderGeometry(0.015, 0.015, 0.3, 8);
-        const frontSuspensionL = new THREE.Mesh(frontSuspensionGeometry, suspensionMaterial);
-        frontSuspensionL.position.set(0.8, 0.05, 2.8);
-        frontSuspensionL.rotation.y = 0.2;
-        this.car.add(frontSuspensionL);
-        
-        const frontSuspensionR = new THREE.Mesh(frontSuspensionGeometry, suspensionMaterial);
-        frontSuspensionR.position.set(-0.8, 0.05, 2.8);
-        frontSuspensionR.rotation.y = -0.2;
-        this.car.add(frontSuspensionR);
-
-        // Rear Suspension Arms
-        const rearSuspensionGeometry = new THREE.CylinderGeometry(0.015, 0.015, 0.3, 8);
-        const rearSuspensionL = new THREE.Mesh(rearSuspensionGeometry, suspensionMaterial);
-        rearSuspensionL.position.set(0.9, 0.05, -1.7);
-        rearSuspensionL.rotation.y = 0.2;
-        this.car.add(rearSuspensionL);
-        
-        const rearSuspensionR = new THREE.Mesh(rearSuspensionGeometry, suspensionMaterial);
-        rearSuspensionR.position.set(-0.9, 0.05, -1.7);
-        rearSuspensionR.rotation.y = -0.2;
-        this.car.add(rearSuspensionR);
-    }
-
-    /**
-     * Creates brake discs
-     */
-    createBrakeDiscs() {
-        const brakeMaterial = new THREE.MeshStandardMaterial({
-            color: 0x888888,
-            metalness: 0.8,
-            roughness: 0.3
-        });
-
-        // Front Brake Discs
-        const frontBrakeGeometry = new THREE.CylinderGeometry(0.18, 0.18, 0.015, 16);
-        const frontBrakeL = new THREE.Mesh(frontBrakeGeometry, brakeMaterial);
-        frontBrakeL.position.set(1.05, -0.1, 2.8);
-        frontBrakeL.rotation.x = Math.PI / 2;
-        this.car.add(frontBrakeL);
-        
-        const frontBrakeR = new THREE.Mesh(frontBrakeGeometry, brakeMaterial);
-        frontBrakeR.position.set(-1.05, -0.1, 2.8);
-        frontBrakeR.rotation.x = Math.PI / 2;
-        this.car.add(frontBrakeR);
-        
-        // Rear Brake Discs
-        const rearBrakeGeometry = new THREE.CylinderGeometry(0.22, 0.22, 0.015, 16);
-        const rearBrakeL = new THREE.Mesh(rearBrakeGeometry, brakeMaterial);
-        rearBrakeL.position.set(1.15, -0.1, -2.0);
-        rearBrakeL.rotation.x = Math.PI / 2;
-        this.car.add(rearBrakeL);
-        
-        const rearBrakeR = new THREE.Mesh(rearBrakeGeometry, brakeMaterial);
-        rearBrakeR.position.set(-1.15, -0.1, -2.0);
-        rearBrakeR.rotation.x = Math.PI / 2;
-        this.car.add(rearBrakeR);
-    }
-
-    /**
      * Creates additional details like mirrors, number plates, and aerodynamic elements
      */
     createDetails() {
         const whiteMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        const blackMaterial = new THREE.MeshStandardMaterial({
-            color: 0x1a1a1a,
-            metalness: 0.9,
+        const orangeMaterial = new THREE.MeshStandardMaterial({
+            color: 0xFF5F1F, // Fluorescent orange
+            metalness: 0.1,
             roughness: 0.1
         });
 
@@ -395,34 +289,34 @@ export class Car {
         this.car.add(numberPlateR);
 
         // Side Mirrors
-        const mirrorGeometry = new THREE.BoxGeometry(0.06, 0.04, 0.08);
-        const mirrorL = new THREE.Mesh(mirrorGeometry, blackMaterial);
-        mirrorL.position.set(0.75, 0.6, 0.4);
+        const mirrorGeometry = new THREE.BoxGeometry(0.16, 0.08, 0.12);
+        const mirrorL = new THREE.Mesh(mirrorGeometry, orangeMaterial);
+        mirrorL.position.set(0.85, 0.65, 1.5);
         this.car.add(mirrorL);
         
-        const mirrorR = new THREE.Mesh(mirrorGeometry, blackMaterial);
-        mirrorR.position.set(-0.75, 0.6, 0.4);
+        const mirrorR = new THREE.Mesh(mirrorGeometry, orangeMaterial);
+        mirrorR.position.set(-0.85, 0.65, 1.5);
         this.car.add(mirrorR);
 
         // Barge Boards
         const bargeBoardGeometry = new THREE.BoxGeometry(0.02, 0.3, 0.4);
-        const bargeBoardL = new THREE.Mesh(bargeBoardGeometry, blackMaterial);
+        const bargeBoardL = new THREE.Mesh(bargeBoardGeometry, orangeMaterial);
         bargeBoardL.position.set(0.8, 0.1, 1.5);
         bargeBoardL.rotation.x = 0.3;
         this.car.add(bargeBoardL);
         
-        const bargeBoardR = new THREE.Mesh(bargeBoardGeometry, blackMaterial);
+        const bargeBoardR = new THREE.Mesh(bargeBoardGeometry, orangeMaterial);
         bargeBoardR.position.set(-0.8, 0.1, 1.5);
         bargeBoardR.rotation.x = -0.3;
         this.car.add(bargeBoardR);
 
         // Floor Edge
         const floorEdgeGeometry = new THREE.BoxGeometry(0.05, 0.02, 3.0);
-        const floorEdgeL = new THREE.Mesh(floorEdgeGeometry, blackMaterial);
+        const floorEdgeL = new THREE.Mesh(floorEdgeGeometry, orangeMaterial);
         floorEdgeL.position.set(1.0, -0.05, 1.0);
         this.car.add(floorEdgeL);
         
-        const floorEdgeR = new THREE.Mesh(floorEdgeGeometry, blackMaterial);
+        const floorEdgeR = new THREE.Mesh(floorEdgeGeometry, orangeMaterial);
         floorEdgeR.position.set(-1.0, -0.05, 1.0);
         this.car.add(floorEdgeR);
     }

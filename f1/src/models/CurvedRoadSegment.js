@@ -162,9 +162,12 @@ export class CurvedRoadSegment extends THREE.Group {
         const centerLineGeometry = new THREE.TubeGeometry(centerLineCurve, 64, 0.12, 8, false);
         const centerLineMaterial = new THREE.MeshStandardMaterial({
             color: COLORS.CENTER_LINE,
-            roughness: 0.5
+            roughness: 0.5,
+            depthTest: true,
+            depthWrite: true
         });
         const centerLineMesh = new THREE.Mesh(centerLineGeometry, centerLineMaterial);
+        centerLineMesh.renderOrder = -1; // Render before other objects
         this.add(centerLineMesh);
     }
 
@@ -194,8 +197,13 @@ export class CurvedRoadSegment extends THREE.Group {
                 };
 
                 const stripeGeometry = new THREE.TubeGeometry(stripeCurve, 8, 0.25, 8, false);
-                const stripeMaterial = new THREE.MeshStandardMaterial({ color });
+                const stripeMaterial = new THREE.MeshStandardMaterial({ 
+                    color,
+                    depthTest: true,
+                    depthWrite: true
+                });
                 const stripeMesh = new THREE.Mesh(stripeGeometry, stripeMaterial);
+                stripeMesh.renderOrder = -1; // Render before other objects
                 this.add(stripeMesh);
             }
         });
