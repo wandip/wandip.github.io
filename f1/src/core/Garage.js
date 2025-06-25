@@ -23,7 +23,7 @@ export class Garage {
     init() {
         // Setup renderer
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setClearColor(0x1a1a1a); // Dark background
+        this.renderer.setClearColor(0x87ceeb); // Sky blue background for ceiling
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.domElement.style.position = 'fixed';
@@ -50,8 +50,8 @@ export class Garage {
         // Add car to scene
         this.scene.add(this.car.getObject());
 
-        // Add grid for reference
-        this.addGrid();
+        // Create garage environment (floor, ceiling, walls)
+        this.createGarageEnvironment();
 
         // Handle window resize
         window.addEventListener('resize', this.onWindowResize.bind(this));
@@ -61,42 +61,122 @@ export class Garage {
      * Sets up lighting for the garage scene
      */
     setupLighting() {
-        // Ambient light
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        // Ambient light for overall garage illumination
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
         this.scene.add(ambientLight);
 
-        // Main directional light
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(10, 10, 5);
-        directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 2048;
-        directionalLight.shadow.mapSize.height = 2048;
-        directionalLight.shadow.camera.near = 0.5;
-        directionalLight.shadow.camera.far = 50;
-        directionalLight.shadow.camera.left = -10;
-        directionalLight.shadow.camera.right = 10;
-        directionalLight.shadow.camera.top = 10;
-        directionalLight.shadow.camera.bottom = -10;
-        this.scene.add(directionalLight);
+        // Multiple overhead garage lights (fluorescent-style)
+        const overheadLights = [
+            { x: -4, z: -4, intensity: 0.8 },
+            { x: 4, z: -4, intensity: 0.8 },
+            { x: -4, z: 4, intensity: 0.8 },
+            { x: 4, z: 4, intensity: 0.8 },
+            { x: 0, z: 0, intensity: 1.0 }, // Center light
+            { x: -2, z: 0, intensity: 0.7 },
+            { x: 2, z: 0, intensity: 0.7 },
+            { x: 0, z: -2, intensity: 0.7 },
+            { x: 0, z: 2, intensity: 0.7 }
+        ];
 
-        // Fill light
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
-        fillLight.position.set(-5, 5, -5);
-        this.scene.add(fillLight);
+        overheadLights.forEach(light => {
+            const overheadLight = new THREE.PointLight(0xffffff, light.intensity, 15);
+            overheadLight.position.set(light.x, 8, light.z);
+            overheadLight.castShadow = true;
+            overheadLight.shadow.mapSize.width = 1024;
+            overheadLight.shadow.mapSize.height = 1024;
+            overheadLight.shadow.camera.near = 0.5;
+            overheadLight.shadow.camera.far = 20;
+            this.scene.add(overheadLight);
+        });
 
-        // Rim light
-        const rimLight = new THREE.DirectionalLight(0xffffff, 0.2);
-        rimLight.position.set(0, 5, -10);
-        this.scene.add(rimLight);
+        // Main key light for car details
+        const keyLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        keyLight.position.set(5, 10, 5);
+        keyLight.castShadow = true;
+        keyLight.shadow.mapSize.width = 2048;
+        keyLight.shadow.mapSize.height = 2048;
+        keyLight.shadow.camera.near = 0.5;
+        keyLight.shadow.camera.far = 50;
+        keyLight.shadow.camera.left = -10;
+        keyLight.shadow.camera.right = 10;
+        keyLight.shadow.camera.top = 10;
+        keyLight.shadow.camera.bottom = -10;
+        this.scene.add(keyLight);
+
+        // Fill lights from sides to reduce shadows
+        const leftFillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+        leftFillLight.position.set(-8, 6, 0);
+        this.scene.add(leftFillLight);
+
+        const rightFillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+        rightFillLight.position.set(8, 6, 0);
+        this.scene.add(rightFillLight);
+
+        // Back lighting for depth
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
+        backLight.position.set(0, 5, -8);
+        this.scene.add(backLight);
+
+        // Bottom fill light to reduce harsh shadows
+        const bottomLight = new THREE.DirectionalLight(0xffffff, 0.2);
+        bottomLight.position.set(0, -3, 0);
+        this.scene.add(bottomLight);
     }
 
     /**
-     * Adds a grid to the scene for reference
+     * Creates garage floor and ceiling
      */
-    addGrid() {
-        const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x222222);
-        gridHelper.position.y = -0.5;
-        this.scene.add(gridHelper);
+    createGarageEnvironment() {
+        // Floor - concrete texture
+        const floorGeometry = new THREE.PlaneGeometry(30, 30);
+        const floorMaterial = new THREE.MeshStandardMaterial({
+            color: 0x8b8b8b,
+            roughness: 0.8,
+            metalness: 0.1
+        });
+        const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -0.5;
+        floor.receiveShadow = true;
+        this.scene.add(floor);
+
+        // Ceiling - white panels
+        const ceilingGeometry = new THREE.PlaneGeometry(30, 30);
+        const ceilingMaterial = new THREE.MeshStandardMaterial({
+            color: 0xf0f0f0,
+            roughness: 0.3,
+            metalness: 0.1
+        });
+        const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+        ceiling.rotation.x = Math.PI / 2;
+        ceiling.position.y = 10;
+        ceiling.receiveShadow = true;
+        this.scene.add(ceiling);
+
+        // Back wall
+        const backWallGeometry = new THREE.PlaneGeometry(30, 20);
+        const wallMaterial = new THREE.MeshStandardMaterial({
+            color: 0xe0e0e0,
+            roughness: 0.5,
+            metalness: 0.1
+        });
+        const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+        backWall.position.set(0, 9.5, -15);
+        backWall.receiveShadow = true;
+        this.scene.add(backWall);
+
+        // Side walls
+        const leftWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+        leftWall.rotation.y = Math.PI / 2;
+        leftWall.position.set(-15, 9.5, 0);
+        leftWall.receiveShadow = true;
+        this.scene.add(leftWall);
+
+        const rightWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+        rightWall.rotation.y = -Math.PI / 2;
+        rightWall.position.set(15, 9.5, 0);
+        rightWall.receiveShadow = true;
+        this.scene.add(rightWall);
     }
 
     /**

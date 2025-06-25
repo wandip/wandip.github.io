@@ -25,7 +25,7 @@ export class Car {
         this.createDetails();
         
         // Position car
-        this.car.position.set(0, 0, 5);
+        this.car.position.set(0, 0, 0);
         this.car.rotation.y = -Math.PI / 2; // Align car with z-axis
         
         // Ensure car renders after road lines
