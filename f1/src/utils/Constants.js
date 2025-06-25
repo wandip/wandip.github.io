@@ -4,7 +4,9 @@
 
 export const GAME_CONFIG = {
     // Skip traffic lights animation in dev mode
-    SKIP_START_LIGHTS: true
+    SKIP_START_LIGHTS: true,
+    // Enable physics debugging
+    DEBUG_PHYSICS: true
 };
 
 export const CAR_CONFIG = {

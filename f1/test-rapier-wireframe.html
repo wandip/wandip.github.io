@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapier Physics Wireframe Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .main-content {
+            display: flex;
+            gap: 20px;
+        }
+        #canvas-container {
+            flex: 1;
+            height: 500px;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+        .debug-panel {
+            flex: 0 0 300px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        .debug-panel h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .debug-info {
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .debug-info .label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .debug-info .value {
+            color: #007bff;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Rapier Physics Wireframe Test</h1>
+        <p>This test shows the physics wireframe visualization and debug output with road collision.</p>
+        
+        <button onclick="startTest()">Start Wireframe Test</button>
+        <button onclick="applyForce()">Apply Forward Force</button>
+        <button onclick="clearOutput()">Clear Output</button>
+        
+        <div class="main-content">
+            <div id="canvas-container"></div>
+            <div class="debug-panel">
+                <h3>Physics Debug Info</h3>
+                <div id="debug-info" class="debug-info">
+                    <div>Position: <span class="label">x:</span><span class="value" id="pos-x">0.000</span> 
+                         <span class="label">y:</span><span class="value" id="pos-y">0.000</span> 
+                         <span class="label">z:</span><span class="value" id="pos-z">0.000</span></div>
+                    <div>Rotation: <span class="label">x:</span><span class="value" id="rot-x">0.000</span> 
+                         <span class="label">y:</span><span class="value" id="rot-y">0.000</span> 
+                         <span class="label">z:</span><span class="value" id="rot-z">0.000</span> 
+                         <span class="label">w:</span><span class="value" id="rot-w">1.000</span></div>
+                    <div>Velocity: <span class="label">x:</span><span class="value" id="vel-x">0.000</span> 
+                         <span class="label">y:</span><span class="value" id="vel-y">0.000</span> 
+                         <span class="label">z:</span><span class="value" id="vel-z">0.000</span></div>
+                    <div>Speed: <span class="value" id="speed">0.000</span> m/s</div>
+                    <hr style="margin: 10px 0; border: none; border-top: 1px solid #dee2e6;">
+                    <div><strong>Velocity Analysis:</strong></div>
+                    <div>Horizontal: <span class="value" id="h-speed">0.000</span> m/s</div>
+                    <div>Vertical: <span class="value" id="v-speed">0.000</span> m/s</div>
+                    <div>Total: <span class="value" id="t-speed">0.000</span> m/s</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="output"></div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { RapierPhysics } from './src/physics/RapierPhysics.js';
+        import { CAR_DIMENSIONS, GAME_CONFIG } from './src/utils/Constants.js';
+
+        let scene, camera, renderer, physics, animationId;
+        let isRunning = false;
+
+        function log(message) {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            output.textContent += logEntry;
+            output.scrollTop = output.scrollHeight;
+            console.log(message);
+        }
+
+        function clearOutput() {
+            document.getElementById('output').textContent = '';
+        }
+
+        function updateDebugInfo() {
+            if (!physics) return;
+
+            const debugInfo = physics.getDebugInfo();
+            const detailedVelocity = physics.getDetailedVelocityInfo();
+            
+            document.getElementById('pos-x').textContent = debugInfo.position.x.toFixed(3);
+            document.getElementById('pos-y').textContent = debugInfo.position.y.toFixed(3);
+            document.getElementById('pos-z').textContent = debugInfo.position.z.toFixed(3);
+            
+            document.getElementById('rot-x').textContent = debugInfo.rotation.x.toFixed(3);
+            document.getElementById('rot-y').textContent = debugInfo.rotation.y.toFixed(3);
+            document.getElementById('rot-z').textContent = debugInfo.rotation.z.toFixed(3);
+            document.getElementById('rot-w').textContent = debugInfo.rotation.w.toFixed(3);
+            
+            document.getElementById('vel-x').textContent = debugInfo.velocity.x.toFixed(3);
+            document.getElementById('vel-y').textContent = debugInfo.velocity.y.toFixed(3);
+            document.getElementById('vel-z').textContent = debugInfo.velocity.z.toFixed(3);
+            
+            document.getElementById('speed').textContent = debugInfo.speed.toFixed(3);
+            
+            // Update detailed velocity analysis
+            document.getElementById('h-speed').textContent = detailedVelocity.horizontalSpeed.toFixed(3);
+            document.getElementById('v-speed').textContent = detailedVelocity.verticalSpeed.toFixed(3);
+            document.getElementById('t-speed').textContent = detailedVelocity.totalSpeed.toFixed(3);
+            
+            // Add detailed velocity analysis
+            const yVel = debugInfo.velocity.y;
+            const horizontalSpeed = debugInfo.speed;
+            
+            // Log when Y velocity is significant
+            if (Math.abs(yVel) > 0.01) {
+                console.log(`Y velocity: ${yVel.toFixed(3)} m/s (${yVel > 0 ? 'rising' : 'falling'})`);
+            }
+            
+            // Log when there's horizontal movement but Y velocity exists
+            if (horizontalSpeed > 0.01 && Math.abs(yVel) > 0.001) {
+                console.log(`Moving horizontally at ${horizontalSpeed.toFixed(3)} m/s while Y velocity is ${yVel.toFixed(3)} m/s`);
+            }
+        }
+
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87ceeb);
+
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 15, 20);
+            camera.lookAt(0, 0, 0);
+
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            // Add lights
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 10, 5);
+            scene.add(directionalLight);
+
+            // Add ground plane (visual only)
+            const groundGeometry = new THREE.PlaneGeometry(100, 100);
+            const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x2d6a4f });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -0.5;
+            scene.add(ground);
+
+            // Add grid helper
+            const gridHelper = new THREE.GridHelper(100, 100);
+            gridHelper.position.y = -0.4;
+            scene.add(gridHelper);
+        }
+
+        async function startTest() {
+            if (isRunning) return;
+            
+            clearOutput();
+            log('Starting Rapier Physics Wireframe Test...');
+            
+            try {
+                // Initialize Three.js
+                initThreeJS();
+                
+                // Initialize physics with debug mode
+                log('Initializing Rapier physics with debug mode...');
+                physics = new RapierPhysics();
+                physics.initialize(GAME_CONFIG.DEBUG_PHYSICS);
+                
+                // Create road physics body
+                log('Creating road physics body...');
+                const roadConfig = { width: 50, length: 100, height: 1 };
+                physics.createRoad(roadConfig);
+                
+                // Create car physics body
+                log('Creating car physics body...');
+                const initialPosition = { x: 0, y: 0.5, z: 0 }; // Start above the road
+                const initialRotation = { x: 0, y: -Math.PI/2, z: 0 };
+                physics.createCarBody(CAR_DIMENSIONS, initialPosition, initialRotation);
+                
+                // Add wireframe to scene
+                const wireframeGroup = physics.getWireframeGroup();
+                if (wireframeGroup) {
+                    scene.add(wireframeGroup);
+                    log('✓ Wireframes added to scene');
+                }
+                
+                // Start animation loop
+                isRunning = true;
+                animate();
+                
+                log('✓ Test started successfully!');
+                log('Use "Apply Forward Force" button to test physics');
+                
+            } catch (error) {
+                log(`✗ Test failed: ${error.message}`);
+                console.error('Test error:', error);
+            }
+        }
+
+        function applyForce() {
+            if (!physics || !isRunning) return;
+            
+            log('Applying forward force to car...');
+            physics.applyForce({ x: 0, y: 0, z: 5000 });
+        }
+
+        function animate() {
+            if (!isRunning) return;
+            
+            animationId = requestAnimationFrame(animate);
+            
+            // Update physics
+            if (physics) {
+                physics.update(1/60);
+                updateDebugInfo();
+            }
+            
+            // Render scene
+            renderer.render(scene, camera);
+        }
+
+        function stopTest() {
+            isRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            if (renderer && renderer.domElement) {
+                renderer.domElement.remove();
+            }
+        }
+
+        // Make functions globally available
+        window.startTest = startTest;
+        window.applyForce = applyForce;
+        window.clearOutput = clearOutput;
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', stopTest);
+    </script>
+</body>
+</html> 
