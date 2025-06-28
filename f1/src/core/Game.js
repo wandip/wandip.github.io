@@ -7,11 +7,12 @@ import { CarPhysics } from '../physics/CarPhysics';
 import { Controls } from '../utils/Controls';
 import { SpeedDashboard } from '../ui/SpeedDashboard';
 import { TrackDashboard } from '../ui/TrackDashboard';
-import { CoordinateSystem } from '../ui/CoordinateSystem';
 import { StartLights } from '../ui/StartLights';
 import { LapTimer } from '../ui/LapTimer';
 import { Garage } from './Garage';
 import { GAME_CONFIG } from '../utils/Constants';
+import { RapierPhysics } from './RapierPhysics.js';
+import Stats from 'three/examples/jsm/libs/stats.module.js';
 
 /**
  * Main game class that orchestrates all components
@@ -33,13 +34,15 @@ export class Game {
         });
         this.speedDashboard = new SpeedDashboard();
         this.trackDashboard = new TrackDashboard();
-        this.coordinateSystem = new CoordinateSystem();
         this.lapTimer = new LapTimer();
         this.startLights = null;
         this.raceStarted = false;
         this.garage = new Garage();
+        this.stats = new Stats();
+        this.rapierPhysics = null;
 
         this.init();
+        this.initPhysics();
         this.animate();
     }
 
@@ -79,13 +82,8 @@ export class Game {
             console.error('Car object is null!');
         }
         
-        // Add coordinate system grid to scene
-        const coordSystemObject = this.coordinateSystem.getObject();
-        if (coordSystemObject) {
-            this.scene.add(coordSystemObject);
-        }
-        
         // Add UI elements to document (not to scene)
+        document.body.appendChild(this.stats.dom);
         document.body.appendChild(this.speedDashboard.getObject());
         document.body.appendChild(this.trackDashboard.getObject());
 
@@ -104,6 +102,15 @@ export class Game {
             // Animate the start lights at game start
             this.startLights.animate();
         }
+    }
+
+    async initPhysics() {
+
+        // Initialize physics engine
+        this.rapierPhysics = await RapierPhysics();
+    
+        this.rapierPhysics.addScene( this.scene.getScene() );
+        
     }
 
     /**
@@ -178,7 +185,6 @@ export class Game {
             // Optionally, you can still update camera, dashboards, etc.
             this.camera.update(this.car.getObject().position, this.car.getObject().rotation.y);
             this.trackDashboard.update(this.car.getObject().position, this.road.getSegments(), this.car.getObject().rotation.y);
-            this.coordinateSystem.update(this.car.getObject().position, this.car.getObject().rotation.y);
             return;
         }
 
@@ -199,7 +205,7 @@ export class Game {
         carObject.rotation.y = physicsState.carRotation;
 
         // Update car tilt based on turning
-        const tiltFactor = 0.2;
+        const tiltFactor = 0.1;
         const speedFactor = Math.abs(physicsState.speed) / 0.8; // Using max speed from constants
         const targetTilt = -physicsState.turnSpeed * 3 * speedFactor;
         carObject.rotation.z += (targetTilt - carObject.rotation.z) * tiltFactor;
@@ -213,9 +219,6 @@ export class Game {
 
         // Update track dashboard with car position, road segments, and rotation
         this.trackDashboard.update(carObject.position, this.road.getSegments(), carObject.rotation.y);
-
-        // Update coordinate system
-        this.coordinateSystem.update(carObject.position, carObject.rotation.y);
     }
 
     /**
