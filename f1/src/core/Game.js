@@ -78,6 +78,9 @@ export class Game {
         const carObject = this.car.getObject();
         if (carObject) {
             this.scene.add(carObject);
+            // Remove the physics access here - it will be set up in initPhysics
+            // chassis = carObject.userData.physics.body;
+            // vehicleController = this.rapierPhysics.world.createVehicleController( chassis );
         } else {
             console.error('Car object is null!');
         }
@@ -105,12 +108,48 @@ export class Game {
     }
 
     async initPhysics() {
-
         // Initialize physics engine
         this.rapierPhysics = await RapierPhysics();
     
-        this.rapierPhysics.addScene( this.scene.getScene() );
+        this.rapierPhysics.addScene(this.scene.getScene());
         
+        // Now that physics is initialized, set up the car physics using the wireframe
+        const physicsWireframe = this.car.getPhysicsWireframe();
+        if (physicsWireframe) {
+            // Create physics body from the wireframe mesh
+            const wireframeTransform = this.car.getPhysicsWireframeTransform();
+            
+            // Create a rigid body for the car chassis using wireframe dimensions
+            const chassisBody = this.rapierPhysics.world.createRigidBody(
+                this.rapierPhysics.rapier.RigidBodyDesc.kinematicPositionBased()
+                    .setTranslation(wireframeTransform.position.x, wireframeTransform.position.y, wireframeTransform.position.z)
+                    .setRotation(wireframeTransform.rotation)
+            );
+
+            // Create collision shape based on wireframe geometry
+            const wireframeSize = wireframeTransform.size;
+            const chassisCollider = this.rapierPhysics.world.createCollider(
+                this.rapierPhysics.rapier.ColliderDesc.cuboid(
+                    wireframeSize.width / 2,
+                    wireframeSize.height / 2,
+                    wireframeSize.depth / 2
+                ),
+                chassisBody
+            );
+
+            // Store physics data in the wireframe for future reference
+            physicsWireframe.userData.physics = {
+                body: chassisBody,
+                collider: chassisCollider
+            };
+
+            // Create vehicle controller with the chassis body
+            this.vehicleController = this.rapierPhysics.world.createVehicleController(chassisBody);
+            
+            console.log('Car physics initialized with wireframe-based collision');
+        } else {
+            console.warn('Car physics wireframe not available yet');
+        }
     }
 
     /**
@@ -172,8 +211,10 @@ export class Game {
      */
     animate() {
         requestAnimationFrame(this.animate.bind(this));
+        this.stats.begin(); // Start measuring frame time
         this.update();
         this.render();
+        this.stats.end(); // End measuring frame time
     }
 
     /**

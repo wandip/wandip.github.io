@@ -9,7 +9,9 @@ export class Car {
     constructor() {
         this.car = new THREE.Group();
         this.wheels = [];
+        this.physicsWireframe = null; // Store reference to physics wireframe
         this.createCar();
+        this.createPhysicsWireframe(); // Create initial physics wireframe
     }
 
     /**
@@ -46,6 +48,7 @@ export class Car {
         const chassisGeometry = new THREE.BoxGeometry(1.4, 0.25, 4.5);
         const chassis = new THREE.Mesh(chassisGeometry, chassisMaterial);
         chassis.position.set(0, 0.15, 0);
+        chassis.name = 'chassis';
         this.car.add(chassis);
     }
 
@@ -69,18 +72,21 @@ export class Car {
         const nosePart1Geometry = new THREE.BoxGeometry(1.0, 0.2, 1.1);
         const nosePart1 = new THREE.Mesh(nosePart1Geometry, chassisMaterial);
         nosePart1.position.set(0, 0.15, 2.8);
+        nosePart1.name = 'nosePart1';
         this.car.add(nosePart1);
 
         // Integrated Nose Section - Part 2: Tapered middle
         const nosePart2Geometry = new THREE.BoxGeometry(0.7, 0.15, 0.8);
         const nosePart2 = new THREE.Mesh(nosePart2Geometry, chassisMaterial);
         nosePart2.position.set(0, 0.15, 3.6);
+        nosePart2.name = 'nosePart2';
         this.car.add(nosePart2);
 
         // Integrated Nose Section - Part 3: Final taper
         const nosePart3Geometry = new THREE.BoxGeometry(0.4, 0.12, 0.3);
         const nosePart3 = new THREE.Mesh(nosePart3Geometry, chassisMaterial);
         nosePart3.position.set(0, 0.15, 4.1);
+        nosePart3.name = 'nosePart3';
         this.car.add(nosePart3);
 
 
@@ -88,6 +94,7 @@ export class Car {
         const nosePillarGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.2, 8);
         const nosePillar = new THREE.Mesh(nosePillarGeometry, blackMaterial);
         nosePillar.position.set(0, 0.05, 3.8);
+        nosePillar.name = 'nosePillar';
         this.car.add(nosePillar);
     }
 
@@ -117,12 +124,14 @@ export class Car {
         const cockpitGeometry = new THREE.BoxGeometry(0.9, 0.4, 2.0);
         const cockpit = new THREE.Mesh(cockpitGeometry, chassisMaterial);
         cockpit.position.set(0, 0.45, -0.5);
+        cockpit.name = 'cockpit';
         this.car.add(cockpit);
 
         // Cockpit Opening - Driver seat area
         const cockpitOpeningGeometry = new THREE.BoxGeometry(0.7, 0.15, 1.6);
         const cockpitOpening = new THREE.Mesh(cockpitOpeningGeometry, blackMaterial);
         cockpitOpening.position.set(0, 0.6, -0.5);
+        cockpitOpening.name = 'cockpitOpening';
         this.car.add(cockpitOpening);
 
         // Halo Safety Device
@@ -130,12 +139,14 @@ export class Car {
         const halo = new THREE.Mesh(haloGeometry, haloMaterial);
         halo.position.set(0, 0.75, -0.3);
         halo.rotation.x = Math.PI / 2;
+        halo.name = 'halo';
         this.car.add(halo);
 
         // Air Intake above cockpit
         const airIntakeGeometry = new THREE.BoxGeometry(0.6, 0.2, 0.4);
         const airIntake = new THREE.Mesh(airIntakeGeometry, blackMaterial);
         airIntake.position.set(0, 0.7, -0.3);
+        airIntake.name = 'airIntake';
         this.car.add(airIntake);
     }
 
@@ -170,60 +181,71 @@ export class Car {
         const frontWingMainGeometry = new THREE.BoxGeometry(2.0, 0.03, 0.15);
         const frontWingMain = new THREE.Mesh(frontWingMainGeometry, blackMaterial);
         frontWingMain.position.set(0, 0.15, 4.3);
+        frontWingMain.name = 'frontWingMain';
         this.car.add(frontWingMain);
 
         // Front Wing - Upper flap
         const frontWingFlapGeometry = new THREE.BoxGeometry(1.8, 0.02, 0.12);
         const frontWingFlap = new THREE.Mesh(frontWingFlapGeometry, darkGrayMaterial);
         frontWingFlap.position.set(0, 0.22, 4.35);
+        frontWingFlap.name = 'frontWingFlap';
         this.car.add(frontWingFlap);
 
         // Front Wing End Plates
         const frontEndPlateGeometry = new THREE.BoxGeometry(0.03, 0.3, 0.15);
         const frontEndPlateL = new THREE.Mesh(frontEndPlateGeometry, redMaterial);
         frontEndPlateL.position.set(1.0, 0.3, 4.3);
+        frontEndPlateL.name = 'frontEndPlateL';
         this.car.add(frontEndPlateL);
         
         const frontEndPlateR = new THREE.Mesh(frontEndPlateGeometry, redMaterial);
         frontEndPlateR.position.set(-1.0, 0.3, 4.3);
+        frontEndPlateR.name = 'frontEndPlateR';
         this.car.add(frontEndPlateR);
 
         // Rear Wing - Main Element (Much larger and properly proportioned)
         const rearWingMainGeometry = new THREE.BoxGeometry(1.6, 0.4, 0.08);
         const rearWingMain = new THREE.Mesh(rearWingMainGeometry, blackMaterial);
         rearWingMain.position.set(0, 0.9, -2.8);
+        rearWingMain.name = 'rearWingMain';
         this.car.add(rearWingMain);
 
         // Rear Wing - Upper Flap
         const rearWingFlapGeometry = new THREE.BoxGeometry(1.4, 0.25, 0.06);
         const rearWingFlap = new THREE.Mesh(rearWingFlapGeometry, darkGrayMaterial);
         rearWingFlap.position.set(0, 1.15, -2.9);
+        rearWingFlap.name = 'rearWingFlap';
         this.car.add(rearWingFlap);
 
         // Rear Wing End Plates - Much larger
         const rearEndPlateGeometry = new THREE.BoxGeometry(0.05, 0.8, 0.08);
         const rearEndPlateL = new THREE.Mesh(rearEndPlateGeometry, redMaterial);
         rearEndPlateL.position.set(0.85, 0.9, -2.8);
+        rearEndPlateL.name = 'rearEndPlateL';
         this.car.add(rearEndPlateL);
         
         const rearEndPlateR = new THREE.Mesh(rearEndPlateGeometry, redMaterial);
         rearEndPlateR.position.set(-0.85, 0.9, -2.8);
+        rearEndPlateR.name = 'rearEndPlateR';
         this.car.add(rearEndPlateR);
 
         // Rear Wing Support Pillars
         const supportPillarGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.6, 8);
         const supportPillarL = new THREE.Mesh(supportPillarGeometry, haloMaterial);
         supportPillarL.position.set(0.3, 0.6, -2.6);
+        supportPillarL.name = 'supportPillarL';
         this.car.add(supportPillarL);
         
         const supportPillarR = new THREE.Mesh(supportPillarGeometry, haloMaterial);
         supportPillarR.position.set(-0.3, 0.6, -2.6);
+        supportPillarR.name = 'supportPillarR';
         this.car.add(supportPillarR);
 
         // DRS Actuator on rear wing
         const drsActuatorGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.1, 8);
         const drsActuator = new THREE.Mesh(drsActuatorGeometry, haloMaterial);
         drsActuator.position.set(0, 1.3, -2.85);
+        drsActuator.name = 'drsActuator';
         this.car.add(drsActuator);
     }
 
@@ -241,10 +263,12 @@ export class Car {
         const sidePodGeometry = new THREE.BoxGeometry(0.5, 0.5, 2.8);
         const sidePodL = new THREE.Mesh(sidePodGeometry, chassisMaterial);
         sidePodL.position.set(0.9, 0.25, 0.5);
+        sidePodL.name = 'sidePodL';
         this.car.add(sidePodL);
         
         const sidePodR = new THREE.Mesh(sidePodGeometry, chassisMaterial);
         sidePodR.position.set(-0.9, 0.25, 0.5);
+        sidePodR.name = 'sidePodR';
         this.car.add(sidePodR);
     }
 
@@ -253,16 +277,18 @@ export class Car {
      */
     createWheels() {
         const wheelPositions = [
-            { x: 1.0, y: 0.35, z: 3.0, isFront: true, compound: 'MEDIUM' },     // Front Left
-            { x: -1.0, y: 0.35, z: 3.0, isFront: true, compound: 'MEDIUM' },    // Front Right
-            { x: 1.1, y: 0.35, z: -2.0, isFront: false, compound: 'MEDIUM' },  // Rear Left
-            { x: -1.1, y: 0.35, z: -2.0, isFront: false, compound: 'MEDIUM' }  // Rear Right
+            { x: 1.0, y: 0.15, z: 3.0, isFront: true, compound: 'MEDIUM' },     // Front Left
+            { x: -1.0, y: 0.15, z: 3.0, isFront: true, compound: 'MEDIUM' },    // Front Right
+            { x: 1.1, y: 0.15, z: -2.0, isFront: false, compound: 'MEDIUM' },  // Rear Left
+            { x: -1.1, y: 0.15, z: -2.0, isFront: false, compound: 'MEDIUM' }  // Rear Right
         ];
 
         wheelPositions.forEach(pos => {
             const wheel = new Wheel(pos.isFront, pos.x, pos.y, pos.z, pos.compound);
+            const wheelObject = wheel.getObject();
+            wheelObject.userData.isWheel = true; // Mark as wheel for exclusion from bounding box
             this.wheels.push(wheel);
-            this.car.add(wheel.getObject());
+            this.car.add(wheelObject);
         });
     }
 
@@ -277,48 +303,18 @@ export class Car {
             roughness: 0.1
         });
 
-        // Racing Number Plates
-        const numberPlateGeometry = new THREE.PlaneGeometry(0.3, 0.25);
-        const numberPlateL = new THREE.Mesh(numberPlateGeometry, whiteMaterial);
-        numberPlateL.position.set(0.71, 0.52, 0);
-        this.car.add(numberPlateL);
-        
-        const numberPlateR = new THREE.Mesh(numberPlateGeometry, whiteMaterial);
-        numberPlateR.position.set(-0.71, 0.52, 0);
-        numberPlateR.rotation.y = Math.PI;
-        this.car.add(numberPlateR);
-
         // Side Mirrors
         const mirrorGeometry = new THREE.BoxGeometry(0.16, 0.08, 0.12);
         const mirrorL = new THREE.Mesh(mirrorGeometry, orangeMaterial);
         mirrorL.position.set(0.85, 0.65, 1.5);
+        mirrorL.name = 'mirrorL';
         this.car.add(mirrorL);
         
         const mirrorR = new THREE.Mesh(mirrorGeometry, orangeMaterial);
         mirrorR.position.set(-0.85, 0.65, 1.5);
+        mirrorR.name = 'mirrorR';
         this.car.add(mirrorR);
 
-        // Barge Boards
-        const bargeBoardGeometry = new THREE.BoxGeometry(0.02, 0.3, 0.4);
-        const bargeBoardL = new THREE.Mesh(bargeBoardGeometry, orangeMaterial);
-        bargeBoardL.position.set(0.8, 0.1, 1.5);
-        bargeBoardL.rotation.x = 0.3;
-        this.car.add(bargeBoardL);
-        
-        const bargeBoardR = new THREE.Mesh(bargeBoardGeometry, orangeMaterial);
-        bargeBoardR.position.set(-0.8, 0.1, 1.5);
-        bargeBoardR.rotation.x = -0.3;
-        this.car.add(bargeBoardR);
-
-        // Floor Edge
-        const floorEdgeGeometry = new THREE.BoxGeometry(0.05, 0.02, 3.0);
-        const floorEdgeL = new THREE.Mesh(floorEdgeGeometry, orangeMaterial);
-        floorEdgeL.position.set(1.0, -0.05, 1.0);
-        this.car.add(floorEdgeL);
-        
-        const floorEdgeR = new THREE.Mesh(floorEdgeGeometry, orangeMaterial);
-        floorEdgeR.position.set(-1.0, -0.05, 1.0);
-        this.car.add(floorEdgeR);
     }
 
     /**
@@ -351,5 +347,88 @@ export class Car {
      */
     getRotation() {
         return this.car.rotation.y;
+    }
+
+    /**
+     * Gets the physics wireframe mesh
+     * @returns {THREE.Mesh} The physics wireframe mesh
+     */
+    getPhysicsWireframe() {
+        return this.physicsWireframe;
+    }
+
+    /**
+     * Gets the physics wireframe's world position and rotation
+     * @returns {Object} Object containing position and rotation
+     */
+    getPhysicsWireframeTransform() {
+        if (!this.physicsWireframe) return null;
+
+        const worldPosition = new THREE.Vector3();
+        this.physicsWireframe.getWorldPosition(worldPosition);
+        
+        return {
+            position: worldPosition,
+            rotation: this.physicsWireframe.getWorldQuaternion(new THREE.Quaternion()),
+            size: {
+                width: this.physicsWireframe.geometry.parameters.width,
+                height: this.physicsWireframe.geometry.parameters.height,
+                depth: this.physicsWireframe.geometry.parameters.depth
+            }
+        };
+    }
+
+    /**
+     * Creates and stores the physics wireframe mesh (excluding wheels, rear wing, and nose pillar)
+     */
+    createPhysicsWireframe() {
+        // Create a group to hold all car parts except wheels, rear wing, and nose pillar
+        const carBodyGroup = new THREE.Group();
+        
+        // Clone the car and remove wheels, rear wing, and nose pillar
+        const carClone = this.car.clone();
+        carClone.children.forEach(child => {
+            // Check if this child is a wheel by looking at its userData
+            if (!child.userData || !child.userData.isWheel) {
+                // Check if this is a rear wing component by name (rear wing is named 'rearWingMain')
+                const excludedComponents = new Set([
+                    'rearWingMain',
+                    'rearWingFlap', 
+                    'nosePillar',
+                    'rearEndPlateL',
+                    'rearEndPlateR',
+                    'drsActuator',
+                    'supportPillarL',
+                    'supportPillarR',
+                ]);
+                
+                if (!excludedComponents.has(child.name)) {
+                    carBodyGroup.add(child.clone());
+                }
+            }
+        });
+
+        // Calculate bounding box
+        const boundingBox = new THREE.Box3().setFromObject(carBodyGroup);
+        const boxSize = boundingBox.getSize(new THREE.Vector3());
+        const boxCenter = boundingBox.getCenter(new THREE.Vector3());
+
+        // Create wireframe geometry
+        const boxGeometry = new THREE.BoxGeometry(boxSize.x, boxSize.y, boxSize.z);
+        const wireframeMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ff00,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.5
+        });
+
+        this.physicsWireframe = new THREE.Mesh(boxGeometry, wireframeMaterial);
+        this.physicsWireframe.position.copy(boxCenter);
+        
+        // Add wireframe as child of car for automatic positioning
+        this.car.add(this.physicsWireframe);
+        
+        // Store original center offset for physics calculations
+        this.physicsWireframe.userData.centerOffset = boxCenter.clone();
     }
 } 

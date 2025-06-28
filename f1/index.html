@@ -66,14 +66,107 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
+        #hamburger-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            cursor: pointer;
+        }
+        #hamburger-icon {
+            width: 30px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+        }
+        #hamburger-icon span {
+            width: 20px;
+            height: 2px;
+            background: white;
+            margin: 2px 0;
+            transition: 0.3s;
+        }
+        #hamburger-icon.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+        #hamburger-icon.active span:nth-child(2) {
+            opacity: 0;
+        }
+        #hamburger-icon.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+        #menu-content {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 8px;
+            padding: 20px;
+            min-width: 250px;
+            z-index: 1000;
+            display: none;
+            color: white;
+            font-size: 14px;
+        }
+        #menu-content.show {
+            display: block;
+        }
+        #menu-content h3 {
+            margin: 0 0 15px 0;
+            color: #667eea;
+            font-size: 16px;
+        }
+        #menu-content a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        #menu-content a:hover {
+            text-decoration: underline;
+        }
     </style>
     <script type="module" src="./src/index.js"></script>
+    <script>
+        // Hamburger menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburgerIcon = document.getElementById('hamburger-icon');
+            const menuContent = document.getElementById('menu-content');
+            
+            hamburgerIcon.addEventListener('click', function() {
+                hamburgerIcon.classList.toggle('active');
+                menuContent.classList.toggle('show');
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!hamburgerIcon.contains(event.target) && !menuContent.contains(event.target)) {
+                    hamburgerIcon.classList.remove('active');
+                    menuContent.classList.remove('show');
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <div id="game-container"></div>
     <button id="garage-btn">🏎️ Garage</button>
     <div id="controls-info">
         Use arrow keys to control the car
+    </div>
+    <div id="hamburger-menu">
+        <div id="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <div id="menu-content">
+        <h3>Credits</h3>
+        <a href="https://www.flaticon.com/free-icons/f1" title="f1 icons">F1 icons created by Moon.de - Flaticon</a>
     </div>
 </body>
 </html> 
