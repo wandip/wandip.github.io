@@ -10,7 +10,7 @@ import { TrackDashboard } from '../ui/TrackDashboard';
 import { StartLights } from '../ui/StartLights';
 import { LapTimer } from '../ui/LapTimer';
 import { Garage } from './Garage';
-import { GAME_CONFIG } from '../utils/Constants';
+import { GAME_CONFIG, CAR_DIMENSIONS } from '../utils/Constants';
 import { RapierPhysics } from './RapierPhysics.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 
@@ -40,6 +40,7 @@ export class Game {
         this.garage = new Garage();
         this.stats = new Stats();
         this.rapierPhysics = null;
+        this.physicsWheels = []; // Array to store physics wheel references
 
         this.init();
         this.initPhysics();
@@ -146,10 +147,73 @@ export class Game {
             // Create vehicle controller with the chassis body
             this.vehicleController = this.rapierPhysics.world.createVehicleController(chassisBody);
             
-            console.log('Car physics initialized with wireframe-based collision');
+            // Add physics wheels that coincide with visual wheels
+            this.addPhysicsWheels();
+            
+            console.log('Car physics initialized with wireframe-based collision and physics wheels');
         } else {
             console.warn('Car physics wireframe not available yet');
         }
+    }
+
+    /**
+     * Adds physics wheels that coincide with the visual wheels
+     */
+    addPhysicsWheels() {
+        const carObject = this.car.getObject();
+        const wheelPositions = this.car.getWheelPositions();
+        
+        wheelPositions.forEach((pos, index) => {
+            this.addPhysicsWheel(index, pos, carObject);
+        });
+    }
+
+    addPhysicsWheel(index, pos, carMesh) {
+        // Use correct wheel dimensions from constants
+        const wheelRadius = CAR_DIMENSIONS.WHEEL.radius;
+        const wheelWidth = CAR_DIMENSIONS.WHEEL.width;
+        const suspensionRestLength = 0.3;
+        const wheelPosition = pos;
+        const wheelDirection = { x: 0.0, y: -1.0, z: 0.0 };
+        const wheelAxle = { x: -1.0, y: 0.0, z: 0.0 };
+
+        // Add the wheel to the vehicle controller
+        this.vehicleController.addWheel(
+            wheelPosition,
+            wheelDirection,
+            wheelAxle,
+            suspensionRestLength,
+            wheelRadius
+        );
+
+        // Set suspension stiffness for wheel
+        this.vehicleController.setWheelSuspensionStiffness(index, 24.0);
+
+        // Set wheel friction
+        this.vehicleController.setWheelFrictionSlip(index, 1000.0);
+
+        // Create wire mesh for the wheel that coincides with visual wheel
+        const wireGeometry = new THREE.CylinderGeometry(wheelRadius, wheelRadius, wheelWidth, 16);
+        wireGeometry.rotateZ(Math.PI * 0.5);
+        const wireMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xff0000, 
+            wireframe: true,
+            transparent: true,
+            opacity: 0.8
+        });
+        const wireWheel = new THREE.Mesh(wireGeometry, wireMaterial);
+        wireWheel.position.copy(pos);
+        wireWheel.userData.isPhysicsWheel = true;
+        wireWheel.userData.wheelIndex = index;
+
+        // Store reference to physics wheel
+        this.physicsWheels[index] = {
+            mesh: wireWheel,
+            index: index,
+            position: pos
+        };
+
+        carMesh.add(wireWheel);
     }
 
     /**
@@ -249,11 +313,40 @@ export class Game {
         const targetWheelRotation = this.physics.getTargetWheelRotation(this.controls);
         this.car.updateWheelSteering(targetWheelRotation);
 
+        // Update physics wheel positions to match visual wheels
+        this.updatePhysicsWheels();
+
         // Update camera
         this.camera.update(carObject.position, carObject.rotation.y);
 
         // Update track dashboard with car position, road segments, and rotation
         this.trackDashboard.update(carObject.position, this.road.getSegments(), carObject.rotation.y);
+    }
+
+    /**
+     * Updates physics wheel positions to match visual wheels
+     */
+    updatePhysicsWheels() {
+        if (!this.physicsWheels || this.physicsWheels.length === 0) return;
+
+        const carObject = this.car.getObject();
+        const visualWheels = this.car.getWheels();
+
+        this.physicsWheels.forEach((physicsWheel, index) => {
+            if (physicsWheel && physicsWheel.mesh && visualWheels[index]) {
+                const visualWheel = visualWheels[index];
+                const visualWheelObject = visualWheel.getObject();
+                
+                // Use local position instead of world position to avoid double transformation
+                // Since both physics wheels and visual wheels are children of the car
+                physicsWheel.mesh.position.copy(visualWheelObject.position);
+                
+                // Update physics wheel rotation to match visual wheel steering
+                if (visualWheel.isFront) {
+                    physicsWheel.mesh.rotation.y = visualWheelObject.rotation.y;
+                }
+            }
+        });
     }
 
     /**

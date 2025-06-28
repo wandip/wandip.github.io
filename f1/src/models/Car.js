@@ -399,6 +399,22 @@ export class Car {
     }
 
     /**
+     * Gets the wheel positions array
+     * @returns {Array} Array of wheel position objects
+     */
+    getWheelPositions() {
+        return this.wheelPositions;
+    }
+
+    /**
+     * Gets the wheels array
+     * @returns {Array} Array of Wheel objects
+     */
+    getWheels() {
+        return this.wheels;
+    }
+
+    /**
      * Creates and stores the physics wireframe mesh (excluding wheels, rear wing, and nose pillar)
      */
     createPhysicsWireframe() {

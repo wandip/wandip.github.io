@@ -333,6 +333,7 @@ async function RapierPhysics() {
 
 	return {
 		world,
+		rapier: RAPIER,
 		/**
 		 * Adds the given scene to this physics simulation. Only meshes with a
 		 * `physics` object in their {@link Object3D#userData} field will be honored.
