@@ -245,12 +245,6 @@ export class Game {
         carObject.position.add(physicsState.carVelocity);
         carObject.rotation.y = physicsState.carRotation;
 
-        // Update car tilt based on turning
-        const tiltFactor = 0.1;
-        const speedFactor = Math.abs(physicsState.speed) / 0.8; // Using max speed from constants
-        const targetTilt = -physicsState.turnSpeed * 3 * speedFactor;
-        carObject.rotation.z += (targetTilt - carObject.rotation.z) * tiltFactor;
-
         // Update wheel steering
         const targetWheelRotation = this.physics.getTargetWheelRotation(this.controls);
         this.car.updateWheelSteering(targetWheelRotation);

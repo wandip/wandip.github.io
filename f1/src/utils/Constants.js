@@ -29,9 +29,6 @@ export const CAR_CONFIG = {
     // Higher values make the car straighten out more quickly
     TURN_DECELERATION: Math.PI / 900,
     
-    // How much the car tilts during turns (multiplier)
-    TILT_FACTOR: 0.2,
-    
     // Minimum steering responsiveness at low speeds (0-1)
     // Higher values make low-speed turning more responsive
     MIN_STEERING_FACTOR: 0.2

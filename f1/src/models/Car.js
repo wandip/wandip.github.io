@@ -10,6 +10,15 @@ export class Car {
         this.car = new THREE.Group();
         this.wheels = [];
         this.physicsWireframe = null; // Store reference to physics wireframe
+        
+        // Define wheel positions as a shared constant
+        this.wheelPositions = [
+            { x: 1.0, y: 0.25, z: 3.0, isFront: true, compound: 'MEDIUM' },     // Front Left
+            { x: -1.0, y: 0.25, z: 3.0, isFront: true, compound: 'MEDIUM' },    // Front Right
+            { x: 1.1, y: 0.25, z: -2.0, isFront: false, compound: 'MEDIUM' },  // Rear Left
+            { x: -1.1, y: 0.25, z: -2.0, isFront: false, compound: 'MEDIUM' }  // Rear Right
+        ];
+        
         this.createCar();
         this.createPhysicsWireframe(); // Create initial physics wireframe
     }
@@ -26,12 +35,30 @@ export class Car {
         this.createWheels();
         this.createDetails();
         
-        // Position car
-        this.car.position.set(0, 0, 0);
+        // Calculate optimal car position so wheels are exactly on the ground
+        const carYPosition = this.calculateOptimalCarYPosition();
+        
+        this.car.position.set(0, carYPosition, 0);
         this.car.rotation.y = -Math.PI / 2; // Align car with z-axis
         
         // Ensure car renders after road lines
         this.car.renderOrder = 1;
+    }
+
+    /**
+     * Calculates the optimal Y position for the car so wheels are exactly on the ground
+     * @returns {number} The optimal Y position for the car
+     */
+    calculateOptimalCarYPosition() {
+        const wheelRadius = CAR_DIMENSIONS.WHEEL.radius;
+        
+        // Extract wheel Y position from the first wheel (all wheels have same Y position)
+        const wheelYPosition = this.wheelPositions[0].y;
+        const groundLevel = 0; // Ground level
+        
+        // Formula: carY = groundLevel - wheelYPosition + wheelRadius
+        // This ensures wheel bottom is at ground level
+        return groundLevel - wheelYPosition + wheelRadius;
     }
 
     /**
@@ -276,14 +303,7 @@ export class Car {
      * Creates all four wheels with proper F1 proportions
      */
     createWheels() {
-        const wheelPositions = [
-            { x: 1.0, y: 0.15, z: 3.0, isFront: true, compound: 'MEDIUM' },     // Front Left
-            { x: -1.0, y: 0.15, z: 3.0, isFront: true, compound: 'MEDIUM' },    // Front Right
-            { x: 1.1, y: 0.15, z: -2.0, isFront: false, compound: 'MEDIUM' },  // Rear Left
-            { x: -1.1, y: 0.15, z: -2.0, isFront: false, compound: 'MEDIUM' }  // Rear Right
-        ];
-
-        wheelPositions.forEach(pos => {
+        this.wheelPositions.forEach(pos => {
             const wheel = new Wheel(pos.isFront, pos.x, pos.y, pos.z, pos.compound);
             const wheelObject = wheel.getObject();
             wheelObject.userData.isWheel = true; // Mark as wheel for exclusion from bounding box
