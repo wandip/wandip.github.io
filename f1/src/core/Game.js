@@ -3,7 +3,6 @@ import { Scene } from './Scene';
 import { Camera } from './Camera';
 import { Car } from '../models/Car';
 import { Road } from '../models/Road';
-import { CarPhysics } from '../physics/CarPhysics';
 import { Controls } from '../utils/Controls';
 import { SpeedDashboard } from '../ui/SpeedDashboard';
 import { TrackDashboard } from '../ui/TrackDashboard';
@@ -24,7 +23,6 @@ export class Game {
         this.camera = new Camera(this.scene.getScene());
         this.car = new Car();
         this.road = new Road();
-        this.physics = new CarPhysics();
         this.controls = new Controls();
         this.renderer = new THREE.WebGLRenderer({ 
             antialias: true,
@@ -298,19 +296,16 @@ export class Game {
             this.camera.toggleView();
         }
 
-        // Update car physics
-        const physicsState = this.physics.update(this.controls);
+        // Update car controls for RapierPhysics
+        this.updateCarControls();
         
-        // Update speed dashboard
-        this.speedDashboard.update(physicsState.speed);
-        
-        // Update car position and rotation
+        // Update speed dashboard with current car speed
         const carObject = this.car.getObject();
-        carObject.position.add(physicsState.carVelocity);
-        carObject.rotation.y = physicsState.carRotation;
+        const speed = this.getCarSpeed();
+        this.speedDashboard.update(speed);
 
-        // Update wheel steering
-        const targetWheelRotation = this.physics.getTargetWheelRotation(this.controls);
+        // Update wheel steering based on controls
+        const targetWheelRotation = this.getTargetWheelRotation();
         this.car.updateWheelSteering(targetWheelRotation);
 
         // Update physics wheel positions to match visual wheels
@@ -321,6 +316,63 @@ export class Game {
 
         // Update track dashboard with car position, road segments, and rotation
         this.trackDashboard.update(carObject.position, this.road.getSegments(), carObject.rotation.y);
+    }
+
+    /**
+     * Updates car controls for RapierPhysics
+     */
+    updateCarControls() {
+        if (!this.vehicleController) return;
+
+        // Handle acceleration/braking
+        if (this.controls.isKeyPressed('ArrowUp')) {
+            this.vehicleController.setWheelEngineForce(0, 1000);
+            this.vehicleController.setWheelEngineForce(1, 1000);
+        } else if (this.controls.isKeyPressed('ArrowDown')) {
+            this.vehicleController.setWheelEngineForce(0, -1000);
+            this.vehicleController.setWheelEngineForce(1, -1000);
+        } else {
+            this.vehicleController.setWheelEngineForce(0, 0);
+            this.vehicleController.setWheelEngineForce(1, 0);
+        }
+
+        // Handle steering
+        if (this.controls.isKeyPressed('ArrowLeft')) {
+            this.vehicleController.setWheelSteering(0, 0.5);
+            this.vehicleController.setWheelSteering(1, 0.5);
+        } else if (this.controls.isKeyPressed('ArrowRight')) {
+            this.vehicleController.setWheelSteering(0, -0.5);
+            this.vehicleController.setWheelSteering(1, -0.5);
+        } else {
+            this.vehicleController.setWheelSteering(0, 0);
+            this.vehicleController.setWheelSteering(1, 0);
+        }
+    }
+
+    /**
+     * Gets the current car speed for the dashboard
+     */
+    getCarSpeed() {
+        if (!this.vehicleController) return 0;
+        
+        const carObject = this.car.getObject();
+        const velocity = carObject.userData.physics?.body?.linvel();
+        if (velocity) {
+            return Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+        }
+        return 0;
+    }
+
+    /**
+     * Gets the target wheel rotation for steering
+     */
+    getTargetWheelRotation() {
+        if (this.controls.isKeyPressed('ArrowLeft')) {
+            return Math.PI / 4; // 45 degrees left
+        } else if (this.controls.isKeyPressed('ArrowRight')) {
+            return -Math.PI / 4; // 45 degrees right
+        }
+        return 0;
     }
 
     /**

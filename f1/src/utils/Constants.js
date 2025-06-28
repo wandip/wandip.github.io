@@ -7,33 +7,6 @@ export const GAME_CONFIG = {
     SKIP_START_LIGHTS: true
 };
 
-export const CAR_CONFIG = {
-    // Maximum speed the car can reach (in units per frame)
-    MAX_SPEED: 0.8,
-    
-    // How quickly the car accelerates when pressing forward (in units per frame)
-    ACCELERATION: 0.02,
-    
-    // How quickly the car slows down when not accelerating (in units per frame)
-    DECELERATION: 0.01,
-    
-    // Maximum rotation speed during turns (in radians per frame)
-    // Lower values result in wider turning radius
-    TURN_SPEED: Math.PI / 90,
-    
-    // How quickly the car responds to steering input (in radians per frame)
-    // Lower values make turning more gradual and smooth
-    TURN_ACCELERATION: Math.PI / 360,
-    
-    // How quickly the car returns to straight when not steering (in radians per frame)
-    // Higher values make the car straighten out more quickly
-    TURN_DECELERATION: Math.PI / 900,
-    
-    // Minimum steering responsiveness at low speeds (0-1)
-    // Higher values make low-speed turning more responsive
-    MIN_STEERING_FACTOR: 0.2
-};
-
 export const CAMERA_CONFIG = {
     HEIGHT: 40,
     BEHIND_CAR_DISTANCE: 8,
