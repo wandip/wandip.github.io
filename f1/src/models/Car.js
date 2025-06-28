@@ -39,7 +39,7 @@ export class Car {
         const carYPosition = this.calculateOptimalCarYPosition();
         
         this.car.position.set(0, carYPosition, 0);
-        this.car.rotation.y = -Math.PI / 2; // Align car with z-axis
+        this.car.rotation.y = 0; // Align car with z-axis (pointing towards positive z)
         
         // Ensure car renders after road lines
         this.car.renderOrder = 1;
