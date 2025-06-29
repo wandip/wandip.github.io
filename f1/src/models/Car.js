@@ -13,10 +13,10 @@ export class Car {
         
         // Define wheel positions as a shared constant
         this.wheelPositions = [
-            { x: 1.0, y: -0.33, z: 3.0, isFront: true, compound: 'MEDIUM' },     // Front Left
-            { x: -1.0, y: -0.33, z: 3.0, isFront: true, compound: 'MEDIUM' },    // Front Right
-            { x: 1.1, y: -0.33, z: -2.0, isFront: false, compound: 'MEDIUM' },  // Rear Left
-            { x: -1.1, y: -0.33, z: -2.0, isFront: false, compound: 'MEDIUM' }  // Rear Right
+            { x: 1.0, y: 0.01, z: 3.0, isFront: true, compound: 'MEDIUM' },     // Front Left
+            { x: -1.0, y: 0.01, z: 3.0, isFront: true, compound: 'MEDIUM' },    // Front Right
+            { x: 1.1, y: 0.01, z: -1.5, isFront: false, compound: 'MEDIUM' },  // Rear Left
+            { x: -1.1, y: 0.01, z: -1.5, isFront: false, compound: 'MEDIUM' }  // Rear Right
         ];
         
         this.createCar();
@@ -233,45 +233,45 @@ export class Car {
         // Rear Wing - Main Element (Much larger and properly proportioned)
         const rearWingMainGeometry = new THREE.BoxGeometry(1.6, 0.4, 0.08);
         const rearWingMain = new THREE.Mesh(rearWingMainGeometry, blackMaterial);
-        rearWingMain.position.set(0, 0.9, -2.8);
+        rearWingMain.position.set(0, 0.6, -2.8);
         rearWingMain.name = 'rearWingMain';
         this.car.add(rearWingMain);
 
         // Rear Wing - Upper Flap
         const rearWingFlapGeometry = new THREE.BoxGeometry(1.4, 0.25, 0.06);
         const rearWingFlap = new THREE.Mesh(rearWingFlapGeometry, darkGrayMaterial);
-        rearWingFlap.position.set(0, 1.15, -2.9);
+        rearWingFlap.position.set(0, 0.85, -2.9);
         rearWingFlap.name = 'rearWingFlap';
         this.car.add(rearWingFlap);
 
         // Rear Wing End Plates - Much larger
         const rearEndPlateGeometry = new THREE.BoxGeometry(0.05, 0.8, 0.08);
         const rearEndPlateL = new THREE.Mesh(rearEndPlateGeometry, redMaterial);
-        rearEndPlateL.position.set(0.85, 0.9, -2.8);
+        rearEndPlateL.position.set(0.85, 0.6, -2.8);
         rearEndPlateL.name = 'rearEndPlateL';
         this.car.add(rearEndPlateL);
         
         const rearEndPlateR = new THREE.Mesh(rearEndPlateGeometry, redMaterial);
-        rearEndPlateR.position.set(-0.85, 0.9, -2.8);
+        rearEndPlateR.position.set(-0.85, 0.6, -2.8);
         rearEndPlateR.name = 'rearEndPlateR';
         this.car.add(rearEndPlateR);
 
         // Rear Wing Support Pillars
         const supportPillarGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.6, 8);
         const supportPillarL = new THREE.Mesh(supportPillarGeometry, haloMaterial);
-        supportPillarL.position.set(0.3, 0.6, -2.6);
+        supportPillarL.position.set(0.3, 0.3, -2.6);
         supportPillarL.name = 'supportPillarL';
         this.car.add(supportPillarL);
         
         const supportPillarR = new THREE.Mesh(supportPillarGeometry, haloMaterial);
-        supportPillarR.position.set(-0.3, 0.6, -2.6);
+        supportPillarR.position.set(-0.3, 0.3, -2.6);
         supportPillarR.name = 'supportPillarR';
         this.car.add(supportPillarR);
 
         // DRS Actuator on rear wing
         const drsActuatorGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.1, 8);
         const drsActuator = new THREE.Mesh(drsActuatorGeometry, haloMaterial);
-        drsActuator.position.set(0, 1.3, -2.85);
+        drsActuator.position.set(0, 1.0, -2.85);
         drsActuator.name = 'drsActuator';
         this.car.add(drsActuator);
     }

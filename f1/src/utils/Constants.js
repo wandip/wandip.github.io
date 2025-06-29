@@ -29,7 +29,7 @@ export const CAR_DIMENSIONS = {
     COCKPIT: { width: 0.67, height: 0.3, length: 1.5 },
     FRONT_WING: { width: 2.0, height: 0.1, length: 0.5 },
     REAR_WING: { width: 1.84, height: 0.5, length: 0.1 },
-    WHEEL: { radius: 0.33, width: 0.3 }
+    WHEEL: { radius: 0.45, width: 0.35 }
 };
 
 export const COLORS = {
