@@ -169,6 +169,7 @@ export class PhysicsCar {
         const wireGeometry = new THREE.CylinderGeometry(wheelRadius, wheelRadius, wheelWidth, 16);
         wireGeometry.rotateZ(Math.PI * 0.5);
         const wireMaterial = new THREE.MeshBasicMaterial({ 
+            visible: false,
             color: 0xff0000, 
             wireframe: true,
             transparent: true,
@@ -314,6 +315,19 @@ export class PhysicsCar {
         // Update visual car mesh to match physics body
         carObject.position.set(physicsPosition.x, physicsPosition.y, physicsPosition.z);
         carObject.quaternion.set(physicsRotation.x, physicsRotation.y, physicsRotation.z, physicsRotation.w);
+    }
+
+    /**
+     * Gets the car's rotation as Euler angles (Y rotation for camera)
+     * @returns {number} The car's Y rotation in radians
+     */
+    getCarRotation() {
+        if (!this.chassisBody) return 0;
+        
+        const physicsRotation = this.chassisBody.rotation();
+        const quaternion = new THREE.Quaternion(physicsRotation.x, physicsRotation.y, physicsRotation.z, physicsRotation.w);
+        const euler = new THREE.Euler().setFromQuaternion(quaternion);
+        return euler.y;
     }
 
     /**

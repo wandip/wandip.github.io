@@ -452,6 +452,7 @@ export class Car {
         // Create wireframe geometry
         const boxGeometry = new THREE.BoxGeometry(boxSize.x, boxSize.y, boxSize.z);
         const wireframeMaterial = new THREE.MeshBasicMaterial({
+            visible: false,
             color: 0x00ff00,
             wireframe: true,
             transparent: true,
