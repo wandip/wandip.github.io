@@ -38,7 +38,7 @@ export class Game {
         this.startLights = null;
         this.raceStarted = false;
         this.garage = new Garage();
-        this.stats = new Stats();
+        this.stats = GAME_CONFIG.DEBUG_MODE ? new Stats() : null;
         this.rapierPhysics = null;
         this.physicsWheels = []; // Array to store physics wheel references
         this.clock = new THREE.Clock(); // Add clock for proper timing
@@ -49,8 +49,8 @@ export class Game {
             forward: 0,
             right: 0,
             brake: 0,
-            accelerateForce: { value: 0, min: -500, max: 1000, step: 30 }, // Increased forces
-            brakeForce: { value: 0, min: 0, max: 50, step: 3 }
+            accelerateForce: { value: 0, min: -500, max: 3500, step: 100 }, // Increased forces
+            brakeForce: { value: 0, min: 0, max: 100, step: 3 }
         };
 
         this.init();
@@ -103,7 +103,9 @@ export class Game {
         }
         
         // Add UI elements to document (not to scene)
-        document.body.appendChild(this.stats.dom);
+        if (this.stats) {
+            document.body.appendChild(this.stats.dom);
+        }
         document.body.appendChild(this.speedDashboard.getObject());
         document.body.appendChild(this.trackDashboard.getObject());
 
@@ -215,7 +217,7 @@ export class Game {
      */
     animate() {
         requestAnimationFrame(this.animate.bind(this));
-        this.stats.begin();
+        if (this.stats) this.stats.begin();
         const deltaTime = this.clock.getDelta();
         if (this.rapierPhysics) {
             this.rapierPhysics.world.timestep = deltaTime;
@@ -233,7 +235,7 @@ export class Game {
         }
         this.update();
         this.render();
-        this.stats.end();
+        if (this.stats) this.stats.end();
     }
 
     update() {
@@ -271,8 +273,10 @@ export class Game {
             const speed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
             this.speedDashboard.update(speed);
         }
-        this.camera.update(carObject.position, carObject.rotation.y);
-        this.trackDashboard.update(carObject.position, this.road.getSegments(), carObject.rotation.y);
+        // Use physics car's rotation for camera to ensure proper following
+        const carRotation = this.physicsCar.getCarRotation();
+        this.camera.update(carObject.position, carRotation);
+        this.trackDashboard.update(carObject.position, this.road.getSegments(), carRotation);
     }
 
     /**

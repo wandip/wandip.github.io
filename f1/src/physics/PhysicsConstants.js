@@ -8,7 +8,7 @@ export const PHYSICS_CONFIG = {
     FRAME_RATE: 60,
     
     // Car physics properties
-    CAR_MASS: 800,
+    CAR_MASS: 400,
     CAR_RESTITUTION: 0.1,
     
     // Wheel physics properties
@@ -18,24 +18,19 @@ export const PHYSICS_CONFIG = {
     SUSPENSION_STIFFNESS: 25.0,
     SUSPENSION_DAMPING: 2.0,
     SUSPENSION_COMPRESSION: 2.0,
-    WHEEL_FRICTION_SLIP: 2.0,
+    WHEEL_FRICTION_SLIP: 3.0,
     
     // Vehicle control properties
-    MAX_STEER_ANGLE: Math.PI / 6, // Reduced from PI/4 to PI/6 for more realistic steering
-    STEERING_RESPONSE: 0.1, // Slower steering response
-    ENGINE_FORCE_STEP: 30,
+    MAX_STEER_ANGLE: Math.PI / 4, // Reduced from PI/4 to PI/6 for more realistic steering
+    STEERING_RESPONSE: 0.3, // Slower steering response
+    ENGINE_FORCE_STEP: 50,
     ENGINE_FORCE_MIN: -500,
-    ENGINE_FORCE_MAX: 1000,
-    BRAKE_FORCE_STEP: 5,
-    BRAKE_FORCE_MAX: 50,
+    ENGINE_FORCE_MAX: 1500,
+    BRAKE_FORCE_STEP: 50,
+    BRAKE_FORCE_MAX: 500,
     FORCE_DECAY: 0.9, // Gradually reduce force when no input
     
-    // Ground physics
-    GROUND_SIZE: 500,
-    GROUND_THICKNESS: 0.1,
-    
     // Car positioning
-    WHEEL_Y_OFFSET: -0.45,
     GROUND_LEVEL: 0,
     CAR_HEIGHT_OFFSET: 0.05 // Small offset for better physics contact
 };

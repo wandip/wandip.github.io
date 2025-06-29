@@ -1,7 +1,12 @@
+import { GAME_CONFIG } from '../utils/Constants';
+
 export class SpeedDashboard {
     constructor() {
         this.createDashboard();
-        this.createDebugPanel();
+        // Only create debug panel if debug mode is enabled
+        if (GAME_CONFIG.DEBUG_MODE) {
+            this.createDebugPanel();
+        }
     }
 
     createDashboard() {
@@ -112,6 +117,11 @@ export class SpeedDashboard {
     }
 
     updateDebug(data) {
+        // Only update debug information if debug panel exists (debug mode is enabled)
+        if (!this.debugContainer) {
+            return;
+        }
+        
         // Update debug information
         const posEl = document.getElementById('debug-pos');
         const velEl = document.getElementById('debug-vel');

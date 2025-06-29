@@ -4,7 +4,9 @@
 
 export const GAME_CONFIG = {
     // Skip traffic lights animation in dev mode
-    SKIP_START_LIGHTS: true
+    SKIP_START_LIGHTS: true,
+    // Enable/disable debug features like stats module
+    DEBUG_MODE: false
 };
 
 export const CAMERA_CONFIG = {
