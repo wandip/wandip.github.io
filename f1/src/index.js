@@ -1,4 +1,4 @@
-import { Game } from './core/Game';
+import { Game } from './core/Game.js';
 
 // Create game container if it doesn't exist
 if (!document.getElementById('game-container')) {
@@ -7,5 +7,8 @@ if (!document.getElementById('game-container')) {
     document.body.appendChild(container);
 }
 
-// Start the game
-new Game(); 
+// Create game instance
+const game = new Game();
+
+// Make game instance globally accessible for debugging
+window.game = game; 

@@ -129,23 +129,26 @@ export class Game {
         this.rapierPhysics = await RapierPhysics();
         this.rapierPhysics.world.gravity = new this.rapierPhysics.rapier.Vector3(0, -9.81, 0);
 
-        // Add scene objects to physics
-        this.rapierPhysics.addScene(this.scene.getScene());
-        
-        // Manually ensure ground is added to physics
+        // Add scene objects to physics, but exclude the plane geometry ground
         this.scene.getScene().traverse((child) => {
             if (child.isMesh && child.userData.physics && child.userData.physics.mass === 0) {
+                // Skip plane geometry ground to avoid conflicts
+                if (child.geometry && child.geometry.type === 'PlaneGeometry') {
+                    console.log('Skipping plane geometry ground for physics to avoid conflicts');
+                    return;
+                }
                 this.rapierPhysics.addMesh(child, 0, child.userData.physics.restitution || 0.1);
             }
         });
 
         // Create a proper ground collider at Y=0 (ground level)
+        // Use a larger, thinner ground collider to avoid conflicts
         const groundBody = this.rapierPhysics.world.createRigidBody(
             this.rapierPhysics.rapier.RigidBodyDesc.fixed()
-                .setTranslation(0, 0, 0)
+                .setTranslation(0, -0.05, 0) // Position slightly below Y=0 to avoid conflicts
         );
         const groundCollider = this.rapierPhysics.world.createCollider(
-            this.rapierPhysics.rapier.ColliderDesc.cuboid(500, 0.1, 500),
+            this.rapierPhysics.rapier.ColliderDesc.cuboid(1000, 0.05, 1000), // Much larger and thinner
             groundBody
         );
 
