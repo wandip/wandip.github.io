@@ -13,10 +13,10 @@ export class Car {
         
         // Define wheel positions as a shared constant
         this.wheelPositions = [
-            { x: 1.0, y: 0.25, z: 3.0, isFront: true, compound: 'MEDIUM' },     // Front Left
-            { x: -1.0, y: 0.25, z: 3.0, isFront: true, compound: 'MEDIUM' },    // Front Right
-            { x: 1.1, y: 0.25, z: -2.0, isFront: false, compound: 'MEDIUM' },  // Rear Left
-            { x: -1.1, y: 0.25, z: -2.0, isFront: false, compound: 'MEDIUM' }  // Rear Right
+            { x: 1.0, y: -0.33, z: 3.0, isFront: true, compound: 'MEDIUM' },     // Front Left
+            { x: -1.0, y: -0.33, z: 3.0, isFront: true, compound: 'MEDIUM' },    // Front Right
+            { x: 1.1, y: -0.33, z: -2.0, isFront: false, compound: 'MEDIUM' },  // Rear Left
+            { x: -1.1, y: -0.33, z: -2.0, isFront: false, compound: 'MEDIUM' }  // Rear Right
         ];
         
         this.createCar();
@@ -53,12 +53,12 @@ export class Car {
         const wheelRadius = CAR_DIMENSIONS.WHEEL.radius;
         
         // Extract wheel Y position from the first wheel (all wheels have same Y position)
-        const wheelYPosition = this.wheelPositions[0].y;
+        const wheelYPosition = this.wheelPositions[0].y; // This is now -0.33
         const groundLevel = 0; // Ground level
         
-        // Formula: carY = groundLevel - wheelYPosition + wheelRadius
-        // This ensures wheel bottom is at ground level
-        return groundLevel - wheelYPosition + wheelRadius;
+        // Formula: carY = groundLevel - wheelYPosition + wheelRadius + small offset for better physics contact
+        // This ensures wheel bottom is slightly above ground level for better physics contact
+        return groundLevel - wheelYPosition + wheelRadius + 0.05;
     }
 
     /**

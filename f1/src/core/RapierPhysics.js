@@ -39,6 +39,19 @@ function getShape( geometry ) {
 
 		return RAPIER.ColliderDesc.capsule( length / 2, radius );
 
+	} else if ( geometry.type === 'PlaneGeometry' ) {
+
+		// For a plane geometry, we need to create a horizontal plane collider
+		// The plane is typically rotated -90 degrees around X-axis to be horizontal
+		// Use a very thin cuboid that represents the ground plane
+		const width = parameters.width !== undefined ? parameters.width : 1;
+		const height = parameters.height !== undefined ? parameters.height : 1;
+		
+		// Create a very thin cuboid that represents the ground plane
+		// The thickness should be very small to represent a plane
+		// Position it slightly below Y=0 to ensure objects don't fall through
+		return RAPIER.ColliderDesc.cuboid( width / 2, 0.1, height / 2 );
+
 	} else if ( geometry.type === 'BufferGeometry' ) {
 
 		const vertices = [];
@@ -327,13 +340,19 @@ async function RapierPhysics() {
 
 	}
 
-	// animate
-
-	setInterval( step, 1000 / frameRate );
+	// Remove automatic step interval since we're calling it manually in the game loop
+	// setInterval( step, 1000 / frameRate );
 
 	return {
 		world,
 		rapier: RAPIER,
+		/**
+		 * Steps the physics simulation forward by one timestep.
+		 * 
+		 * @method
+		 * @name RapierPhysics#step
+		 */
+		step: step,
 		/**
 		 * Adds the given scene to this physics simulation. Only meshes with a
 		 * `physics` object in their {@link Object3D#userData} field will be honored.
