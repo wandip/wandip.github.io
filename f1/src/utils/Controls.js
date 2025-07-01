@@ -28,18 +28,14 @@ export class Controls {
      */
     setupEventListeners() {
         window.addEventListener('keydown', (e) => {
-            console.log('Key pressed:', e.key, 'Code:', e.code);
             if (this.keys.hasOwnProperty(e.key.toLowerCase())) {
                 this.keys[e.key.toLowerCase()] = true;
-                console.log('Key registered:', e.key.toLowerCase(), 'State:', this.keys[e.key.toLowerCase()]);
             }
         });
 
         window.addEventListener('keyup', (e) => {
-            console.log('Key released:', e.key, 'Code:', e.code);
             if (this.keys.hasOwnProperty(e.key.toLowerCase())) {
                 this.keys[e.key.toLowerCase()] = false;
-                console.log('Key unregistered:', e.key.toLowerCase(), 'State:', this.keys[e.key.toLowerCase()]);
             }
         });
     }

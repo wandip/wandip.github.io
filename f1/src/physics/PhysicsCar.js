@@ -1,13 +1,14 @@
 import * as THREE from 'three';
-import { PHYSICS_CONFIG, WHEEL_POSITIONS, WHEEL_DIRECTIONS } from './PhysicsConstants';
+import { PHYSICS_CONFIG, PHYSICS_WHEEL_POSITIONS, WHEEL_DIRECTIONS } from './PhysicsConstants';
 
 /**
  * Handles all physics-related car logic and vehicle controller
  */
 export class PhysicsCar {
-    constructor(rapierPhysics, visualCar, movement) {
+    constructor(rapierPhysics, visualCar, movement, scene) {
         this.rapierPhysics = rapierPhysics;
         this.visualCar = visualCar;
+        this.scene = scene; // Add scene reference to add wireframe
         this.chassisBody = null;
         this.vehicleController = null;
         this.physicsWheels = [];
@@ -21,6 +22,11 @@ export class PhysicsCar {
             accelerateForce: { value: 0, min: PHYSICS_CONFIG.ENGINE_FORCE_MIN, max: PHYSICS_CONFIG.ENGINE_FORCE_MAX, step: PHYSICS_CONFIG.ENGINE_FORCE_STEP },
             brakeForce: { value: 0, min: 0, max: PHYSICS_CONFIG.BRAKE_FORCE_MAX, step: PHYSICS_CONFIG.BRAKE_FORCE_STEP }
         };
+        
+        // Add rotation tracking to handle angle wrapping
+        this.lastRotation = 0;
+        this.rotationOffset = 0;
+        this.totalRotations = 0;
         
         this.setupPhysics();
     }
@@ -36,56 +42,33 @@ export class PhysicsCar {
             return;
         }
 
-        const wireframeTransform = this.visualCar.getPhysicsWireframeTransform();
         const carObject = this.visualCar.getObject();
         
         // Calculate optimal car position: wheel radius + small offset above ground
         const wheelRadius = PHYSICS_CONFIG.WHEEL_RADIUS;
-        const wheelYPosition = WHEEL_POSITIONS[0].y; // This is now -0.33
+        const wheelYPosition = PHYSICS_WHEEL_POSITIONS[0].y; // This is now -0.33
         const optimalCarY = PHYSICS_CONFIG.GROUND_LEVEL - wheelYPosition + wheelRadius + PHYSICS_CONFIG.CAR_HEIGHT_OFFSET;
         
-        // Update car visual position
+        // First, position the car at the optimal height
         carObject.position.y = optimalCarY;
         
-        console.log('Car positioning:', {
-            wheelRadius,
-            wheelYPosition,
-            optimalCarY,
-            carPosition: carObject.position
-        });
+        // Update wireframe position to match car position
+        const centerOffset = this.physicsWireframe.userData.centerOffset || new THREE.Vector3();
+        this.physicsWireframe.position.copy(carObject.position).add(centerOffset);
         
-        // Create a rigid body for the car chassis using wireframe dimensions
-        this.chassisBody = this.rapierPhysics.world.createRigidBody(
-            this.rapierPhysics.rapier.RigidBodyDesc.dynamic()
-                .setTranslation(carObject.position.x, optimalCarY, carObject.position.z)
-                .setRotation(carObject.quaternion)
-        );
+        // Add wireframe to scene (not as child of car)
+        this.scene.add(this.physicsWireframe);
+        
+        // Now create the physics body at the wireframe's current world position
+        this.rapierPhysics.addMesh(this.physicsWireframe, PHYSICS_CONFIG.CAR_MASS, PHYSICS_CONFIG.CAR_RESTITUTION);
+        this.chassisBody = this.physicsWireframe.userData.physics.body;
+        
 
-        // Create collision shape based on wireframe geometry
-        const wireframeSize = wireframeTransform.size;
-        const chassisCollider = this.rapierPhysics.world.createCollider(
-            this.rapierPhysics.rapier.ColliderDesc.cuboid(
-                wireframeSize.width / 2,
-                wireframeSize.height / 2,
-                wireframeSize.depth / 2
-            ),
-            this.chassisBody
-        );
-
-        // Store physics data in the wireframe for future reference
-        this.physicsWireframe.userData.physics = {
-            body: this.chassisBody,
-            collider: chassisCollider
-        };
-
+        
         // Create vehicle controller with the chassis body
         this.vehicleController = this.rapierPhysics.world.createVehicleController(this.chassisBody);
-        
-        console.log('Physics setup complete:', {
-            chassisBody: !!this.chassisBody,
-            vehicleController: !!this.vehicleController,
-            wireframeSize
-        });
+
+
         
         // Add physics wheels that coincide with visual wheels
         this.addPhysicsWheels();
@@ -97,7 +80,7 @@ export class PhysicsCar {
     addPhysicsWheels() {
         const carObject = this.visualCar.getObject();
         
-        WHEEL_POSITIONS.forEach((pos, index) => {
+        PHYSICS_WHEEL_POSITIONS.forEach((pos, index) => {
             this.addPhysicsWheel(index, pos, carObject);
         });
     }
@@ -118,11 +101,7 @@ export class PhysicsCar {
             z: pos.z
         };
 
-        console.log(`Adding wheel ${index}:`, {
-            position: wheelPosition,
-            radius: wheelRadius,
-            suspensionLength: suspensionRestLength
-        });
+
 
         // Add the wheel to the vehicle controller
         try {
@@ -134,35 +113,14 @@ export class PhysicsCar {
                 wheelRadius
             );
         } catch (e) {
-            console.log('addWheel method not available');
-        }
-
-        // Set suspension stiffness for wheel
-        try {
-            this.vehicleController.setWheelSuspensionStiffness(index, PHYSICS_CONFIG.SUSPENSION_STIFFNESS);
-        } catch (e) {
-            console.log('setWheelSuspensionStiffness not available');
+            // addWheel method not available
         }
 
         // Set wheel friction for better traction
         try {
             this.vehicleController.setWheelFrictionSlip(index, PHYSICS_CONFIG.WHEEL_FRICTION_SLIP);
         } catch (e) {
-            console.log('setWheelFrictionSlip not available');
-        }
-        
-        // Set suspension damping for more realistic behavior
-        try {
-            this.vehicleController.setWheelSuspensionDamping(index, PHYSICS_CONFIG.SUSPENSION_DAMPING);
-        } catch (e) {
-            console.log('setWheelSuspensionDamping not available');
-        }
-        
-        // Set suspension compression damping
-        try {
-            this.vehicleController.setWheelSuspensionCompression(index, PHYSICS_CONFIG.SUSPENSION_COMPRESSION);
-        } catch (e) {
-            console.log('setWheelSuspensionCompression not available');
+            // setWheelFrictionSlip not available
         }
 
         // Create wire mesh for the wheel that coincides with visual wheel
@@ -220,17 +178,17 @@ export class PhysicsCar {
             brakeForce = 0;
         }
 
-        this.movement.brakeForce.value = brakeForce;
+        this.movement.brakeForce.value = brakeForce * 5;
 
         const engineForce = accelerateForce;
 
-        // Apply engine force to rear wheels only (more realistic)
         try {
-            this.vehicleController.setWheelEngineForce(2, engineForce); // Rear Left
-            this.vehicleController.setWheelEngineForce(3, engineForce); // Rear Right
+            this.vehicleController.setWheelEngineForce(0, engineForce); // Rear Left
+            this.vehicleController.setWheelEngineForce(1, engineForce); // Rear Right
         } catch (e) {
-            console.log('setWheelEngineForce not available, using alternative approach');
+            // setWheelEngineForce not available, using alternative approach
             // Fallback: Apply force directly to chassis body
+            console.warn('setWheelEngineForce not available, using alternative approach');
             if (this.chassisBody && engineForce !== 0) {
                 const forceVector = new this.rapierPhysics.rapier.Vector3(0, 0, engineForce * 0.1);
                 this.chassisBody.applyImpulse(forceVector, true);
@@ -242,7 +200,7 @@ export class PhysicsCar {
         try {
             currentSteering = this.vehicleController.wheelSteering(0);
         } catch (e) {
-            console.log('wheelSteering not available');
+            // wheelSteering not available
         }
         
         const steerDirection = this.movement.right; // This is already correct: 1 for left, -1 for right
@@ -256,7 +214,7 @@ export class PhysicsCar {
             this.vehicleController.setWheelSteering(0, steering); // Front Left
             this.vehicleController.setWheelSteering(1, steering); // Front Right
         } catch (e) {
-            console.log('setWheelSteering not available');
+            // setWheelSteering not available
         }
 
         // Update visual wheel steering to match physics
@@ -270,7 +228,7 @@ export class PhysicsCar {
             this.vehicleController.setWheelBrake(2, wheelBrake);
             this.vehicleController.setWheelBrake(3, wheelBrake);
         } catch (e) {
-            console.log('setWheelBrake not available');
+            // setWheelBrake not available
         }
     }
 
@@ -301,20 +259,14 @@ export class PhysicsCar {
     }
 
     /**
-     * Updates the visual car to match physics body
+     * Updates the visual car to match physics wireframe position
+     * This should be called after the physics system updates the wireframe
      */
     updateVisualCar() {
-        if (!this.chassisBody) return;
-
-        const carObject = this.visualCar.getObject();
+        if (!this.physicsWireframe) return;
         
-        // Get physics body position and rotation
-        const physicsPosition = this.chassisBody.translation();
-        const physicsRotation = this.chassisBody.rotation();
-        
-        // Update visual car mesh to match physics body
-        carObject.position.set(physicsPosition.x, physicsPosition.y, physicsPosition.z);
-        carObject.quaternion.set(physicsRotation.x, physicsRotation.y, physicsRotation.z, physicsRotation.w);
+        // Update the visual car based on the physics wireframe position
+        this.visualCar.updateCarFromPhysicsWireframe();
     }
 
     /**
@@ -326,8 +278,31 @@ export class PhysicsCar {
         
         const physicsRotation = this.chassisBody.rotation();
         const quaternion = new THREE.Quaternion(physicsRotation.x, physicsRotation.y, physicsRotation.z, physicsRotation.w);
-        const euler = new THREE.Euler().setFromQuaternion(quaternion);
-        return euler.y;
+        
+        // Use quaternion directly to calculate Y rotation to avoid Euler angle singularities
+        // Extract Y rotation from quaternion using atan2
+        // For a quaternion (x, y, z, w), the Y rotation is: 2 * atan2(y, w)
+        let currentRotation = 2 * Math.atan2(quaternion.y, quaternion.w);
+        
+        // Calculate the shortest angular distance between last and current rotation
+        let angleDifference = currentRotation - this.lastRotation;
+        
+        // Handle wrapping around ±π
+        if (angleDifference > Math.PI) {
+            angleDifference -= 2 * Math.PI;
+        } else if (angleDifference < -Math.PI) {
+            angleDifference += 2 * Math.PI;
+        }
+        
+        // Update the total rotation
+        this.totalRotations += angleDifference;
+        
+        // Store current rotation for next frame
+        this.lastRotation = currentRotation;
+        
+
+        
+        return this.totalRotations;
     }
 
     /**
@@ -370,19 +345,20 @@ export class PhysicsCar {
      */
     getPhysicsDebugInfo() {
         if (!this.isPhysicsReady()) {
-            return {
-                physicsReady: false,
-                position: { x: 'N/A', y: 'N/A', z: 'N/A' },
-                velocity: { x: 'N/A', y: 'N/A', z: 'N/A' },
-                speed: 'N/A',
-                engineForce: 'N/A',
-                brakeForce: 'N/A',
-                input: { forward: this.movement.forward, right: this.movement.right, brake: this.movement.brake },
-                wheelForces: ['N/A', 'N/A', 'N/A', 'N/A'],
-                suspension: ['N/A', 'N/A', 'N/A', 'N/A'],
-                vehicleState: 'Physics Not Ready',
-                groundContact: false
-            };
+                    return {
+            physicsReady: false,
+            position: { x: 'N/A', y: 'N/A', z: 'N/A' },
+            velocity: { x: 'N/A', y: 'N/A', z: 'N/A' },
+            speed: 'N/A',
+            engineForce: 'N/A',
+            brakeForce: 'N/A',
+            input: { forward: this.movement.forward, right: this.movement.right, brake: this.movement.brake },
+            wheelForces: ['N/A', 'N/A', 'N/A', 'N/A'],
+            suspension: ['N/A', 'N/A', 'N/A', 'N/A'],
+            vehicleState: 'Physics Not Ready',
+            groundContact: false,
+            rotation: 'N/A'
+        };
         }
 
         const physicsPosition = this.chassisBody.translation();
@@ -416,7 +392,7 @@ export class PhysicsCar {
                 this.vehicleController.wheelSuspensionLength(3).toFixed(3)
             ];
         } catch (e) {
-            console.log('wheelSuspensionLength methods not available');
+            // wheelSuspensionLength methods not available
         }
         
         // Check ground contact
@@ -427,7 +403,7 @@ export class PhysicsCar {
         try {
             vehicleState = `Wheels: ${this.vehicleController.numWheels()}`;
         } catch (e) {
-            console.log('numWheels method not available');
+            // numWheels method not available
         }
         
         return {
@@ -453,7 +429,8 @@ export class PhysicsCar {
             wheelForces: wheelForces,
             suspension: suspensionLengths,
             vehicleState: vehicleState,
-            groundContact: groundContact
+            groundContact: groundContact,
+            rotation: (this.getCarRotation() * 180 / Math.PI).toFixed(2) // Convert radians to degrees
         };
     }
 } 

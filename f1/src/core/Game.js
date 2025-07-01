@@ -49,8 +49,8 @@ export class Game {
             forward: 0,
             right: 0,
             brake: 0,
-            accelerateForce: { value: 0, min: -500, max: 3500, step: 100 }, // Increased forces
-            brakeForce: { value: 0, min: 0, max: 100, step: 3 }
+            accelerateForce: { value: 0, min: -120, max: 200, step: 5 }, // Increased forces
+            brakeForce: { value: 0, min: 0, max: 1, step: 0.1 }
         };
 
         this.init();
@@ -95,7 +95,7 @@ export class Game {
             this.scene.add(carObject);
             // Set up physics data for the car mesh
             carObject.userData.physics = {
-                mass: 800, // Increased car mass for more realistic physics
+                mass: 500, // Increased car mass for more realistic physics
                 restitution: 0.1 // Bounce factor
             };
         } else {
@@ -136,7 +136,6 @@ export class Game {
             if (child.isMesh && child.userData.physics && child.userData.physics.mass === 0) {
                 // Skip plane geometry ground to avoid conflicts
                 if (child.geometry && child.geometry.type === 'PlaneGeometry') {
-                    console.log('Skipping plane geometry ground for physics to avoid conflicts');
                     return;
                 }
                 this.rapierPhysics.addMesh(child, 0, child.userData.physics.restitution || 0.1);
@@ -155,7 +154,7 @@ export class Game {
         );
 
         // Now that physics is initialized, set up the car physics using the new PhysicsCar class
-        this.physicsCar = new PhysicsCar(this.rapierPhysics, this.car, this.movement);
+        this.physicsCar = new PhysicsCar(this.rapierPhysics, this.car, this.movement, this.scene.getScene());
     }
 
     /**
@@ -228,9 +227,10 @@ export class Game {
             try {
                 this.physicsCar.getVehicleController().updateVehicle(deltaTime);
             } catch (e) {
-                console.log('updateVehicle method not available');
+                // updateVehicle method not available
             }
             this.physicsCar.updatePhysicsWheels();
+            // Update visual car to match physics wireframe position
             this.physicsCar.updateVisualCar();
         }
         this.update();
@@ -242,7 +242,7 @@ export class Game {
         // Use physicsCar for all physics-related state
         if (!this.physicsCar || !this.physicsCar.isPhysicsReady()) {
             const carObject = this.car.getObject();
-            this.camera.update(carObject.position, carObject.rotation.y);
+            // this.camera.update(carObject.position, carObject.rotation.y);
             this.trackDashboard.update(carObject.position, this.road.getSegments(), carObject.rotation.y);
             this.speedDashboard.updateDebug({
                 physicsReady: false,
@@ -263,7 +263,7 @@ export class Game {
         if (this.controls.isCameraTogglePressed()) {
             this.camera.toggleView();
         }
-        // Sync visual car mesh with physics body is handled by physicsCar.updateVisualCar()
+        // Sync visual car mesh with physics wireframe position
         const carObject = this.car.getObject();
         const debugInfo = this.physicsCar.getPhysicsDebugInfo();
         this.speedDashboard.updateDebug(debugInfo);

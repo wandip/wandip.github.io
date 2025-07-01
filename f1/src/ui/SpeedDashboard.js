@@ -91,6 +91,7 @@ export class SpeedDashboard {
             <div><strong>Position:</strong> <span id="debug-pos">Loading...</span></div>
             <div><strong>Velocity:</strong> <span id="debug-vel">Loading...</span></div>
             <div><strong>Speed:</strong> <span id="debug-speed">Loading...</span></div>
+            <div><strong>Rotation:</strong> <span id="debug-rotation">Loading...</span></div>
             <div><strong>Engine Force:</strong> <span id="debug-engine">Loading...</span></div>
             <div><strong>Brake Force:</strong> <span id="debug-brake">Loading...</span></div>
             <div><strong>Input:</strong> <span id="debug-input">Loading...</span></div>
@@ -126,6 +127,7 @@ export class SpeedDashboard {
         const posEl = document.getElementById('debug-pos');
         const velEl = document.getElementById('debug-vel');
         const speedEl = document.getElementById('debug-speed');
+        const rotationEl = document.getElementById('debug-rotation');
         const engineEl = document.getElementById('debug-engine');
         const brakeEl = document.getElementById('debug-brake');
         const inputEl = document.getElementById('debug-input');
@@ -139,6 +141,7 @@ export class SpeedDashboard {
         if (posEl) posEl.textContent = `X: ${data.position?.x || 'N/A'}, Y: ${data.position?.y || 'N/A'}, Z: ${data.position?.z || 'N/A'}`;
         if (velEl) velEl.textContent = `X: ${data.velocity?.x || 'N/A'}, Y: ${data.velocity?.y || 'N/A'}, Z: ${data.velocity?.z || 'N/A'}`;
         if (speedEl) speedEl.textContent = `${data.speed || 'N/A'} m/s`;
+        if (rotationEl) rotationEl.textContent = `${data.rotation || 'N/A'}°`;
         if (engineEl) engineEl.textContent = `${data.engineForce || 'N/A'} N`;
         if (brakeEl) brakeEl.textContent = `${data.brakeForce || 'N/A'} N`;
         if (inputEl) inputEl.textContent = `F: ${data.input?.forward || '0'}, R: ${data.input?.right || '0'}, B: ${data.input?.brake || '0'}`;

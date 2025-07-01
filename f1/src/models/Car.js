@@ -13,10 +13,10 @@ export class Car {
         
         // Define wheel positions as a shared constant
         this.wheelPositions = [
-            { x: 1.0, y: 0.01, z: 3.0, isFront: true, compound: 'MEDIUM' },     // Front Left
-            { x: -1.0, y: 0.01, z: 3.0, isFront: true, compound: 'MEDIUM' },    // Front Right
-            { x: 1.1, y: 0.01, z: -1.5, isFront: false, compound: 'MEDIUM' },  // Rear Left
-            { x: -1.1, y: 0.01, z: -1.5, isFront: false, compound: 'MEDIUM' }  // Rear Right
+            { x: 1.0, y: 0.40, z: 3.0, isFront: true, compound: 'MEDIUM' },     // Front Left
+            { x: -1.0, y: 0.40, z: 3.0, isFront: true, compound: 'MEDIUM' },    // Front Right
+            { x: 1.1, y: 0.40, z: -1.5, isFront: false, compound: 'MEDIUM' },  // Rear Left
+            { x: -1.1, y: 0.40, z: -1.5, isFront: false, compound: 'MEDIUM' }  // Rear Right
         ];
         
         this.createCar();
@@ -416,6 +416,7 @@ export class Car {
 
     /**
      * Creates and stores the physics wireframe mesh (excluding wheels, rear wing, and nose pillar)
+     * Now creates it as a separate component, not as a child of the car
      */
     createPhysicsWireframe() {
         // Create a group to hold all car parts except wheels, rear wing, and nose pillar
@@ -460,12 +461,39 @@ export class Car {
         });
 
         this.physicsWireframe = new THREE.Mesh(boxGeometry, wireframeMaterial);
-        this.physicsWireframe.position.copy(boxCenter);
         
-        // Add wireframe as child of car for automatic positioning
-        this.car.add(this.physicsWireframe);
+        // Position wireframe at the car's current position plus the center offset
+        // this.physicsWireframe.position.copy(this.car.position).add(boxCenter);
+        this.physicsWireframe.position.copy(boxCenter);
         
         // Store original center offset for physics calculations
         this.physicsWireframe.userData.centerOffset = boxCenter.clone();
+        
+        // Store reference to the car for position updates
+        this.physicsWireframe.userData.carReference = this.car;
+    }
+
+    /**
+     * Updates the car position to match the physics wireframe position
+     * This should be called after the physics system updates the wireframe
+     */
+    updateCarFromPhysicsWireframe() {
+        if (!this.physicsWireframe) return;
+        
+        // Get the wireframe's world position
+        const wireframeWorldPosition = new THREE.Vector3();
+        this.physicsWireframe.getWorldPosition(wireframeWorldPosition);
+        
+        // Get the center offset
+        const centerOffset = this.physicsWireframe.userData.centerOffset || new THREE.Vector3();
+        
+        // Calculate car position by subtracting the center offset from wireframe position
+        const carPosition = wireframeWorldPosition.clone().sub(centerOffset);
+        
+        // Update car position
+        this.car.position.copy(carPosition);
+        
+        // Update car rotation to match wireframe rotation
+        this.car.quaternion.copy(this.physicsWireframe.quaternion);
     }
 } 
