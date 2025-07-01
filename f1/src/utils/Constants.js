@@ -20,11 +20,7 @@ export const CAMERA_CONFIG = {
     FIRST_PERSON_UP_OFFSET: 0.3  // Small upward offset for better visibility
 };
 
-export const ROAD_CONFIG = {
-    LENGTH: 100,
-    TOTAL_SEGMENTS: 20,
-    SEGMENT_WIDTH: 20
-};
+
 
 export const CAR_DIMENSIONS = {
     BODY: { width: 1.5, height: 0.5, length: 5 },

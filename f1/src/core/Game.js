@@ -9,11 +9,10 @@ import { TrackDashboard } from '../ui/TrackDashboard';
 import { StartLights } from '../ui/StartLights';
 import { LapTimer } from '../ui/LapTimer';
 import { Garage } from './Garage';
-import { GAME_CONFIG, CAR_DIMENSIONS } from '../utils/Constants';
+import { GAME_CONFIG } from '../utils/Constants';
 import { RapierPhysics } from './RapierPhysics.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { PhysicsCar } from '../physics/PhysicsCar';
-import { PHYSICS_CONFIG } from '../physics/PhysicsConstants';
 
 /**
  * Main game class that orchestrates all components
@@ -36,11 +35,9 @@ export class Game {
         this.trackDashboard = new TrackDashboard();
         this.lapTimer = new LapTimer();
         this.startLights = null;
-        this.raceStarted = false;
         this.garage = new Garage();
         this.stats = GAME_CONFIG.DEBUG_MODE ? new Stats() : null;
         this.rapierPhysics = null;
-        this.physicsWheels = []; // Array to store physics wheel references
         this.clock = new THREE.Clock(); // Add clock for proper timing
         this.physicsCar = null; // Add this property
 
@@ -148,7 +145,7 @@ export class Game {
             this.rapierPhysics.rapier.RigidBodyDesc.fixed()
                 .setTranslation(0, -0.05, 0) // Position slightly below Y=0 to avoid conflicts
         );
-        const groundCollider = this.rapierPhysics.world.createCollider(
+        this.rapierPhysics.world.createCollider(
             this.rapierPhysics.rapier.ColliderDesc.cuboid(1000, 0.05, 1000), // Much larger and thinner
             groundBody
         );
@@ -287,7 +284,6 @@ export class Game {
     }
 
     onRaceStart() {
-        this.raceStarted = true;
         this.lapTimer.start();
         // Optionally, remove the lights after start
         setTimeout(() => {

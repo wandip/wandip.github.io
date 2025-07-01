@@ -353,21 +353,7 @@ export class Car {
         return this.car;
     }
 
-    /**
-     * Gets the car's position
-     * @returns {THREE.Vector3} The car's position
-     */
-    getPosition() {
-        return this.car.position;
-    }
 
-    /**
-     * Gets the car's rotation
-     * @returns {number} The car's rotation
-     */
-    getRotation() {
-        return this.car.rotation.y;
-    }
 
     /**
      * Gets the physics wireframe mesh
@@ -377,34 +363,7 @@ export class Car {
         return this.physicsWireframe;
     }
 
-    /**
-     * Gets the physics wireframe's world position and rotation
-     * @returns {Object} Object containing position and rotation
-     */
-    getPhysicsWireframeTransform() {
-        if (!this.physicsWireframe) return null;
 
-        const worldPosition = new THREE.Vector3();
-        this.physicsWireframe.getWorldPosition(worldPosition);
-        
-        return {
-            position: worldPosition,
-            rotation: this.physicsWireframe.getWorldQuaternion(new THREE.Quaternion()),
-            size: {
-                width: this.physicsWireframe.geometry.parameters.width,
-                height: this.physicsWireframe.geometry.parameters.height,
-                depth: this.physicsWireframe.geometry.parameters.depth
-            }
-        };
-    }
-
-    /**
-     * Gets the wheel positions array
-     * @returns {Array} Array of wheel position objects
-     */
-    getWheelPositions() {
-        return this.wheelPositions;
-    }
 
     /**
      * Gets the wheels array
