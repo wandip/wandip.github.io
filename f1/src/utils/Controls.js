@@ -4,15 +4,16 @@
 export class Controls {
     constructor() {
         this.keys = {
-            ArrowUp: false,
-            ArrowDown: false,
-            ArrowLeft: false,
-            ArrowRight: false,
-            c: false,
             arrowup: false,
             arrowdown: false,
             arrowleft: false,
-            arrowright: false
+            arrowright: false,
+            c: false,
+            w: false,
+            a: false,
+            s: false,
+            d: false,
+            ' ': false // Spacebar for brake
         };
 
         this.setupEventListeners();
@@ -52,14 +53,5 @@ export class Controls {
         return this.keys['c'];
     }
 
-    /**
-     * Checks if any movement keys are pressed
-     * @returns {boolean} - Whether any movement keys are pressed
-     */
-    isMoving() {
-        return this.isKeyPressed('ArrowUp') || 
-               this.isKeyPressed('ArrowDown') || 
-               this.isKeyPressed('ArrowLeft') || 
-               this.isKeyPressed('ArrowRight');
-    }
+
 } 

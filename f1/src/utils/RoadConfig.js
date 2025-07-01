@@ -9,8 +9,7 @@ export const ROAD_TYPES = {
 
 export const ROAD_SEGMENT_CONFIG = {
     WIDTH: 15,         // Width of the road
-    SHOW_MARKERS: false, // Whether to show start/end markers
-    SHOW_COORDINATES: false // Whether to show the coordinate system
+    SHOW_MARKERS: false // Whether to show start/end markers
 };
 
 /**

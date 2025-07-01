@@ -111,6 +111,7 @@ export class Camera {
         const targetCameraPos = new THREE.Vector3().copy(carPosition).add(cameraOffset);
         this.camera.position.lerp(targetCameraPos, CAMERA_CONFIG.LERP_FACTOR);
         
+        // Calculate look-at target based on car's direction
         const lookTarget = new THREE.Vector3().copy(carPosition).add(
             new THREE.Vector3(
                 Math.sin(carRotation) * 20,
@@ -119,11 +120,8 @@ export class Camera {
             )
         );
         
-        const currentLookAt = new THREE.Vector3();
-        this.camera.getWorldDirection(currentLookAt);
-        const targetLookAt = lookTarget.clone().sub(this.camera.position).normalize();
-        currentLookAt.lerp(targetLookAt, CAMERA_CONFIG.LERP_FACTOR);
-        this.camera.lookAt(this.camera.position.clone().add(currentLookAt));
+        // Directly look at the target without lerping the direction
+        this.camera.lookAt(lookTarget);
     }
 
     /**

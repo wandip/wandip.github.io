@@ -31,6 +31,7 @@ export class Scene {
         ground.rotation.x = -Math.PI / 2;
         ground.position.z = 0;  // Center the ground
         ground.position.x = 0;
+        ground.userData.physics = { mass: 0, friction: 1.0, restitution: 0.1 };
         this.scene.add(ground);
 
         // Create sky gradient

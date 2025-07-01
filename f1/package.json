@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "three": "^0.162.0"
+    "three": "^0.162.0",
+    "@dimforge/rapier3d-compat": "^0.17.3"
   },
   "devDependencies": {
     "vite": "^6.3.5"

@@ -32,7 +32,7 @@ export class Garage {
         this.renderer.domElement.style.zIndex = '999';
 
         // Setup camera
-        this.camera.position.set(5, 3, 5);
+        this.camera.position.set(5, 3, 4);
         this.camera.lookAt(0, 0, 0);
 
         // Setup orbit controls
@@ -40,8 +40,8 @@ export class Garage {
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
         this.controls.screenSpacePanning = false;
-        this.controls.minDistance = 2;
-        this.controls.maxDistance = 20;
+        this.controls.minDistance = 1.5;
+        this.controls.maxDistance = 15;
         this.controls.maxPolarAngle = Math.PI / 2;
 
         // Setup lighting
@@ -188,6 +188,18 @@ export class Garage {
         this.isOpen = true;
         document.body.appendChild(this.renderer.domElement);
         
+        // Hide hamburger menu when garage is open
+        const hamburgerMenu = document.getElementById('hamburger-menu');
+        if (hamburgerMenu) {
+            hamburgerMenu.style.display = 'none';
+        }
+        
+        // Hide garage button when garage is open
+        const garageBtn = document.getElementById('garage-btn');
+        if (garageBtn) {
+            garageBtn.style.display = 'none';
+        }
+        
         // Add close button
         this.addCloseButton();
         
@@ -205,6 +217,18 @@ export class Garage {
         if (!this.isOpen) return;
         
         this.isOpen = false;
+        
+        // Show hamburger menu when garage is closed
+        const hamburgerMenu = document.getElementById('hamburger-menu');
+        if (hamburgerMenu) {
+            hamburgerMenu.style.display = 'block';
+        }
+        
+        // Show garage button when garage is closed
+        const garageBtn = document.getElementById('garage-btn');
+        if (garageBtn) {
+            garageBtn.style.display = 'block';
+        }
         
         // Remove renderer from DOM
         if (this.renderer.domElement.parentNode) {
