@@ -49,8 +49,8 @@ export class PhysicsCar {
         const wheelYPosition = PHYSICS_WHEEL_POSITIONS[0].y; // This is now -0.33
         const optimalCarY = PHYSICS_CONFIG.GROUND_LEVEL - wheelYPosition + wheelRadius + PHYSICS_CONFIG.CAR_HEIGHT_OFFSET;
         
-        // First, position the car at the optimal height
-        carObject.position.y = optimalCarY;
+        // Position the car behind the checkered line (10 units behind in z-direction)
+        carObject.position.set(0, optimalCarY, -7);
         
         // Update wireframe position to match car position
         const centerOffset = this.physicsWireframe.userData.centerOffset || new THREE.Vector3();

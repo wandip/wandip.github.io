@@ -13,7 +13,8 @@ export class Controls {
             a: false,
             s: false,
             d: false,
-            ' ': false // Spacebar for brake
+            ' ': false, // Spacebar for brake
+            r: false // R key for restart
         };
 
         this.setupEventListeners();
@@ -51,6 +52,14 @@ export class Controls {
      */
     isCameraTogglePressed() {
         return this.keys['c'];
+    }
+
+    /**
+     * Checks if the restart key is pressed
+     * @returns {boolean} - Whether the restart key is pressed
+     */
+    isRestartPressed() {
+        return this.keys['r'];
     }
 
 
