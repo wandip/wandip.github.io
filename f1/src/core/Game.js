@@ -315,6 +315,13 @@ export class Game {
     }
 
     /**
+     * Restarts the game by refreshing the page
+     */
+    restart() {
+        window.location.reload();
+    }
+
+    /**
      * Sets up input handling using the Controls class
      */
     setupInputHandling() {
@@ -358,6 +365,12 @@ export class Game {
         const originalUpdate = this.update.bind(this);
         this.update = () => {
             updateMovement();
+            
+            // Check for restart key press
+            if (this.controls.isRestartPressed()) {
+                this.restart();
+            }
+            
             originalUpdate();
         };
     }

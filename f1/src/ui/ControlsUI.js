@@ -43,6 +43,13 @@ export class ControlsUI {
                             <span class="action">Toggle View</span>
                         </div>
                     </div>
+                    <div class="control-group">
+                        <h4>Game</h4>
+                        <div class="control-row">
+                            <span class="key">R</span>
+                            <span class="action">Restart Game</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -61,9 +68,9 @@ export class ControlsUI {
             z-index: 10000;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
             border: 2px solid #222;
-            min-width: 240px;
-            max-width: 320px;
-            width: 270px;
+            min-width: 300px;
+            max-width: 400px;
+            width: 350px;
             text-align: center;
         `;
 
@@ -78,7 +85,7 @@ export class ControlsUI {
             }
             .controls-grid {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr 1fr 1fr;
                 gap: 12px;
                 margin-bottom: 12px;
             }
