@@ -13,6 +13,7 @@ import { GAME_CONFIG } from '../utils/Constants';
 import { RapierPhysics } from './RapierPhysics.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { PhysicsCar } from '../physics/PhysicsCar';
+import { PHYSICS_CONFIG } from '../physics/PhysicsConstants';
 
 /**
  * Main game class that orchestrates all components
@@ -46,8 +47,18 @@ export class Game {
             forward: 0,
             right: 0,
             brake: 0,
-            accelerateForce: { value: 0, min: -120, max: 200, step: 5 }, // Increased forces
-            brakeForce: { value: 0, min: 0, max: 1, step: 0.1 }
+            accelerateForce: { 
+                value: 0, 
+                min: PHYSICS_CONFIG.ENGINE_FORCE_MIN, 
+                max: PHYSICS_CONFIG.ENGINE_FORCE_MAX, 
+                step: PHYSICS_CONFIG.ENGINE_FORCE_STEP 
+            },
+            brakeForce: { 
+                value: 0, 
+                min: 0, 
+                max: PHYSICS_CONFIG.BRAKE_FORCE_MAX, 
+                step: PHYSICS_CONFIG.BRAKE_FORCE_STEP 
+            }
         };
 
         this.init();

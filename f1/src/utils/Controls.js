@@ -4,10 +4,10 @@
 export class Controls {
     constructor() {
         this.keys = {
-            ArrowUp: false,
-            ArrowDown: false,
-            ArrowLeft: false,
-            ArrowRight: false,
+            arrowup: false,
+            arrowdown: false,
+            arrowleft: false,
+            arrowright: false,
             c: false,
             w: false,
             a: false,

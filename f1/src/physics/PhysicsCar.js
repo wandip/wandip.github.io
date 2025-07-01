@@ -183,8 +183,10 @@ export class PhysicsCar {
         const engineForce = accelerateForce;
 
         try {
-            this.vehicleController.setWheelEngineForce(0, engineForce); // Rear Left
-            this.vehicleController.setWheelEngineForce(1, engineForce); // Rear Right
+            this.vehicleController.setWheelEngineForce(0, engineForce); 
+            this.vehicleController.setWheelEngineForce(1, engineForce); 
+            this.vehicleController.setWheelEngineForce(2, engineForce); 
+            this.vehicleController.setWheelEngineForce(3, engineForce);
         } catch (e) {
             // setWheelEngineForce not available, using alternative approach
             // Fallback: Apply force directly to chassis body

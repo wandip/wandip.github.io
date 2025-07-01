@@ -8,7 +8,7 @@ export const PHYSICS_CONFIG = {
     FRAME_RATE: 60,
     
     // Car physics properties
-    CAR_MASS: 50,
+    CAR_MASS: 100,
     CAR_RESTITUTION: 0.2,
     
     // Wheel physics properties
@@ -19,13 +19,13 @@ export const PHYSICS_CONFIG = {
     
     // Vehicle control properties
     MAX_STEER_ANGLE: Math.PI / 6,
-    STEERING_RESPONSE: 0.1, // Slower steering response
+    STEERING_RESPONSE: 0.05, // Slower steering response
     ENGINE_FORCE_STEP: 50,
     ENGINE_FORCE_MIN: -500,
-    ENGINE_FORCE_MAX: 5000,
-    BRAKE_FORCE_STEP: 50,
-    BRAKE_FORCE_MAX: 500,
-    FORCE_DECAY: 0.9, // Gradually reduce force when no input
+    ENGINE_FORCE_MAX: 500,
+    BRAKE_FORCE_STEP: 1,
+    BRAKE_FORCE_MAX: 50,
+    FORCE_DECAY: 0.8, // Gradually reduce force when no input
     
     // Car positioning
     GROUND_LEVEL: 0,
