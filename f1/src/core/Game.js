@@ -14,6 +14,7 @@ import { RapierPhysics } from './RapierPhysics.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { PhysicsCar } from '../physics/PhysicsCar';
 import { PHYSICS_CONFIG } from '../physics/PhysicsConstants';
+import { ControlsUI } from '../ui/ControlsUI';
 
 /**
  * Main game class that orchestrates all components
@@ -41,6 +42,10 @@ export class Game {
         this.rapierPhysics = null;
         this.clock = new THREE.Clock(); // Add clock for proper timing
         this.physicsCar = null; // Add this property
+
+        // Race state management
+        this.raceStarted = false;
+        this.controlsUI = new ControlsUI();
 
         // Movement input - Initialize before animate() to avoid undefined error
         this.movement = {
@@ -125,12 +130,15 @@ export class Game {
         // Check if we should skip start lights (dev mode)
         if (GAME_CONFIG.SKIP_START_LIGHTS) {
             // Skip traffic lights and start race immediately
+            this.raceStarted = true;
             this.onRaceStart();
         } else {
             // Add StartLights to the scene
             this.startLights = new StartLights(this.scene.getScene(), this.camera.getCamera(), this.onRaceStart.bind(this));
             // Animate the start lights at game start
             this.startLights.animate();
+            // Show controls UI until race starts
+            this.controlsUI.show();
         }
     }
 
@@ -268,7 +276,8 @@ export class Game {
             });
             return;
         }
-        if (this.controls.isCameraTogglePressed()) {
+        // Only allow camera toggle if race has started
+        if (this.raceStarted && this.controls.isCameraTogglePressed()) {
             this.camera.toggleView();
         }
         // Sync visual car mesh with physics wireframe position
@@ -295,7 +304,10 @@ export class Game {
     }
 
     onRaceStart() {
+        this.raceStarted = true;
         this.lapTimer.start();
+        // Hide controls UI when race starts
+        this.controlsUI.hide();
         // Optionally, remove the lights after start
         setTimeout(() => {
             if (this.startLights) this.startLights.remove();
@@ -308,6 +320,14 @@ export class Game {
     setupInputHandling() {
         // Update movement based on Controls class input
         const updateMovement = () => {
+            // Only allow movement if race has started
+            if (!this.raceStarted) {
+                this.movement.forward = 0;
+                this.movement.right = 0;
+                this.movement.brake = 0;
+                return;
+            }
+
             // Forward/backward
             if (this.controls.isKeyPressed('ArrowUp') || this.controls.isKeyPressed('w')) {
                 this.movement.forward = 1;
