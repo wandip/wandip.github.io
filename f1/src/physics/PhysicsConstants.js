@@ -8,14 +8,14 @@ export const PHYSICS_CONFIG = {
     FRAME_RATE: 60,
     
     // Car physics properties
-    CAR_MASS: 40,
+    CAR_MASS: 50,
     CAR_RESTITUTION: 0.2,
     
     // Wheel physics properties
     WHEEL_RADIUS: 0.45,
     WHEEL_WIDTH: 0.35,
     SUSPENSION_REST_LENGTH: 0.2,
-    WHEEL_FRICTION_SLIP: 1000,
+    WHEEL_FRICTION_SLIP: 3000,
     
     // Vehicle control properties
     MAX_STEER_ANGLE: Math.PI / 6,

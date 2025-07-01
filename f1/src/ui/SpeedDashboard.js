@@ -112,8 +112,8 @@ export class SpeedDashboard {
     }
 
     update(speed) {
-        // Convert speed to km/h (assuming speed is in units/second)
-        const speedKmh = Math.round(Math.abs(speed) * 100);
+        // Convert speed from m/s to km/h (1 m/s = 3.6 km/h)
+        const speedKmh = Math.round(Math.abs(speed) * 3.6);
         this.speedValue.textContent = speedKmh;
     }
 
