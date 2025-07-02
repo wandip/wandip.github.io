@@ -8,23 +8,31 @@ export const PHYSICS_CONFIG = {
     FRAME_RATE: 60,
     
     // Car physics properties
-    CAR_MASS: 100,
+    CAR_MASS: 800, // Increased from 200 to 800 kg for more realistic car mass
     CAR_RESTITUTION: 0.2,
+    CAR_CENTER_OF_MASS_OFFSET: { x: 0.0, y: -0.5, z: 0.0 }, // Much lower center of mass for stability
     
     // Wheel physics properties
     WHEEL_RADIUS: 0.45,
     WHEEL_WIDTH: 0.35,
     SUSPENSION_REST_LENGTH: 0.2,
-    WHEEL_FRICTION_SLIP: 3000,
+    WHEEL_FRICTION_SLIP: 9000,
+    
+    // Suspension properties
+    SUSPENSION_STIFFNESS: 1, // Higher stiffness for less body roll
+    SUSPENSION_DAMPING: 0,    // Damping to prevent oscillation
+    SUSPENSION_COMPRESSION: 0, // Compression ratio
+    SUSPENSION_REBOUND: 0,     // Rebound ratio
+    SUSPENSION_TRAVEL: 0,      // Maximum suspension travel
     
     // Vehicle control properties
     MAX_STEER_ANGLE: Math.PI / 6,
     STEERING_RESPONSE: 0.05, // Slower steering response
-    ENGINE_FORCE_STEP: 50,
-    ENGINE_FORCE_MIN: -500,
-    ENGINE_FORCE_MAX: 500,
-    BRAKE_FORCE_STEP: 1,
-    BRAKE_FORCE_MAX: 50,
+    ENGINE_FORCE_STEP: 200, // Increased for heavier car
+    ENGINE_FORCE_MIN: -2000, // Increased for heavier car
+    ENGINE_FORCE_MAX: 2000, // Increased for heavier car
+    BRAKE_FORCE_STEP: 5, // Increased for heavier car
+    BRAKE_FORCE_MAX: 200, // Increased for heavier car
     FORCE_DECAY: 0.8, // Gradually reduce force when no input
     
     // Car positioning

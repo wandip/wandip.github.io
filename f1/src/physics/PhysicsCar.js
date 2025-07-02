@@ -63,6 +63,12 @@ export class PhysicsCar {
         this.rapierPhysics.addMesh(this.physicsWireframe, PHYSICS_CONFIG.CAR_MASS, PHYSICS_CONFIG.CAR_RESTITUTION);
         this.chassisBody = this.physicsWireframe.userData.physics.body;
         
+        // Set the center of mass to be lower for better stability
+        if (this.chassisBody && this.chassisBody.setCenterOfMass) {
+            const comOffset = PHYSICS_CONFIG.CAR_CENTER_OF_MASS_OFFSET;
+            this.chassisBody.setCenterOfMass(comOffset);
+        }
+        
 
         
         // Create vehicle controller with the chassis body
@@ -101,8 +107,6 @@ export class PhysicsCar {
             z: pos.z
         };
 
-
-
         // Add the wheel to the vehicle controller
         try {
             this.vehicleController.addWheel(
@@ -112,8 +116,17 @@ export class PhysicsCar {
                 suspensionRestLength,
                 wheelRadius
             );
+            
+            // Configure suspension for this wheel
+            this.vehicleController.setWheelSuspensionStiffness(index, PHYSICS_CONFIG.SUSPENSION_STIFFNESS);
+            this.vehicleController.setWheelSuspensionDamping(index, PHYSICS_CONFIG.SUSPENSION_DAMPING);
+            this.vehicleController.setWheelSuspensionCompression(index, PHYSICS_CONFIG.SUSPENSION_COMPRESSION);
+            this.vehicleController.setWheelSuspensionRebound(index, PHYSICS_CONFIG.SUSPENSION_REBOUND);
+            this.vehicleController.setWheelSuspensionTravel(index, PHYSICS_CONFIG.SUSPENSION_TRAVEL);
+            
         } catch (e) {
-            // addWheel method not available
+            // Suspension configuration methods not available
+            console.warn('Suspension configuration methods not available:', e);
         }
 
         // Set wheel friction for better traction
@@ -434,5 +447,14 @@ export class PhysicsCar {
             groundContact: groundContact,
             rotation: (this.getCarRotation() * 180 / Math.PI).toFixed(2) // Convert radians to degrees
         };
+    }
+
+    /**
+     * Gets the car's speed in m/s (magnitude of velocity in XZ plane)
+     */
+    getSpeed() {
+        if (!this.chassisBody) return 0;
+        const velocity = this.chassisBody.linvel();
+        return Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
     }
 } 
