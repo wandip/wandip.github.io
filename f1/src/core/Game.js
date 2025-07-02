@@ -238,6 +238,10 @@ export class Game {
             this.rapierPhysics.world.timestep = deltaTime;
             this.rapierPhysics.step();
         }
+        // Sync steering sensitivity from garage to physicsCar
+        if (this.physicsCar && this.garage && typeof this.garage.getSteeringSensitivity === 'function') {
+            this.physicsCar.setSteeringSensitivity(this.garage.getSteeringSensitivity());
+        }
         if (this.physicsCar && this.physicsCar.isPhysicsReady()) {
             this.physicsCar.updateCarControls();
             try {

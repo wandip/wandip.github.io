@@ -50,4 +50,7 @@ export const PHYSICS_WHEEL_POSITIONS = [
 export const WHEEL_DIRECTIONS = {
     DIRECTION: { x: 0.0, y: -1.0, z: 0.0 },
     AXLE: { x: -1.0, y: 0.0, z: 0.0 }
-}; 
+};
+
+// Default steering sensitivity for car and UI
+export const DEFAULT_STEERING_SENSITIVITY = 0.6; 

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { PHYSICS_CONFIG, PHYSICS_WHEEL_POSITIONS, WHEEL_DIRECTIONS } from './PhysicsConstants';
+import { PHYSICS_CONFIG, PHYSICS_WHEEL_POSITIONS, WHEEL_DIRECTIONS, DEFAULT_STEERING_SENSITIVITY } from './PhysicsConstants';
 
 /**
  * Handles all physics-related car logic and vehicle controller
@@ -27,6 +27,8 @@ export class PhysicsCar {
         this.lastRotation = 0;
         this.rotationOffset = 0;
         this.totalRotations = 0;
+        
+        this.steeringSensitivity = DEFAULT_STEERING_SENSITIVITY; // Default steering sensitivity
         
         this.setupPhysics();
     }
@@ -218,7 +220,8 @@ export class PhysicsCar {
             // wheelSteering not available
         }
         
-        const steerDirection = this.movement.right; // This is already correct: 1 for left, -1 for right
+        // Apply steering sensitivity
+        const steerDirection = this.movement.right * (this.steeringSensitivity || 1.0); // Sensitivity scaling
         const maxSteerAngle = PHYSICS_CONFIG.MAX_STEER_ANGLE;
 
         const targetSteering = maxSteerAngle * steerDirection;
@@ -456,5 +459,21 @@ export class PhysicsCar {
         if (!this.chassisBody) return 0;
         const velocity = this.chassisBody.linvel();
         return Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+    }
+
+    /**
+     * Sets the steering sensitivity (how fast the car turns)
+     * @param {number} value
+     */
+    setSteeringSensitivity(value) {
+        this.steeringSensitivity = value;
+    }
+
+    /**
+     * Gets the steering sensitivity
+     * @returns {number}
+     */
+    getSteeringSensitivity() {
+        return this.steeringSensitivity;
     }
 } 

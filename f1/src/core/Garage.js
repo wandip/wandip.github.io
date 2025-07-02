@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Car } from '../models/Car';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { DEFAULT_STEERING_SENSITIVITY } from '../physics/PhysicsConstants';
 
 /**
  * Garage viewer for inspecting the F1 car in 3D space
@@ -13,6 +14,7 @@ export class Garage {
         this.controls = null;
         this.car = new Car();
         this.isOpen = false;
+        this.steeringSensitivity = undefined;
         
         this.init();
     }
@@ -188,6 +190,9 @@ export class Garage {
         this.isOpen = true;
         document.body.appendChild(this.renderer.domElement);
         
+        // Add steering sensitivity slider
+        this.addSteeringSensitivitySlider();
+        
         // Hide hamburger menu when garage is open
         const hamburgerMenu = document.getElementById('hamburger-menu');
         if (hamburgerMenu) {
@@ -246,6 +251,10 @@ export class Garage {
         if (instructions) {
             instructions.remove();
         }
+
+        // Remove steering sensitivity slider
+        const slider = document.getElementById('steering-sensitivity-container');
+        if (slider) slider.remove();
     }
 
     /**
@@ -313,6 +322,91 @@ export class Garage {
         `;
         
         document.body.appendChild(instructions);
+    }
+
+    /**
+     * Adds a steering sensitivity slider to the garage UI
+     */
+    addSteeringSensitivitySlider() {
+        // Remove if already exists
+        const existing = document.getElementById('steering-sensitivity-container');
+        if (existing) existing.remove();
+
+        const container = document.createElement('div');
+        container.id = 'steering-sensitivity-container';
+        container.style.cssText = `
+            position: fixed;
+            top: 90px;
+            right: 30px;
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 18px 22px 18px 22px;
+            border-radius: 12px;
+            z-index: 1001;
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+            min-width: 260px;
+        `;
+
+        const label = document.createElement('label');
+        label.htmlFor = 'steering-sensitivity-slider';
+        label.innerText = 'Steering Sensitivity:';
+        label.style.display = 'block';
+        label.style.marginBottom = '8px';
+
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.id = 'steering-sensitivity-slider';
+        slider.min = '0.1';
+        slider.max = '2.0';
+        slider.step = '0.01';
+        slider.value = this.steeringSensitivity !== undefined ? this.steeringSensitivity : DEFAULT_STEERING_SENSITIVITY;
+        slider.style.width = '180px';
+        slider.style.marginRight = '10px';
+
+        const valueDisplay = document.createElement('span');
+        valueDisplay.id = 'steering-sensitivity-value';
+        valueDisplay.innerText = slider.value;
+        valueDisplay.style.marginLeft = '8px';
+        valueDisplay.style.fontWeight = 'bold';
+
+        const warning = document.createElement('div');
+        warning.id = 'steering-sensitivity-warning';
+        warning.style.color = '#ffb347';
+        warning.style.fontSize = '13px';
+        warning.style.marginTop = '8px';
+        warning.style.display = 'none';
+        warning.style.minHeight = '18px';
+        warning.innerText = '😏 That\'s a really low value! Beware: it will be hard to turn the car.';
+
+        slider.addEventListener('input', () => {
+            valueDisplay.innerText = slider.value;
+            this.steeringSensitivity = parseFloat(slider.value);
+            if (this.steeringSensitivity < 0.25) {
+                warning.style.display = 'block';
+            } else {
+                warning.style.display = 'none';
+            }
+        });
+
+        // Set initial warning state
+        if (parseFloat(slider.value) < 0.25) {
+            warning.style.display = 'block';
+        }
+
+        container.appendChild(label);
+        container.appendChild(slider);
+        container.appendChild(valueDisplay);
+        container.appendChild(warning);
+        document.body.appendChild(container);
+    }
+
+    /**
+     * Gets the current steering sensitivity value
+     */
+    getSteeringSensitivity() {
+        return this.steeringSensitivity !== undefined ? this.steeringSensitivity : DEFAULT_STEERING_SENSITIVITY;
     }
 
     /**
