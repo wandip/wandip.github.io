@@ -41,30 +41,30 @@ export const TRACK_CONFIG = [
     {
         type: ROAD_TYPES.STRAIGHT,
         start: { x: 20, z: 120 },
-        end: { x: 40, z: 120 }
+        end: { x: 140, z: 120 }
     },
     {
         type: ROAD_TYPES.CURVED,
-        start: { x: 40, z: 120 },
-        end: { x: 60, z: 100 },
+        start: { x: 140, z: 120 },
+        end: { x: 160, z: 100 },
         direction: 'anticlockwise',
         greyAreaRotation: 'clockwise'
     },
     {
         type: ROAD_TYPES.STRAIGHT,
-        start: { x: 60, z: 100 },
-        end: { x: 60, z: 0 }
+        start: { x: 160, z: 100 },
+        end: { x: 160, z: 0 }
     },
     {
         type: ROAD_TYPES.CURVED,
-        start: { x: 60, z: 0 },
-        end: { x: 40, z: -20 },
+        start: { x: 160, z: 0 },
+        end: { x: 140, z: -20 },
         direction: 'anticlockwise',
         greyAreaRotation: 'anticlockwise'
     },
     {
         type: ROAD_TYPES.STRAIGHT,
-        start: { x: 40, z: -20 },
+        start: { x: 140, z: -20 },
         end: { x: 20, z: -20 }
     },
     {

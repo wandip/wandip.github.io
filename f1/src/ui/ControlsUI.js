@@ -11,7 +11,7 @@ export class ControlsUI {
         this.controlsUI.id = 'controls-ui';
         this.controlsUI.innerHTML = `
             <div class="controls-container">
-                <h3>🏎️ Controls</h3>
+                <h3>Controls</h3>
                 <div class="controls-grid">
                     <div class="control-group">
                         <h4>Movement</h4>
@@ -37,14 +37,11 @@ export class ControlsUI {
                         </div>
                     </div>
                     <div class="control-group">
-                        <h4>Camera</h4>
+                        <h4>Game</h4>
                         <div class="control-row">
                             <span class="key">C</span>
-                            <span class="action">Toggle View</span>
+                            <span class="action">Camera View</span>
                         </div>
-                    </div>
-                    <div class="control-group">
-                        <h4>Game</h4>
                         <div class="control-row">
                             <span class="key">R</span>
                             <span class="action">Restart Game</span>
@@ -64,13 +61,13 @@ export class ControlsUI {
             color: white;
             border-radius: 15px;
             padding: 18px 18px 18px 18px;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Orbitron', Arial, sans-serif;
             z-index: 10000;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
             border: 2px solid #222;
-            min-width: 300px;
+            min-width: 250px;
             max-width: 400px;
-            width: 350px;
+            width: 270px;
             text-align: center;
         `;
 
@@ -118,6 +115,7 @@ export class ControlsUI {
             .action {
                 color: #bdc3c7;
                 font-size: 12px;
+                font-family: 'Orbitron', Arial, sans-serif;
             }
         `;
         document.head.appendChild(this.styleElement);

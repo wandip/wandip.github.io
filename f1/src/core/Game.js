@@ -66,6 +66,13 @@ export class Game {
             }
         };
 
+        this.mainUIElements = [
+            this.speedDashboard.getObject(),
+            this.trackDashboard.getObject(),
+            this.lapTimer.getObject(),
+            this.controlsUI.controlsUI
+        ].filter(Boolean);
+
         this.init();
         this.initPhysics();
         this.animate();
@@ -119,8 +126,7 @@ export class Game {
         if (this.stats) {
             document.body.appendChild(this.stats.dom);
         }
-        document.body.appendChild(this.speedDashboard.getObject());
-        document.body.appendChild(this.trackDashboard.getObject());
+        this.showMainUI();
 
         // Setup garage button with a small delay to ensure renderer is ready
         setTimeout(() => {
@@ -195,19 +201,36 @@ export class Game {
                 position: fixed;
                 bottom: 20px;
                 left: 20px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                border: none;
-                border-radius: 25px;
-                padding: 12px 20px;
-                font-size: 16px;
-                font-weight: bold;
+                background: #181c20;
+                color: #b2eaff;
+                border: 2px solid #5fa8d3;
+                border-radius: 8px;
+                padding: 14px 28px;
+                font-size: 18px;
+                font-family: 'Orbitron', Arial, sans-serif;
+                font-style: italic;
+                font-weight: 900;
+                letter-spacing: 2px;
                 cursor: pointer;
                 z-index: 9999;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
+                box-shadow: 0 2px 8px 0 #5fa8d3;
+                text-transform: uppercase;
                 pointer-events: auto;
+                outline: none;
             `;
+            garageBtn.onmouseenter = () => {
+                garageBtn.style.boxShadow = '0 4px 16px 0 #5fa8d3';
+                garageBtn.style.borderColor = '#b2eaff';
+                garageBtn.style.background = '#23272e';
+                garageBtn.style.color = '#b2eaff';
+            };
+            garageBtn.onmouseleave = () => {
+                garageBtn.style.boxShadow = '0 2px 8px 0 #5fa8d3';
+                garageBtn.style.borderColor = '#5fa8d3';
+                garageBtn.style.background = '#181c20';
+                garageBtn.style.color = '#b2eaff';
+            };
             document.body.appendChild(garageBtn);
         } else {
             // Ensure existing button has correct z-index and position
@@ -220,7 +243,14 @@ export class Game {
         
         if (garageBtn) {
             garageBtn.addEventListener('click', () => {
+                this.hideMainUI();
                 this.garage.open();
+                // When garage closes, show main UI again
+                const origClose = this.garage.close.bind(this.garage);
+                this.garage.close = () => {
+                    origClose();
+                    this.showMainUI();
+                };
             });
         } else {
             console.error('Failed to create garage button!');
@@ -280,8 +310,8 @@ export class Game {
             });
             return;
         }
-        // Only allow camera toggle if race has started
-        if (this.raceStarted && this.controls.isCameraTogglePressed()) {
+        // Allow camera toggle at any time (not just after race start)
+        if (this.controls.isCameraTogglePressed()) {
             this.camera.toggleView();
         }
         // Sync visual car mesh with physics wireframe position
@@ -377,5 +407,31 @@ export class Game {
             
             originalUpdate();
         };
+    }
+
+    showMainUI() {
+        this.mainUIElements.forEach(el => {
+            if (el && !document.body.contains(el)) {
+                document.body.appendChild(el);
+            }
+        });
+        this.controlsUI.show();
+        // Show StartLights start message if race hasn't started and startLights exists
+        if (!this.raceStarted && this.startLights && this.startLights.startMessage && !document.body.contains(this.startLights.startMessage)) {
+            document.body.appendChild(this.startLights.startMessage);
+        }
+    }
+
+    hideMainUI() {
+        this.mainUIElements.forEach(el => {
+            if (el && el.parentNode) {
+                el.parentNode.removeChild(el);
+            }
+        });
+        this.controlsUI.hide();
+        // Hide StartLights start message if present
+        if (this.startLights && this.startLights.startMessage && document.body.contains(this.startLights.startMessage)) {
+            document.body.removeChild(this.startLights.startMessage);
+        }
     }
 } 

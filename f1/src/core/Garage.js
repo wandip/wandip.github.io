@@ -343,7 +343,7 @@ export class Garage {
             padding: 18px 22px 18px 22px;
             border-radius: 12px;
             z-index: 1001;
-            font-family: Arial, sans-serif;
+            font-family: 'Orbitron', Arial, sans-serif;
             font-size: 15px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.18);
             min-width: 260px;
@@ -378,7 +378,8 @@ export class Garage {
         warning.style.marginTop = '8px';
         warning.style.display = 'none';
         warning.style.minHeight = '18px';
-        warning.innerText = '😏 That\'s a really low value! Beware: it will be hard to turn the car.';
+        warning.style.maxWidth = '230px';
+        warning.innerText = '😏 That\'s a really low value! \nBeware: it will be hard to turn the car.';
 
         slider.addEventListener('input', () => {
             valueDisplay.innerText = slider.value;
