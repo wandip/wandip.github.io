@@ -15,6 +15,8 @@
       gtag('config', 'G-GW4ET4W8FJ');
     </script>
     
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Orbitron:400,500,700,900&display=swap">
+    
     <style>
         body {
             margin: 0;
@@ -44,27 +46,6 @@
             font-size: 14px;
             z-index: 1000;
             pointer-events: auto;
-        }
-        #garage-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            padding: 12px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 9999;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            pointer-events: auto;
-        }
-        #garage-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
         #hamburger-menu {
             position: fixed;
@@ -112,18 +93,21 @@
             display: none;
             color: white;
             font-size: 14px;
+            font-family: 'Orbitron', Arial, sans-serif;
         }
         #menu-content.show {
             display: block;
         }
         #menu-content h3 {
             margin: 0 0 15px 0;
-            color: #667eea;
+            color: #87ceeb;
             font-size: 16px;
+            font-family: 'Orbitron', Arial, sans-serif;
         }
         #menu-content a {
-            color: #667eea;
+            color: #87ceeb;
             text-decoration: none;
+            font-family: 'Orbitron', Arial, sans-serif;
         }
         #menu-content a:hover {
             text-decoration: underline;
@@ -153,7 +137,6 @@
 </head>
 <body>
     <div id="game-container"></div>
-    <button id="garage-btn">Garage</button>
     <div id="hamburger-menu">
         <div id="hamburger-icon">
             <span></span>

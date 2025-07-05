@@ -40,19 +40,58 @@ export class StartLights {
         messageDiv.style.fontFamily = 'Arial, sans-serif';
         messageDiv.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
         messageDiv.style.zIndex = '1000';
-        messageDiv.textContent = 'Press any button to start';
+        // messageDiv.textContent = 'Press Start Race to begin';
+        // Add Start Race button
+        const startBtn = document.createElement('button');
+        startBtn.textContent = 'Start Race';
+        startBtn.style.display = 'block';
+        startBtn.style.margin = '30px auto 0 auto';
+        startBtn.style.padding = '16px 40px';
+        startBtn.style.fontSize = '26px';
+        startBtn.style.background = '#181c20';
+        startBtn.style.color = '#b2eaff';
+        startBtn.style.border = '2px solid #5fa8d3';
+        startBtn.style.borderRadius = '8px';
+        startBtn.style.cursor = 'pointer';
+        startBtn.style.fontWeight = '900';
+        startBtn.style.fontFamily = "'Orbitron', 'Arial Black', Arial, sans-serif";
+        startBtn.style.fontStyle = 'italic';
+        startBtn.style.letterSpacing = '2px';
+        startBtn.style.boxShadow = '0 2px 8px 0 #5fa8d3';
+        startBtn.style.textTransform = 'uppercase';
+        startBtn.style.transition = 'box-shadow 0.2s, border-color 0.2s, background 0.2s, color 0.2s';
+        startBtn.style.outline = 'none';
+        startBtn.onmouseenter = () => {
+            startBtn.style.boxShadow = '0 4px 16px 0 #5fa8d3';
+            startBtn.style.borderColor = '#b2eaff';
+            startBtn.style.background = '#23272e';
+            startBtn.style.color = '#b2eaff';
+        };
+        startBtn.onmouseleave = () => {
+            startBtn.style.boxShadow = '0 2px 8px 0 #5fa8d3';
+            startBtn.style.borderColor = '#5fa8d3';
+            startBtn.style.background = '#181c20';
+            startBtn.style.color = '#b2eaff';
+        };
+        messageDiv.appendChild(startBtn);
         this.startMessage = messageDiv;
         document.body.appendChild(messageDiv);
+        // Attach click handler for start
+        startBtn.addEventListener('click', () => {
+            this.handleStartRace();
+        });
     }
 
     setupAudioInitialization() {
+        // Remove any previous listeners (if any)
+        // Only start race on Start Race button click now
+    }
+
+    handleStartRace() {
         const initAudio = async () => {
             if (!this.audioInitialized) {
                 await this.initializeAudio();
             }
-            // Remove the event listeners after first interaction
-            document.removeEventListener('click', initAudio);
-            document.removeEventListener('keydown', initAudio);
             // Remove start message
             if (this.startMessage) {
                 document.body.removeChild(this.startMessage);
@@ -61,9 +100,7 @@ export class StartLights {
             // Start animation
             this.animate();
         };
-
-        document.addEventListener('click', initAudio);
-        document.addEventListener('keydown', initAudio);
+        initAudio();
     }
 
     async loadAudioFile() {

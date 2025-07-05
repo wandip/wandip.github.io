@@ -188,7 +188,7 @@ export class Road {
         centerLineCurve.getPoint = (t) => {
             return new THREE.Vector3(0, 0.03, -length/2 + t * length);
         };
-        const centerLineGeometry = new THREE.TubeGeometry(centerLineCurve, 1, 0.12, 8, false);
+        const centerLineGeometry = new THREE.TubeGeometry(centerLineCurve, 1, 0.1, 8, false);
         const centerLineMaterial = new THREE.MeshStandardMaterial({
             color: COLORS.CENTER_LINE,
             roughness: 0.5,
@@ -214,7 +214,7 @@ export class Road {
                         -length/2 + i * stripeLength + t * stripeLength
                     );
                 };
-                const stripeGeometry = new THREE.TubeGeometry(stripeCurve, 1, 0.25, 8, false);
+                const stripeGeometry = new THREE.TubeGeometry(stripeCurve, 1, 0.1, 8, false);
                 const stripeMaterial = new THREE.MeshStandardMaterial({ 
                     color,
                     depthTest: true,
