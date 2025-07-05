@@ -98,6 +98,11 @@ export class Scene {
      * Creates and adds lights to the scene
      */
     createLights() {
+        // Hemisphere light for natural ambient effect
+        const hemisphere = new THREE.HemisphereLight(COLORS.SKY, COLORS.GROUND, 1.0);
+        hemisphere.position.set(0, 50, 0);
+        this.scene.add(hemisphere);
+
         // Ambient light
         const ambient = new THREE.AmbientLight(0xffffff, 0.6);
         this.scene.add(ambient);

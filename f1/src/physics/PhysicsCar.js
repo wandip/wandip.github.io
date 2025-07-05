@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { PHYSICS_CONFIG, PHYSICS_WHEEL_POSITIONS, WHEEL_DIRECTIONS } from './PhysicsConstants';
+import { PHYSICS_CONFIG, PHYSICS_WHEEL_POSITIONS, WHEEL_DIRECTIONS, DEFAULT_STEERING_SENSITIVITY } from './PhysicsConstants';
 
 /**
  * Handles all physics-related car logic and vehicle controller
@@ -27,6 +27,8 @@ export class PhysicsCar {
         this.lastRotation = 0;
         this.rotationOffset = 0;
         this.totalRotations = 0;
+        
+        this.steeringSensitivity = DEFAULT_STEERING_SENSITIVITY; // Default steering sensitivity
         
         this.setupPhysics();
     }
@@ -62,6 +64,12 @@ export class PhysicsCar {
         // Now create the physics body at the wireframe's current world position
         this.rapierPhysics.addMesh(this.physicsWireframe, PHYSICS_CONFIG.CAR_MASS, PHYSICS_CONFIG.CAR_RESTITUTION);
         this.chassisBody = this.physicsWireframe.userData.physics.body;
+        
+        // Set the center of mass to be lower for better stability
+        if (this.chassisBody && this.chassisBody.setCenterOfMass) {
+            const comOffset = PHYSICS_CONFIG.CAR_CENTER_OF_MASS_OFFSET;
+            this.chassisBody.setCenterOfMass(comOffset);
+        }
         
 
         
@@ -101,8 +109,6 @@ export class PhysicsCar {
             z: pos.z
         };
 
-
-
         // Add the wheel to the vehicle controller
         try {
             this.vehicleController.addWheel(
@@ -112,8 +118,17 @@ export class PhysicsCar {
                 suspensionRestLength,
                 wheelRadius
             );
+            
+            // Configure suspension for this wheel
+            this.vehicleController.setWheelSuspensionStiffness(index, PHYSICS_CONFIG.SUSPENSION_STIFFNESS);
+            this.vehicleController.setWheelSuspensionDamping(index, PHYSICS_CONFIG.SUSPENSION_DAMPING);
+            this.vehicleController.setWheelSuspensionCompression(index, PHYSICS_CONFIG.SUSPENSION_COMPRESSION);
+            this.vehicleController.setWheelSuspensionRebound(index, PHYSICS_CONFIG.SUSPENSION_REBOUND);
+            this.vehicleController.setWheelSuspensionTravel(index, PHYSICS_CONFIG.SUSPENSION_TRAVEL);
+            
         } catch (e) {
-            // addWheel method not available
+            // Suspension configuration methods not available
+            console.warn('Suspension configuration methods not available:', e);
         }
 
         // Set wheel friction for better traction
@@ -205,7 +220,8 @@ export class PhysicsCar {
             // wheelSteering not available
         }
         
-        const steerDirection = this.movement.right; // This is already correct: 1 for left, -1 for right
+        // Apply steering sensitivity
+        const steerDirection = this.movement.right * (this.steeringSensitivity || 1.0); // Sensitivity scaling
         const maxSteerAngle = PHYSICS_CONFIG.MAX_STEER_ANGLE;
 
         const targetSteering = maxSteerAngle * steerDirection;
@@ -434,5 +450,30 @@ export class PhysicsCar {
             groundContact: groundContact,
             rotation: (this.getCarRotation() * 180 / Math.PI).toFixed(2) // Convert radians to degrees
         };
+    }
+
+    /**
+     * Gets the car's speed in m/s (magnitude of velocity in XZ plane)
+     */
+    getSpeed() {
+        if (!this.chassisBody) return 0;
+        const velocity = this.chassisBody.linvel();
+        return Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+    }
+
+    /**
+     * Sets the steering sensitivity (how fast the car turns)
+     * @param {number} value
+     */
+    setSteeringSensitivity(value) {
+        this.steeringSensitivity = value;
+    }
+
+    /**
+     * Gets the steering sensitivity
+     * @returns {number}
+     */
+    getSteeringSensitivity() {
+        return this.steeringSensitivity;
     }
 } 
