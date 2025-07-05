@@ -415,7 +415,10 @@ export class Game {
                 document.body.appendChild(el);
             }
         });
-        this.controlsUI.show();
+        // Only show controls UI if race hasn't started yet
+        if (!this.raceStarted) {
+            this.controlsUI.show();
+        }
         // Show StartLights start message if race hasn't started and startLights exists
         if (!this.raceStarted && this.startLights && this.startLights.startMessage && !document.body.contains(this.startLights.startMessage)) {
             document.body.appendChild(this.startLights.startMessage);
