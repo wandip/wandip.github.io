@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>F1 Racing Game</title>
     
     <!-- Google Analytics -->
@@ -13,6 +13,34 @@
       gtag('js', new Date());
 
       gtag('config', 'G-GW4ET4W8FJ');
+    </script>
+    
+    <script>
+        // Fix for mobile viewport and high-DPI displays
+        (function() {
+            // Set viewport height for mobile browsers
+            function setVH() {
+                let vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            }
+            
+            // Set initial viewport height
+            setVH();
+            
+            // Update on resize and orientation change
+            window.addEventListener('resize', setVH);
+            window.addEventListener('orientationchange', function() {
+                setTimeout(setVH, 100);
+            });
+            
+            // Force high-DPI rendering
+            if (window.devicePixelRatio > 1) {
+                const meta = document.querySelector('meta[name="viewport"]');
+                if (meta) {
+                    meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, device-width=device-width');
+                }
+            }
+        })();
     </script>
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Orbitron:400,500,700,900&display=swap">
@@ -26,14 +54,26 @@
         #game-container {
             width: 100vw;
             height: 100vh;
+            height: calc(var(--vh, 1vh) * 100);
             position: relative;
+            overflow: hidden;
         }
         #game-container canvas {
             position: absolute;
             top: 0;
             left: 0;
+            width: 100% !important;
+            height: 100% !important;
             z-index: 1;
             pointer-events: auto;
+            object-fit: cover;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
         }
         #controls-info {
             position: fixed;
@@ -121,6 +161,45 @@
             color: #b2eaff !important;
         }
 
+        /* Mobile-specific viewport fixes */
+        @media (max-width: 768px) {
+            body {
+                min-height: 100vh;
+                min-height: calc(var(--vh, 1vh) * 100);
+                min-height: -webkit-fill-available;
+            }
+            #game-container {
+                min-height: 100vh;
+                min-height: calc(var(--vh, 1vh) * 100);
+                min-height: -webkit-fill-available;
+            }
+            #game-container canvas {
+                min-height: 100vh;
+                min-height: calc(var(--vh, 1vh) * 100);
+                min-height: -webkit-fill-available;
+            }
+        }
+        
+        /* Landscape mobile specific fixes */
+        @media (max-width: 768px) and (orientation: landscape) {
+            body {
+                height: 100vh;
+                height: calc(var(--vh, 1vh) * 100);
+                height: -webkit-fill-available;
+                overflow: hidden;
+            }
+            #game-container {
+                height: 100vh;
+                height: calc(var(--vh, 1vh) * 100);
+                height: -webkit-fill-available;
+            }
+            #game-container canvas {
+                height: 100vh;
+                height: calc(var(--vh, 1vh) * 100);
+                height: -webkit-fill-available;
+            }
+        }
+        
         /* Responsive design for mobile devices */
         @media (max-width: 768px) {
             #hamburger-menu {
@@ -177,6 +256,19 @@
     </style>
     <script type="module" src="./src/index.js"></script>
     <script>
+        // Mobile viewport fix
+        function setViewportHeight() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        // Set initial viewport height
+        setViewportHeight();
+        
+        // Update viewport height on resize and orientation change
+        window.addEventListener('resize', setViewportHeight);
+        window.addEventListener('orientationchange', setViewportHeight);
+        
         // Hamburger menu functionality
         document.addEventListener('DOMContentLoaded', function() {
             const hamburgerIcon = document.getElementById('hamburger-icon');

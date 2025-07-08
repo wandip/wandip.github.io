@@ -98,7 +98,8 @@ export class Wheel {
      */
     updateSteering(targetRotation) {
         if (this.isFront && this.container) {
-            this.container.rotation.y += (targetRotation - this.container.rotation.y) * 0.2;
+            // Continuous steering update for smooth wheel rotation
+            this.container.rotation.y = targetRotation;
         }
     }
 

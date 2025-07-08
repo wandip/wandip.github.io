@@ -141,6 +141,35 @@ export class TrackDashboard {
         this.ctx.stroke();
     }
 
+    // setHighDPIScaling() {
+    //     const dpr = Math.min(window.devicePixelRatio, 2);
+    //     const rect = this.canvas.getBoundingClientRect();
+        
+    //     // Set the canvas size to the display size * device pixel ratio
+    //     this.canvas.width = rect.width * dpr;
+    //     this.canvas.height = rect.height * dpr;
+        
+    //     // Scale the drawing context so everything draws at the correct size
+    //     this.ctx.scale(dpr, dpr);
+        
+    //     // Set the CSS size to the display size
+    //     this.canvas.style.width = rect.width + 'px';
+    //     this.canvas.style.height = rect.height + 'px';
+    // }
+
+    resizeCanvas(width, height) {
+        const dpr = Math.min(window.devicePixelRatio, 2);
+        
+        // Set the canvas size to the display size * device pixel ratio
+        this.canvas.width = width * dpr;
+        this.canvas.height = height * dpr;
+    
+        
+        // Set the CSS size to the display size
+        this.canvas.style.width = width + 'px';
+        this.canvas.style.height = height + 'px';
+    }
+
     getObject() {
         return this.container;
     }

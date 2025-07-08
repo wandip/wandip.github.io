@@ -27,7 +27,7 @@ export const PHYSICS_CONFIG = {
     
     // Vehicle control properties
     MAX_STEER_ANGLE: Math.PI / 6,
-    STEERING_RESPONSE: 0.05, // Slower steering response
+    STEERING_RESPONSE: 1.0, // Direct steering (no lerp) for step-based approach
     ENGINE_FORCE_STEP: 200, // Increased for heavier car
     ENGINE_FORCE_MIN: -2000, // Increased for heavier car
     ENGINE_FORCE_MAX: 2000, // Increased for heavier car
@@ -53,4 +53,4 @@ export const WHEEL_DIRECTIONS = {
 };
 
 // Default steering sensitivity for car and UI
-export const DEFAULT_STEERING_SENSITIVITY = 0.6; 
+export const DEFAULT_STEERING_SENSITIVITY = 0.4; 

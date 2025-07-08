@@ -15,6 +15,7 @@ import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { PhysicsCar } from '../physics/PhysicsCar';
 import { PHYSICS_CONFIG } from '../physics/PhysicsConstants';
 import { ControlsUI } from '../ui/ControlsUI';
+import { SteeringWheelJoystick } from '../ui/SteeringWheelJoystick';
 
 /**
  * Main game class that orchestrates all components
@@ -33,6 +34,9 @@ export class Game {
             depth: true,
             stencil: false
         });
+        
+        // Set device pixel ratio for high-DPI displays
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.speedDashboard = new SpeedDashboard();
         this.trackDashboard = new TrackDashboard();
         this.lapTimer = new LapTimer();
@@ -46,6 +50,7 @@ export class Game {
         // Race state management
         this.raceStarted = false;
         this.controlsUI = new ControlsUI();
+        this.steeringWheelJoystick = new SteeringWheelJoystick();
 
         // Movement input - Initialize before animate() to avoid undefined error
         this.movement = {
@@ -73,6 +78,9 @@ export class Game {
             this.controlsUI.controlsUI
         ].filter(Boolean);
 
+        // Set up joystick callbacks
+        this.setupJoystickCallbacks();
+
         this.init();
         this.initPhysics();
         this.animate();
@@ -95,6 +103,10 @@ export class Game {
         this.renderer.domElement.style.left = '0';
         this.renderer.domElement.style.zIndex = '1';
         this.renderer.domElement.style.pointerEvents = 'auto';
+        
+        // Ensure canvas is properly sized for high-DPI displays
+        this.renderer.domElement.style.width = '100%';
+        this.renderer.domElement.style.height = '100%';
         
         // Ensure proper depth testing
         this.renderer.sortObjects = true;
@@ -153,6 +165,14 @@ export class Game {
         // Initialize UI positioning for current screen size
         setTimeout(() => {
             this.updateUIPositioning();
+            // Force a resize to ensure proper canvas sizing on mobile
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                    this.camera.getCamera().aspect = window.innerWidth / window.innerHeight;
+                    this.camera.getCamera().updateProjectionMatrix();
+                }, 100);
+            }
         }, 200);
     }
 
@@ -263,9 +283,15 @@ export class Game {
             this.rapierPhysics.world.timestep = deltaTime;
             this.rapierPhysics.step();
         }
-        // Sync steering sensitivity from garage to physicsCar
-        if (this.physicsCar && this.garage && typeof this.garage.getSteeringSensitivity === 'function') {
-            this.physicsCar.setSteeringSensitivity(this.garage.getSteeringSensitivity());
+        // Sync steering sensitivity from garage to physicsCar and joystick
+        if (this.garage && typeof this.garage.getSteeringSensitivity === 'function') {
+            const sensitivity = this.garage.getSteeringSensitivity();
+            if (this.physicsCar) {
+                this.physicsCar.setSteeringSensitivity(sensitivity);
+            }
+            if (this.steeringWheelJoystick) {
+                this.steeringWheelJoystick.setSteeringSensitivity(sensitivity);
+            }
         }
         if (this.physicsCar && this.physicsCar.isPhysicsReady()) {
             this.physicsCar.updateCarControls();
@@ -337,6 +363,7 @@ export class Game {
         this.lapTimer.start();
         // Hide controls UI when race starts
         this.controlsUI.hide();
+        
         // Optionally, remove the lights after start
         setTimeout(() => {
             if (this.startLights) this.startLights.remove();
@@ -348,6 +375,35 @@ export class Game {
      */
     restart() {
         window.location.reload();
+    }
+
+    /**
+     * Sets up joystick callbacks for mobile controls
+     */
+    setupJoystickCallbacks() {
+        this.steeringWheelJoystick.setCallbacks(
+            (steeringValue) => {
+                // Allow steering input but only apply if race has started
+                if (this.raceStarted) {
+                    this.movement.right = -steeringValue; // Invert for correct direction
+                }
+                // Visual feedback is always provided by the joystick
+            },
+            (accelerateValue) => {
+                // Allow acceleration input but only apply if race has started
+                if (this.raceStarted) {
+                    this.movement.forward = accelerateValue;
+                }
+                // Visual feedback is always provided by the joystick
+            },
+            (brakeValue) => {
+                // Allow brake input but only apply if race has started
+                if (this.raceStarted) {
+                    this.movement.brake = brakeValue;
+                }
+                // Visual feedback is always provided by the joystick
+            }
+        );
     }
 
     /**
@@ -364,6 +420,18 @@ export class Game {
                 return;
             }
 
+            // Check if we're on mobile and should use joystick
+            const isMobile = window.innerWidth <= 768 || 
+                            (window.innerWidth <= 1024 && window.innerHeight <= 768) || // Landscape phones
+                            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            // On mobile, joystick handles movement, so only check for camera toggle and restart
+            if (isMobile) {
+                // Only handle camera toggle and restart on mobile
+                return;
+            }
+
+            // Desktop controls
             // Forward/backward
             if (this.controls.isKeyPressed('ArrowUp') || this.controls.isKeyPressed('w')) {
                 this.movement.forward = 1;
@@ -418,6 +486,15 @@ export class Game {
         if (!this.raceStarted && this.startLights && this.startLights.startMessage && !document.body.contains(this.startLights.startMessage)) {
             document.body.appendChild(this.startLights.startMessage);
         }
+        
+        // Show joystick on mobile (always visible, not just when race starts)
+        const isMobile = window.innerWidth <= 768 || 
+                        (window.innerWidth <= 1024 && window.innerHeight <= 768) || // Landscape phones
+                        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            this.steeringWheelJoystick.show();
+        }
     }
 
     hideMainUI() {
@@ -431,6 +508,8 @@ export class Game {
         if (this.startLights && this.startLights.startMessage && document.body.contains(this.startLights.startMessage)) {
             document.body.removeChild(this.startLights.startMessage);
         }
+        // Hide joystick
+        this.steeringWheelJoystick.hide();
     }
 
     /**
@@ -440,6 +519,9 @@ export class Game {
         if (this.resizeHandler) {
             window.removeEventListener('resize', this.resizeHandler);
         }
+        if (this.steeringWheelJoystick) {
+            this.steeringWheelJoystick.destroy();
+        }
     }
 
     /**
@@ -447,12 +529,25 @@ export class Game {
      */
     setupResizeHandler() {
         const handleResize = () => {
+            // Get the actual viewport dimensions
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Update device pixel ratio for high-DPI displays
+            this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
             // Update renderer size
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.setSize(viewportWidth, viewportHeight);
             
             // Update camera aspect ratio and projection matrix
-            this.camera.getCamera().aspect = window.innerWidth / window.innerHeight;
+            this.camera.getCamera().aspect = viewportWidth / viewportHeight;
             this.camera.getCamera().updateProjectionMatrix();
+            
+            // Force canvas to fill the container
+            if (this.renderer.domElement) {
+                this.renderer.domElement.style.width = '100%';
+                this.renderer.domElement.style.height = '100%';
+            }
             
             // Update UI positioning for responsive design
             this.updateUIPositioning();
@@ -460,6 +555,10 @@ export class Game {
 
         // Add resize event listener
         window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', () => {
+            // Add a small delay for orientation change
+            setTimeout(handleResize, 100);
+        });
         
         // Store the handler for potential cleanup
         this.resizeHandler = handleResize;
@@ -511,18 +610,15 @@ export class Game {
                 this.trackDashboard.container.style.left = '10px';
                 this.trackDashboard.container.style.bottom = 'auto';
                 this.trackDashboard.container.style.right = 'auto';
-                this.trackDashboard.canvas.width = 120;
-                this.trackDashboard.canvas.height = 120;
+                this.trackDashboard.resizeCanvas(120, 120);
             } else if (isTablet) {
                 this.trackDashboard.container.style.bottom = '15px';
                 this.trackDashboard.container.style.right = '15px';
-                this.trackDashboard.canvas.width = 150;
-                this.trackDashboard.canvas.height = 150;
+                this.trackDashboard.resizeCanvas(150, 150);
             } else {
                 this.trackDashboard.container.style.bottom = '20px';
                 this.trackDashboard.container.style.right = '20px';
-                this.trackDashboard.canvas.width = 200;
-                this.trackDashboard.canvas.height = 200;
+                this.trackDashboard.resizeCanvas(200, 200);
             }
         }
 
@@ -557,6 +653,17 @@ export class Game {
                 this.controlsUI.controlsUI.style.minWidth = '250px';
                 this.controlsUI.controlsUI.style.maxWidth = '400px';
                 this.controlsUI.controlsUI.style.fontSize = '14px';
+            }
+        }
+
+        // Update joystick positioning for mobile
+        if (this.steeringWheelJoystick && this.steeringWheelJoystick.container) {
+            if (isMobile) {
+                // Show joystick on mobile (always visible)
+                this.steeringWheelJoystick.show();
+            } else {
+                // Hide joystick on desktop/tablet
+                this.steeringWheelJoystick.hide();
             }
         }
 
