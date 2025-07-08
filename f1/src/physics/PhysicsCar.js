@@ -123,10 +123,10 @@ export class PhysicsCar {
             
             // Configure suspension for this wheel
             this.vehicleController.setWheelSuspensionStiffness(index, PHYSICS_CONFIG.SUSPENSION_STIFFNESS);
-            this.vehicleController.setWheelSuspensionDamping(index, PHYSICS_CONFIG.SUSPENSION_DAMPING);
+            // this.vehicleController.setWheelSuspensionDamping(index, PHYSICS_CONFIG.SUSPENSION_DAMPING);
             this.vehicleController.setWheelSuspensionCompression(index, PHYSICS_CONFIG.SUSPENSION_COMPRESSION);
-            this.vehicleController.setWheelSuspensionRebound(index, PHYSICS_CONFIG.SUSPENSION_REBOUND);
-            this.vehicleController.setWheelSuspensionTravel(index, PHYSICS_CONFIG.SUSPENSION_TRAVEL);
+            // this.vehicleController.setWheelSuspensionRebound(index, PHYSICS_CONFIG.SUSPENSION_REBOUND);
+            // this.vehicleController.setWheelSuspensionTravel(index, PHYSICS_CONFIG.SUSPENSION_TRAVEL);
             
         } catch (e) {
             // Suspension configuration methods not available
