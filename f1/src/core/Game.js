@@ -79,6 +79,9 @@ export class Game {
 
         // Set up input handling using the Controls class
         this.setupInputHandling();
+        
+        // Set up resize handler for responsive design
+        this.setupResizeHandler();
     }
 
     /**
@@ -146,6 +149,11 @@ export class Game {
             // Show controls UI until race starts
             this.controlsUI.show();
         }
+
+        // Initialize UI positioning for current screen size
+        setTimeout(() => {
+            this.updateUIPositioning();
+        }, 200);
     }
 
     async initPhysics() {
@@ -180,7 +188,7 @@ export class Game {
     }
 
     /**
-     * Sets up the garage button event listener
+     * Sets up the garage button event listener in the menu
      */
     setupGarageButton() {
         // Wait for DOM to be ready
@@ -191,34 +199,10 @@ export class Game {
             return;
         }
 
-        let garageBtn = document.getElementById('garage-btn');
+        let garageBtn = document.getElementById('garage-btn-menu');
         
-        if (!garageBtn) {
-            garageBtn = document.createElement('button');
-            garageBtn.id = 'garage-btn';
-            garageBtn.innerHTML = '🏎️ Garage';
-            garageBtn.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 20px;
-                background: #181c20;
-                color: #b2eaff;
-                border: 2px solid #5fa8d3;
-                border-radius: 8px;
-                padding: 14px 28px;
-                font-size: 18px;
-                font-family: 'Orbitron', Arial, sans-serif;
-                font-style: italic;
-                font-weight: 900;
-                letter-spacing: 2px;
-                cursor: pointer;
-                z-index: 9999;
-                transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
-                box-shadow: 0 2px 8px 0 #5fa8d3;
-                text-transform: uppercase;
-                pointer-events: auto;
-                outline: none;
-            `;
+        if (garageBtn) {
+            // Add hover effects to the menu garage button
             garageBtn.onmouseenter = () => {
                 garageBtn.style.boxShadow = '0 4px 16px 0 #5fa8d3';
                 garageBtn.style.borderColor = '#b2eaff';
@@ -231,29 +215,40 @@ export class Game {
                 garageBtn.style.background = '#181c20';
                 garageBtn.style.color = '#b2eaff';
             };
-            document.body.appendChild(garageBtn);
-        } else {
-            // Ensure existing button has correct z-index and position
-            garageBtn.style.zIndex = '9999';
-            garageBtn.style.pointerEvents = 'auto';
-            garageBtn.style.bottom = '20px';
-            garageBtn.style.left = '20px';
-            garageBtn.style.top = 'auto';
-        }
-        
-        if (garageBtn) {
+            
             garageBtn.addEventListener('click', () => {
+                // Close the menu when garage is opened
+                const hamburgerIcon = document.getElementById('hamburger-icon');
+                const menuContent = document.getElementById('menu-content');
+                if (hamburgerIcon) hamburgerIcon.classList.remove('active');
+                if (menuContent) menuContent.classList.remove('show');
+                
                 this.hideMainUI();
                 this.garage.open();
-                // When garage closes, show main UI again
+                // When garage closes, show main UI again but don't show controls if race has started
                 const origClose = this.garage.close.bind(this.garage);
                 this.garage.close = () => {
                     origClose();
-                    this.showMainUI();
+                    // Show main UI elements but don't show controls UI if race has started
+                    this.mainUIElements.forEach(el => {
+                        if (el && !document.body.contains(el)) {
+                            document.body.appendChild(el);
+                        }
+                    });
+                    // Only show controls UI if race hasn't started yet
+                    if (!this.raceStarted) {
+                        this.controlsUI.show();
+                    }
+                    // Show StartLights start message if race hasn't started and startLights exists
+                    if (!this.raceStarted && this.startLights && this.startLights.startMessage && !document.body.contains(this.startLights.startMessage)) {
+                        document.body.appendChild(this.startLights.startMessage);
+                    }
+                    // Update UI positioning to ensure proper layout
+                    this.updateUIPositioning();
                 };
             });
         } else {
-            console.error('Failed to create garage button!');
+            console.error('Garage button in menu not found!');
         }
     }
 
@@ -435,6 +430,185 @@ export class Game {
         // Hide StartLights start message if present
         if (this.startLights && this.startLights.startMessage && document.body.contains(this.startLights.startMessage)) {
             document.body.removeChild(this.startLights.startMessage);
+        }
+    }
+
+    /**
+     * Cleanup method to remove event listeners
+     */
+    cleanup() {
+        if (this.resizeHandler) {
+            window.removeEventListener('resize', this.resizeHandler);
+        }
+    }
+
+    /**
+     * Sets up window resize handler for responsive design
+     */
+    setupResizeHandler() {
+        const handleResize = () => {
+            // Update renderer size
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            // Update camera aspect ratio and projection matrix
+            this.camera.getCamera().aspect = window.innerWidth / window.innerHeight;
+            this.camera.getCamera().updateProjectionMatrix();
+            
+            // Update UI positioning for responsive design
+            this.updateUIPositioning();
+        };
+
+        // Add resize event listener
+        window.addEventListener('resize', handleResize);
+        
+        // Store the handler for potential cleanup
+        this.resizeHandler = handleResize;
+    }
+
+    /**
+     * Updates UI positioning for responsive design
+     */
+    updateUIPositioning() {
+        // Detect mobile devices more comprehensively
+        const isMobile = window.innerWidth <= 768 || 
+                        (window.innerWidth <= 1024 && window.innerHeight <= 768) || // Landscape phones
+                        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTablet = window.innerWidth <= 1024 && window.innerWidth > 768 && !isMobile;
+        
+        // Update speed dashboard positioning
+        if (this.speedDashboard && this.speedDashboard.container) {
+            if (isMobile) {
+                this.speedDashboard.container.style.bottom = '10px';
+                this.speedDashboard.container.style.left = '50%';
+                this.speedDashboard.container.style.transform = 'translateX(-50%)';
+                this.speedDashboard.container.style.padding = '6px 15px';
+                this.speedDashboard.container.style.fontSize = '12px';
+                // Make speed value smaller on mobile
+                this.speedDashboard.updateFontSizes('24px', '12px');
+            } else if (isTablet) {
+                this.speedDashboard.container.style.bottom = '15px';
+                this.speedDashboard.container.style.left = '50%';
+                this.speedDashboard.container.style.transform = 'translateX(-50%)';
+                this.speedDashboard.container.style.padding = '8px 20px';
+                this.speedDashboard.container.style.fontSize = '14px';
+                // Make speed value smaller on tablet
+                this.speedDashboard.updateFontSizes('32px', '16px');
+            } else {
+                this.speedDashboard.container.style.bottom = '20px';
+                this.speedDashboard.container.style.left = '50%';
+                this.speedDashboard.container.style.transform = 'translateX(-50%)';
+                this.speedDashboard.container.style.padding = '10px 30px';
+                this.speedDashboard.container.style.fontSize = '18px';
+                // Original size for desktop
+                this.speedDashboard.updateFontSizes('48px', '24px');
+            }
+        }
+
+        // Update track dashboard positioning
+        if (this.trackDashboard && this.trackDashboard.container) {
+            if (isMobile) {
+                this.trackDashboard.container.style.top = '10px';
+                this.trackDashboard.container.style.left = '10px';
+                this.trackDashboard.container.style.bottom = 'auto';
+                this.trackDashboard.container.style.right = 'auto';
+                this.trackDashboard.canvas.width = 120;
+                this.trackDashboard.canvas.height = 120;
+            } else if (isTablet) {
+                this.trackDashboard.container.style.bottom = '15px';
+                this.trackDashboard.container.style.right = '15px';
+                this.trackDashboard.canvas.width = 150;
+                this.trackDashboard.canvas.height = 150;
+            } else {
+                this.trackDashboard.container.style.bottom = '20px';
+                this.trackDashboard.container.style.right = '20px';
+                this.trackDashboard.canvas.width = 200;
+                this.trackDashboard.canvas.height = 200;
+            }
+        }
+
+        // Update controls UI positioning - hide on mobile (portrait and landscape)
+        if (this.controlsUI && this.controlsUI.controlsUI) {
+            if (isMobile) {
+                // Hide controls UI on all mobile screens (portrait and landscape)
+                this.controlsUI.controlsUI.style.display = 'none';
+                this.controlsUI.controlsUI.style.visibility = 'hidden';
+                this.controlsUI.controlsUI.style.opacity = '0';
+            } else if (isTablet) {
+                this.controlsUI.controlsUI.style.display = 'block';
+                this.controlsUI.controlsUI.style.visibility = 'visible';
+                this.controlsUI.controlsUI.style.opacity = '1';
+                this.controlsUI.controlsUI.style.top = '40%';
+                this.controlsUI.controlsUI.style.left = '15px';
+                this.controlsUI.controlsUI.style.right = 'auto';
+                this.controlsUI.controlsUI.style.transform = 'translateY(-50%)';
+                this.controlsUI.controlsUI.style.width = '250px';
+                this.controlsUI.controlsUI.style.minWidth = '250px';
+                this.controlsUI.controlsUI.style.maxWidth = '300px';
+                this.controlsUI.controlsUI.style.fontSize = '14px';
+            } else {
+                this.controlsUI.controlsUI.style.display = 'block';
+                this.controlsUI.controlsUI.style.visibility = 'visible';
+                this.controlsUI.controlsUI.style.opacity = '1';
+                this.controlsUI.controlsUI.style.top = '40%';
+                this.controlsUI.controlsUI.style.left = '20px';
+                this.controlsUI.controlsUI.style.right = 'auto';
+                this.controlsUI.controlsUI.style.transform = 'translateY(-50%)';
+                this.controlsUI.controlsUI.style.width = '270px';
+                this.controlsUI.controlsUI.style.minWidth = '250px';
+                this.controlsUI.controlsUI.style.maxWidth = '400px';
+                this.controlsUI.controlsUI.style.fontSize = '14px';
+            }
+        }
+
+        // Garage button is now in the menu, no need for responsive positioning
+
+        // Update lap timer positioning and sizing
+        if (this.lapTimer && this.lapTimer.container) {
+            if (isMobile) {
+                this.lapTimer.container.style.top = '10px';
+                this.lapTimer.container.style.left = '50%';
+                this.lapTimer.container.style.transform = 'translateX(-50%)';
+                this.lapTimer.container.style.padding = '6px 15px';
+                this.lapTimer.container.style.fontSize = '20px';
+                this.lapTimer.container.style.letterSpacing = '1px';
+            } else if (isTablet) {
+                this.lapTimer.container.style.top = '15px';
+                this.lapTimer.container.style.left = '50%';
+                this.lapTimer.container.style.transform = 'translateX(-50%)';
+                this.lapTimer.container.style.padding = '8px 20px';
+                this.lapTimer.container.style.fontSize = '28px';
+                this.lapTimer.container.style.letterSpacing = '1.5px';
+            } else {
+                this.lapTimer.container.style.top = '20px';
+                this.lapTimer.container.style.left = '10%';
+                this.lapTimer.container.style.transform = 'translateX(-50%)';
+                this.lapTimer.container.style.padding = '10px 30px';
+                this.lapTimer.container.style.fontSize = '40px';
+                this.lapTimer.container.style.letterSpacing = '2px';
+            }
+        }
+
+        // Update debug panel positioning (if exists)
+        if (this.speedDashboard && this.speedDashboard.debugContainer) {
+            if (isMobile) {
+                this.speedDashboard.debugContainer.style.top = '10px';
+                this.speedDashboard.debugContainer.style.right = '10px';
+                this.speedDashboard.debugContainer.style.minWidth = '250px';
+                this.speedDashboard.debugContainer.style.maxWidth = '300px';
+                this.speedDashboard.debugContainer.style.fontSize = '10px';
+            } else if (isTablet) {
+                this.speedDashboard.debugContainer.style.top = '15px';
+                this.speedDashboard.debugContainer.style.right = '15px';
+                this.speedDashboard.debugContainer.style.minWidth = '300px';
+                this.speedDashboard.debugContainer.style.maxWidth = '400px';
+                this.speedDashboard.debugContainer.style.fontSize = '11px';
+            } else {
+                this.speedDashboard.debugContainer.style.top = '20px';
+                this.speedDashboard.debugContainer.style.right = '20px';
+                this.speedDashboard.debugContainer.style.minWidth = '350px';
+                this.speedDashboard.debugContainer.style.maxWidth = '450px';
+                this.speedDashboard.debugContainer.style.fontSize = '12px';
+            }
         }
     }
 } 

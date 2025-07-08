@@ -26,6 +26,7 @@ export class SpeedDashboard {
             align-items: center;
             gap: 10px;
             z-index: 1000;
+            transition: all 0.3s ease;
         `;
 
         // Create speed value display
@@ -33,6 +34,7 @@ export class SpeedDashboard {
         this.speedValue.style.cssText = `
             font-size: 48px;
             font-weight: bold;
+            transition: all 0.3s ease;
         `;
 
         // Create unit display
@@ -40,6 +42,7 @@ export class SpeedDashboard {
         this.unit.style.cssText = `
             font-size: 24px;
             opacity: 0.8;
+            transition: all 0.3s ease;
         `;
         this.unit.textContent = 'KM/H';
 
@@ -115,6 +118,18 @@ export class SpeedDashboard {
         // Convert speed from m/s to km/h (1 m/s = 3.6 km/h)
         const speedKmh = Math.round(Math.abs(speed) * 3.6);
         this.speedValue.textContent = speedKmh;
+    }
+
+    /**
+     * Update speed value and unit font sizes for responsive design
+     */
+    updateFontSizes(speedFontSize, unitFontSize) {
+        if (this.speedValue) {
+            this.speedValue.style.fontSize = speedFontSize;
+        }
+        if (this.unit) {
+            this.unit.style.fontSize = unitFontSize;
+        }
     }
 
     updateDebug(data) {

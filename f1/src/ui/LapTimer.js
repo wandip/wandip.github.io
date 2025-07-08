@@ -23,6 +23,7 @@ export class LapTimer {
             letter-spacing: 2px;
             z-index: 1001;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
         `;
         this.container.textContent = '00:00.000';
         document.body.appendChild(this.container);

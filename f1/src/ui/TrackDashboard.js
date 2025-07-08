@@ -19,6 +19,7 @@ export class TrackDashboard {
             color: white;
             font-family: Arial, sans-serif;
             z-index: 1000;
+            transition: all 0.3s ease;
         `;
 
         // Create canvas for track view

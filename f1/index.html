@@ -94,6 +94,7 @@
             color: white;
             font-size: 14px;
             font-family: 'Orbitron', Arial, sans-serif;
+            transition: all 0.3s ease;
         }
         #menu-content.show {
             display: block;
@@ -111,6 +112,67 @@
         }
         #menu-content a:hover {
             text-decoration: underline;
+        }
+        
+        #garage-btn-menu:hover {
+            box-shadow: 0 4px 16px 0 #5fa8d3 !important;
+            border-color: #b2eaff !important;
+            background: #23272e !important;
+            color: #b2eaff !important;
+        }
+
+        /* Responsive design for mobile devices */
+        @media (max-width: 768px) {
+            #hamburger-menu {
+                top: 10px;
+                right: 10px;
+            }
+            
+            #hamburger-icon {
+                width: 25px;
+                height: 25px;
+            }
+            
+            #hamburger-icon span {
+                width: 16px;
+                height: 2px;
+            }
+            
+            #menu-content {
+                top: 50px;
+                right: 10px;
+                left: 10px;
+                min-width: auto;
+                font-size: 12px;
+            }
+            
+            #controls-info {
+                bottom: 10px;
+                right: 10px;
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+        }
+
+        /* Responsive design for tablets */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            #hamburger-menu {
+                top: 15px;
+                right: 15px;
+            }
+            
+            #menu-content {
+                top: 60px;
+                right: 15px;
+                font-size: 13px;
+            }
+            
+            #controls-info {
+                bottom: 15px;
+                right: 15px;
+                font-size: 13px;
+                padding: 10px 15px;
+            }
         }
     </style>
     <script type="module" src="./src/index.js"></script>
@@ -147,6 +209,27 @@
     <div id="menu-content">
         <h3>Credits</h3>
         <a href="https://x.com/dpwxni" target="_blank" title="f1 icons">made with ❤️ by @dpwxni 𝕏</a>
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #444;">
+            <button id="garage-btn-menu" style="
+                background: #181c20;
+                color: #b2eaff;
+                border: 2px solid #5fa8d3;
+                border-radius: 8px;
+                padding: 10px 20px;
+                font-size: 14px;
+                font-family: 'Orbitron', Arial, sans-serif;
+                font-style: italic;
+                font-weight: 900;
+                letter-spacing: 1px;
+                cursor: pointer;
+                transition: box-shadow 0.2s, border-color 0.2s, background 0.2s;
+                box-shadow: 0 2px 8px 0 #5fa8d3;
+                text-transform: uppercase;
+                outline: none;
+                width: 100%;
+                margin-top: 10px;
+            ">🏎️ Garage</button>
+        </div>
     </div>
 </body>
 </html> 

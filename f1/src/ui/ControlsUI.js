@@ -69,6 +69,7 @@ export class ControlsUI {
             max-width: 400px;
             width: 270px;
             text-align: center;
+            transition: all 0.3s ease;
         `;
 
         // Add CSS for the controls elements
