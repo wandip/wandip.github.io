@@ -19,6 +19,7 @@ export class TrackDashboard {
             color: white;
             font-family: Arial, sans-serif;
             z-index: 1000;
+            transition: all 0.3s ease;
         `;
 
         // Create canvas for track view
@@ -138,6 +139,35 @@ export class TrackDashboard {
             centerY - (carPosition.z + Math.cos(carRotation) * 10 - offsetZ) * scale
         );
         this.ctx.stroke();
+    }
+
+    // setHighDPIScaling() {
+    //     const dpr = Math.min(window.devicePixelRatio, 2);
+    //     const rect = this.canvas.getBoundingClientRect();
+        
+    //     // Set the canvas size to the display size * device pixel ratio
+    //     this.canvas.width = rect.width * dpr;
+    //     this.canvas.height = rect.height * dpr;
+        
+    //     // Scale the drawing context so everything draws at the correct size
+    //     this.ctx.scale(dpr, dpr);
+        
+    //     // Set the CSS size to the display size
+    //     this.canvas.style.width = rect.width + 'px';
+    //     this.canvas.style.height = rect.height + 'px';
+    // }
+
+    resizeCanvas(width, height) {
+        const dpr = Math.min(window.devicePixelRatio, 2);
+        
+        // Set the canvas size to the display size * device pixel ratio
+        this.canvas.width = width * dpr;
+        this.canvas.height = height * dpr;
+    
+        
+        // Set the CSS size to the display size
+        this.canvas.style.width = width + 'px';
+        this.canvas.style.height = height + 'px';
     }
 
     getObject() {

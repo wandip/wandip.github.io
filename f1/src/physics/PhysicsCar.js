@@ -29,6 +29,8 @@ export class PhysicsCar {
         this.totalRotations = 0;
         
         this.steeringSensitivity = DEFAULT_STEERING_SENSITIVITY; // Default steering sensitivity
+        this.lastSteeringValue = 0; // For smoothing steering
+        this.steeringSmoothingFactor = 0.4; // Smoothing factor for physics steering
         
         this.setupPhysics();
     }
@@ -121,10 +123,10 @@ export class PhysicsCar {
             
             // Configure suspension for this wheel
             this.vehicleController.setWheelSuspensionStiffness(index, PHYSICS_CONFIG.SUSPENSION_STIFFNESS);
-            this.vehicleController.setWheelSuspensionDamping(index, PHYSICS_CONFIG.SUSPENSION_DAMPING);
+            // this.vehicleController.setWheelSuspensionDamping(index, PHYSICS_CONFIG.SUSPENSION_DAMPING);
             this.vehicleController.setWheelSuspensionCompression(index, PHYSICS_CONFIG.SUSPENSION_COMPRESSION);
-            this.vehicleController.setWheelSuspensionRebound(index, PHYSICS_CONFIG.SUSPENSION_REBOUND);
-            this.vehicleController.setWheelSuspensionTravel(index, PHYSICS_CONFIG.SUSPENSION_TRAVEL);
+            // this.vehicleController.setWheelSuspensionRebound(index, PHYSICS_CONFIG.SUSPENSION_REBOUND);
+            // this.vehicleController.setWheelSuspensionTravel(index, PHYSICS_CONFIG.SUSPENSION_TRAVEL);
             
         } catch (e) {
             // Suspension configuration methods not available
@@ -212,31 +214,31 @@ export class PhysicsCar {
             }
         }
 
-        // Fix steering logic - use proper direction mapping
-        let currentSteering = 0;
-        try {
-            currentSteering = this.vehicleController.wheelSteering(0);
-        } catch (e) {
-            // wheelSteering not available
-        }
-        
-        // Apply steering sensitivity
-        const steerDirection = this.movement.right * (this.steeringSensitivity || 1.0); // Sensitivity scaling
+        // Continuous steering calculation with smoothing
+        const steerDirection = this.movement.right * (this.steeringSensitivity || 1.0);
         const maxSteerAngle = PHYSICS_CONFIG.MAX_STEER_ANGLE;
-
-        const targetSteering = maxSteerAngle * steerDirection;
-        const steering = THREE.MathUtils.lerp(currentSteering, targetSteering, PHYSICS_CONFIG.STEERING_RESPONSE);
+        
+        // Calculate target steering
+        const targetSteering = steerDirection * maxSteerAngle;
+        const clampedTargetSteering = Math.max(-maxSteerAngle, Math.min(maxSteerAngle, targetSteering));
+        
+        // Apply smoothing to reduce stepwise feeling
+        const smoothedSteering = this.lastSteeringValue * (1 - this.steeringSmoothingFactor) + 
+                                clampedTargetSteering * this.steeringSmoothingFactor;
+        
+        // Update last steering value for next frame
+        this.lastSteeringValue = smoothedSteering;
 
         // Apply steering to front wheels only (wheels 0 and 1)
         try {
-            this.vehicleController.setWheelSteering(0, steering); // Front Left
-            this.vehicleController.setWheelSteering(1, steering); // Front Right
+            this.vehicleController.setWheelSteering(0, smoothedSteering); // Front Left
+            this.vehicleController.setWheelSteering(1, smoothedSteering); // Front Right
         } catch (e) {
             // setWheelSteering not available
         }
 
-        // Update visual wheel steering to match physics
-        this.visualCar.updateWheelSteering(steering);
+        // Update visual wheel steering to match physics (simplified)
+        this.visualCar.updateWheelSteering(smoothedSteering);
 
         // Apply brakes to all wheels
         const wheelBrake = brakeForce;
@@ -476,4 +478,6 @@ export class PhysicsCar {
     getSteeringSensitivity() {
         return this.steeringSensitivity;
     }
+
+
 } 

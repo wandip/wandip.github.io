@@ -17,7 +17,15 @@ export const CAMERA_CONFIG = {
     // First-person view configuration
     FIRST_PERSON_HEIGHT: 0.8,  // Height above ground (close to bonnet level)
     FIRST_PERSON_FORWARD_OFFSET: 0.25,  // Distance forward from car center
-    FIRST_PERSON_UP_OFFSET: 0.3  // Small upward offset for better visibility
+    FIRST_PERSON_UP_OFFSET: 0.3,  // Small upward offset for better visibility
+    // Mobile-specific camera settings (closer to car for better visibility on small screens)
+    MOBILE: {
+        BEHIND_CAR_DISTANCE: 6,  // Closer distance for mobile
+        BEHIND_CAR_HEIGHT: 3,    // Slightly lower height for mobile
+        FIRST_PERSON_HEIGHT: 0.6, // Lower height for mobile
+        FIRST_PERSON_FORWARD_OFFSET: 0.2, // Closer forward offset for mobile
+        FIRST_PERSON_UP_OFFSET: 0.2 // Smaller upward offset for mobile
+    }
 };
 
 

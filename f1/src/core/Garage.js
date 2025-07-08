@@ -299,6 +299,16 @@ export class Garage {
      * Adds instructions for the garage controls
      */
     addInstructions() {
+        // Detect mobile devices to hide instructions on phones
+        const isMobile = window.innerWidth <= 768 || 
+                        (window.innerWidth <= 1024 && window.innerHeight <= 768) || // Landscape phones
+                        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Don't show instructions on mobile devices
+        if (isMobile) {
+            return;
+        }
+
         const instructions = document.createElement('div');
         instructions.id = 'garage-instructions';
         instructions.innerHTML = `
@@ -332,28 +342,73 @@ export class Garage {
         const existing = document.getElementById('steering-sensitivity-container');
         if (existing) existing.remove();
 
+        // Detect device type for responsive design
+        const isMobile = window.innerWidth <= 768 || 
+                        (window.innerWidth <= 1024 && window.innerHeight <= 768) || // Landscape phones
+                        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTablet = window.innerWidth <= 1024 && window.innerWidth > 768 && !isMobile;
+
         const container = document.createElement('div');
         container.id = 'steering-sensitivity-container';
-        container.style.cssText = `
-            position: fixed;
-            top: 90px;
-            right: 30px;
-            background: rgba(0,0,0,0.85);
-            color: #fff;
-            padding: 18px 22px 18px 22px;
-            border-radius: 12px;
-            z-index: 1001;
-            font-family: 'Orbitron', Arial, sans-serif;
-            font-size: 15px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-            min-width: 260px;
-        `;
+        
+        // Responsive positioning and sizing
+        let containerStyles = '';
+        if (isMobile) {
+            containerStyles = `
+                position: fixed;
+                top: 70px;
+                right: 15px;
+                background: rgba(0,0,0,0.85);
+                color: #fff;
+                padding: 12px 16px 12px 16px;
+                border-radius: 8px;
+                z-index: 1001;
+                font-family: 'Orbitron', Arial, sans-serif;
+                font-size: 12px;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+                min-width: 200px;
+                max-width: 250px;
+            `;
+        } else if (isTablet) {
+            containerStyles = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: rgba(0,0,0,0.85);
+                color: #fff;
+                padding: 15px 20px 15px 20px;
+                border-radius: 10px;
+                z-index: 1001;
+                font-family: 'Orbitron', Arial, sans-serif;
+                font-size: 14px;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+                min-width: 240px;
+                max-width: 280px;
+            `;
+        } else {
+            containerStyles = `
+                position: fixed;
+                top: 90px;
+                right: 30px;
+                background: rgba(0,0,0,0.85);
+                color: #fff;
+                padding: 18px 22px 18px 22px;
+                border-radius: 12px;
+                z-index: 1001;
+                font-family: 'Orbitron', Arial, sans-serif;
+                font-size: 15px;
+                box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+                min-width: 260px;
+            `;
+        }
+        
+        container.style.cssText = containerStyles;
 
         const label = document.createElement('label');
         label.htmlFor = 'steering-sensitivity-slider';
         label.innerText = 'Steering Sensitivity:';
         label.style.display = 'block';
-        label.style.marginBottom = '8px';
+        label.style.marginBottom = isMobile ? '6px' : '8px';
 
         const slider = document.createElement('input');
         slider.type = 'range';
@@ -362,7 +417,7 @@ export class Garage {
         slider.max = '2.0';
         slider.step = '0.01';
         slider.value = this.steeringSensitivity !== undefined ? this.steeringSensitivity : DEFAULT_STEERING_SENSITIVITY;
-        slider.style.width = '180px';
+        slider.style.width = isMobile ? '140px' : isTablet ? '160px' : '180px';
         slider.style.marginRight = '10px';
 
         const valueDisplay = document.createElement('span');
@@ -374,11 +429,11 @@ export class Garage {
         const warning = document.createElement('div');
         warning.id = 'steering-sensitivity-warning';
         warning.style.color = '#ffb347';
-        warning.style.fontSize = '13px';
-        warning.style.marginTop = '8px';
+        warning.style.fontSize = isMobile ? '11px' : isTablet ? '12px' : '13px';
+        warning.style.marginTop = isMobile ? '6px' : '8px';
         warning.style.display = 'none';
-        warning.style.minHeight = '18px';
-        warning.style.maxWidth = '230px';
+        warning.style.minHeight = isMobile ? '16px' : '18px';
+        warning.style.maxWidth = isMobile ? '180px' : isTablet ? '220px' : '230px';
         warning.innerText = '😏 That\'s a really low value! \nBeware: it will be hard to turn the car.';
 
         slider.addEventListener('input', () => {
@@ -417,6 +472,9 @@ export class Garage {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        // Update steering sensitivity slider positioning if it exists
+        this.updateSteeringSensitivitySliderPosition();
     }
 
     /**
@@ -432,6 +490,68 @@ export class Garage {
         
         // Render scene
         this.renderer.render(this.scene, this.camera);
+    }
+
+    /**
+     * Updates the steering sensitivity slider position for responsive design
+     */
+    updateSteeringSensitivitySliderPosition() {
+        const container = document.getElementById('steering-sensitivity-container');
+        if (!container) return;
+
+        // Detect device type for responsive design
+        const isMobile = window.innerWidth <= 768 || 
+                        (window.innerWidth <= 1024 && window.innerHeight <= 768) || // Landscape phones
+                        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTablet = window.innerWidth <= 1024 && window.innerWidth > 768 && !isMobile;
+
+        // Update container positioning and sizing
+        if (isMobile) {
+            container.style.top = '70px';
+            container.style.right = '15px';
+            container.style.padding = '12px 16px 12px 16px';
+            container.style.borderRadius = '8px';
+            container.style.fontSize = '12px';
+            container.style.minWidth = '200px';
+            container.style.maxWidth = '250px';
+        } else if (isTablet) {
+            container.style.top = '80px';
+            container.style.right = '20px';
+            container.style.padding = '15px 20px 15px 20px';
+            container.style.borderRadius = '10px';
+            container.style.fontSize = '14px';
+            container.style.minWidth = '240px';
+            container.style.maxWidth = '280px';
+        } else {
+            container.style.top = '90px';
+            container.style.right = '30px';
+            container.style.padding = '18px 22px 18px 22px';
+            container.style.borderRadius = '12px';
+            container.style.fontSize = '15px';
+            container.style.minWidth = '260px';
+            container.style.maxWidth = '';
+        }
+
+        // Update slider width
+        const slider = document.getElementById('steering-sensitivity-slider');
+        if (slider) {
+            slider.style.width = isMobile ? '140px' : isTablet ? '160px' : '180px';
+        }
+
+        // Update warning text sizing
+        const warning = document.getElementById('steering-sensitivity-warning');
+        if (warning) {
+            warning.style.fontSize = isMobile ? '11px' : isTablet ? '12px' : '13px';
+            warning.style.marginTop = isMobile ? '6px' : '8px';
+            warning.style.minHeight = isMobile ? '16px' : '18px';
+            warning.style.maxWidth = isMobile ? '180px' : isTablet ? '220px' : '230px';
+        }
+
+        // Update label margin
+        const label = container.querySelector('label');
+        if (label) {
+            label.style.marginBottom = isMobile ? '6px' : '8px';
+        }
     }
 
     /**

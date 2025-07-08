@@ -28,6 +28,34 @@ export class Camera {
     }
 
     /**
+     * Detects if the current device is mobile
+     * @returns {boolean} True if mobile device
+     */
+    isMobileDevice() {
+        return window.innerWidth <= 768 || 
+               (window.innerWidth <= 1024 && window.innerHeight <= 768) || // Landscape phones
+               /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    /**
+     * Gets the appropriate camera configuration based on device type
+     * @returns {Object} Camera configuration object
+     */
+    getCameraConfig() {
+        if (this.isMobileDevice()) {
+            return {
+                ...CAMERA_CONFIG,
+                BEHIND_CAR_DISTANCE: CAMERA_CONFIG.MOBILE.BEHIND_CAR_DISTANCE,
+                BEHIND_CAR_HEIGHT: CAMERA_CONFIG.MOBILE.BEHIND_CAR_HEIGHT,
+                FIRST_PERSON_HEIGHT: CAMERA_CONFIG.MOBILE.FIRST_PERSON_HEIGHT,
+                FIRST_PERSON_FORWARD_OFFSET: CAMERA_CONFIG.MOBILE.FIRST_PERSON_FORWARD_OFFSET,
+                FIRST_PERSON_UP_OFFSET: CAMERA_CONFIG.MOBILE.FIRST_PERSON_UP_OFFSET
+            };
+        }
+        return CAMERA_CONFIG;
+    }
+
+    /**
      * Sets up window resize handler
      */
     setupResizeHandler() {
@@ -102,20 +130,21 @@ export class Camera {
      * @param {number} carRotation - Current car rotation
      */
     updateBehindCarView(carPosition, carRotation) {
+        const config = this.getCameraConfig();
         const cameraOffset = new THREE.Vector3(
-            -Math.sin(carRotation) * CAMERA_CONFIG.BEHIND_CAR_DISTANCE,
-            CAMERA_CONFIG.BEHIND_CAR_HEIGHT,
-            -Math.cos(carRotation) * CAMERA_CONFIG.BEHIND_CAR_DISTANCE
+            -Math.sin(carRotation) * config.BEHIND_CAR_DISTANCE,
+            config.BEHIND_CAR_HEIGHT,
+            -Math.cos(carRotation) * config.BEHIND_CAR_DISTANCE
         );
         
         const targetCameraPos = new THREE.Vector3().copy(carPosition).add(cameraOffset);
-        this.camera.position.lerp(targetCameraPos, CAMERA_CONFIG.LERP_FACTOR);
+        this.camera.position.lerp(targetCameraPos, config.LERP_FACTOR);
         
         // Calculate look-at target based on car's direction
         const lookTarget = new THREE.Vector3().copy(carPosition).add(
             new THREE.Vector3(
                 Math.sin(carRotation) * 20,
-                CAMERA_CONFIG.BEHIND_CAR_HEIGHT * 0.3,
+                config.BEHIND_CAR_HEIGHT * 0.3,
                 Math.cos(carRotation) * 20
             )
         );
@@ -130,11 +159,12 @@ export class Camera {
      * @param {number} carRotation - Current car rotation
      */
     updateFirstPersonView(carPosition, carRotation) {
+        const config = this.getCameraConfig();
         // Position camera rigidly at car bonnet level, slightly forward and up
         const cameraOffset = new THREE.Vector3(
-            Math.sin(carRotation) * CAMERA_CONFIG.FIRST_PERSON_FORWARD_OFFSET,
-            CAMERA_CONFIG.FIRST_PERSON_HEIGHT + CAMERA_CONFIG.FIRST_PERSON_UP_OFFSET,
-            Math.cos(carRotation) * CAMERA_CONFIG.FIRST_PERSON_FORWARD_OFFSET
+            Math.sin(carRotation) * config.FIRST_PERSON_FORWARD_OFFSET,
+            config.FIRST_PERSON_HEIGHT + config.FIRST_PERSON_UP_OFFSET,
+            Math.cos(carRotation) * config.FIRST_PERSON_FORWARD_OFFSET
         );
         
         // Set camera position directly without lerping for rigid attachment
@@ -144,7 +174,7 @@ export class Camera {
         const lookTarget = new THREE.Vector3().copy(carPosition).add(
             new THREE.Vector3(
                 Math.sin(carRotation) * 50,
-                CAMERA_CONFIG.FIRST_PERSON_HEIGHT,
+                config.FIRST_PERSON_HEIGHT,
                 Math.cos(carRotation) * 50
             )
         );
@@ -158,6 +188,7 @@ export class Camera {
      * @param {number} carRotation - Current car rotation
      */
     updateTransition(carPosition, carRotation) {
+        const config = this.getCameraConfig();
         const deltaTime = 1/60; // Assuming 60 FPS
         this.transitionProgress += deltaTime / this.transitionDuration;
         
@@ -174,16 +205,16 @@ export class Camera {
         );
         
         const behindCarOffset = new THREE.Vector3(
-            -Math.sin(carRotation) * CAMERA_CONFIG.BEHIND_CAR_DISTANCE,
-            CAMERA_CONFIG.BEHIND_CAR_HEIGHT,
-            -Math.cos(carRotation) * CAMERA_CONFIG.BEHIND_CAR_DISTANCE
+            -Math.sin(carRotation) * config.BEHIND_CAR_DISTANCE,
+            config.BEHIND_CAR_HEIGHT,
+            -Math.cos(carRotation) * config.BEHIND_CAR_DISTANCE
         );
         const behindCarPos = carPosition.clone().add(behindCarOffset);
 
         const firstPersonOffset = new THREE.Vector3(
-            Math.sin(carRotation) * CAMERA_CONFIG.FIRST_PERSON_FORWARD_OFFSET,
-            CAMERA_CONFIG.FIRST_PERSON_HEIGHT + CAMERA_CONFIG.FIRST_PERSON_UP_OFFSET,
-            Math.cos(carRotation) * CAMERA_CONFIG.FIRST_PERSON_FORWARD_OFFSET
+            Math.sin(carRotation) * config.FIRST_PERSON_FORWARD_OFFSET,
+            config.FIRST_PERSON_HEIGHT + config.FIRST_PERSON_UP_OFFSET,
+            Math.cos(carRotation) * config.FIRST_PERSON_FORWARD_OFFSET
         );
         const firstPersonPos = carPosition.clone().add(firstPersonOffset);
 
@@ -216,7 +247,7 @@ export class Camera {
             lookTarget = new THREE.Vector3().copy(carPosition).add(
                 new THREE.Vector3(
                     Math.sin(carRotation) * 50,
-                    CAMERA_CONFIG.FIRST_PERSON_HEIGHT,
+                    config.FIRST_PERSON_HEIGHT,
                     Math.cos(carRotation) * 50
                 )
             );
@@ -232,7 +263,7 @@ export class Camera {
             lookTarget = new THREE.Vector3().copy(carPosition).add(
                 new THREE.Vector3(
                     Math.sin(carRotation) * 20,
-                    CAMERA_CONFIG.BEHIND_CAR_HEIGHT * 0.3,
+                    config.BEHIND_CAR_HEIGHT * 0.3,
                     Math.cos(carRotation) * 20
                 )
             );
