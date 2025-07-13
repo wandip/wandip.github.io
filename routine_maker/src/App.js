@@ -179,7 +179,6 @@ function App() {
           
           while (remainingHeight > 0) {
             pdf.addPage();
-            const pageImgHeight = Math.min(remainingHeight, pageHeight);
             const pageImgY = currentY + (imgHeight - remainingHeight);
             
             pdf.addImage(canvas, 'PNG', xOffset, pageImgY, imgWidth, imgHeight);
@@ -193,7 +192,6 @@ function App() {
           
           while (remainingHeight > 0) {
             pdf.addPage();
-            const pageImgHeight = Math.min(remainingHeight, pageHeight);
             const pageImgY = currentY + (imgHeight - remainingHeight);
             
             pdf.addImage(emptyCanvas, 'PNG', xOffset, pageImgY, imgWidth, imgHeight);
