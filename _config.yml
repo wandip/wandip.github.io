@@ -27,6 +27,23 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
 
+# Exclude patterns to prevent processing of build artifacts and node_modules
+exclude:
+  - node_modules
+  - f1/node_modules
+  - routine_maker/node_modules
+  - f1/dist
+  - routine_maker/build
+  - f1/package.json
+  - f1/package-lock.json
+  - routine_maker/package.json
+  - routine_maker/package-lock.json
+  - f1/README.md
+  - routine_maker/README.md
+  - f1/vite.config.js
+  - routine_maker/public
+  - routine_maker/src
+
 google-analytics: UA-127095421-1
 github:
   repo:           https://github.com/wandip
