@@ -32,6 +32,12 @@ jobs:
           npm install
           npm run build
           
+      - name: Build Routine Maker App
+        working-directory: ./routine_maker
+        run: |
+          npm install
+          npm run build
+          
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -58,6 +64,15 @@ jobs:
           # Copy audio files
           mkdir -p f1/assets
           cp -r f1/src/audio/* f1/assets/
+          
+          # Create routine directory and copy built files
+          mkdir -p routine
+          if [ -d "routine_maker/build" ]; then
+            cp -r routine_maker/build/* routine/
+          else
+            echo "Error: routine_maker/build directory not found. Build failed."
+            exit 1
+          fi
           
           # Build Jekyll site
           bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
