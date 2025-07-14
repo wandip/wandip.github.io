@@ -11,7 +11,21 @@ function App() {
   const [layout, setLayout] = useState('horizontal');
   const [isExporting, setIsExporting] = useState(false);
   const [dragStates, setDragStates] = useState({}); // Track drag state for each task
+  const [collapsedTasks, setCollapsedTasks] = useState({}); // Track collapsed state for each task
+  const [draggedIndex, setDraggedIndex] = useState(null); // Track which task is being dragged
+  const [dragOverIndex, setDragOverIndex] = useState(null); // Track where we're dragging over
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const previewRef = useRef();
+
+  // Track screen size changes
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleTitleChange = (e) => setTitle(e.target.value);
 
@@ -41,6 +55,56 @@ function App() {
     setTitle('');
     setLayout('horizontal');
     setTasks([{ image: '', task: '', imageType: 'upload', imageUrl: '' }]);
+    setCollapsedTasks({});
+  };
+
+  // Toggle collapse state for a task
+  const toggleCollapse = (idx) => {
+    setCollapsedTasks(prev => ({
+      ...prev,
+      [idx]: !prev[idx]
+    }));
+  };
+
+  // Drag and drop handlers for reordering
+  const handleDragStart = (e, idx) => {
+    setDraggedIndex(idx);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', e.target.outerHTML);
+  };
+
+  const handleDragOver = (e, idx) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOverIndex(idx);
+  };
+
+  const handleDragLeave = (e, idx) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.currentTarget.contains(e.relatedTarget)) return;
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e, idx) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (draggedIndex !== null && draggedIndex !== idx) {
+      const newTasks = [...tasks];
+      const draggedTask = newTasks[draggedIndex];
+      newTasks.splice(draggedIndex, 1);
+      newTasks.splice(idx, 0, draggedTask);
+      setTasks(newTasks);
+    }
+    
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const handleImageUpload = (idx, file) => {
@@ -65,14 +129,14 @@ function App() {
     reader.readAsDataURL(file);
   };
 
-  // Drag and drop handlers
-  const handleDragEnter = (e, idx) => {
+  // Drag and drop handlers for image upload
+  const handleImageDragEnter = (e, idx) => {
     e.preventDefault();
     e.stopPropagation();
     setDragStates(prev => ({ ...prev, [idx]: true }));
   };
 
-  const handleDragLeave = (e, idx) => {
+  const handleImageDragLeave = (e, idx) => {
     e.preventDefault();
     e.stopPropagation();
     // Only set to false if we're leaving the drop zone entirely
@@ -81,12 +145,12 @@ function App() {
     }
   };
 
-  const handleDragOver = (e) => {
+  const handleImageDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  const handleDrop = (e, idx) => {
+  const handleImageDrop = (e, idx) => {
     e.preventDefault();
     e.stopPropagation();
     setDragStates(prev => ({ ...prev, [idx]: false }));
@@ -356,6 +420,7 @@ function App() {
                   <div className="radio-custom">
                     <div className="radio-dot"></div>
                   </div>
+                  <span className="layout-label">Horizontal</span>
                   <div className="layout-preview horizontal-preview">
                     <div className="preview-item">
                       <div className="preview-image"></div>
@@ -366,7 +431,6 @@ function App() {
                       <div className="preview-text"></div>
                     </div>
                   </div>
-                  <span className="layout-label">Horizontal</span>
                 </label>
                 
                 <label className="layout-option">
@@ -381,13 +445,13 @@ function App() {
                   <div className="radio-custom">
                     <div className="radio-dot"></div>
                   </div>
+                  <span className="layout-label">Vertical</span>
                   <div className="layout-preview vertical-preview">
                     <div className="preview-item">
                       <div className="preview-image"></div>
                       <div className="preview-text"></div>
                     </div>
                   </div>
-                  <span className="layout-label">Vertical</span>
                 </label>
               </div>
             </div>
@@ -404,108 +468,167 @@ function App() {
               <div className="tasks-container">
                 <div className="tasks-list">
                   {tasks.map((item, idx) => (
-                    <div key={idx} className="task-card">
+                    <div
+                      key={idx}
+                      className={`task-card ${draggedIndex === idx ? 'dragging' : ''} ${dragOverIndex === idx ? 'drag-over' : ''}`}
+                      draggable={!isMobile}
+                      onDragStart={!isMobile ? (e) => handleDragStart(e, idx) : undefined}
+                      onDragOver={!isMobile ? (e) => handleDragOver(e, idx) : undefined}
+                      onDragLeave={!isMobile ? (e) => handleDragLeave(e, idx) : undefined}
+                      onDrop={!isMobile ? (e) => handleDrop(e, idx) : undefined}
+                      onDragEnd={!isMobile ? handleDragEnd : undefined}
+                    >
                       <div className="task-header">
                         <span className="task-number">#{idx + 1}</span>
-                        {tasks.length > 1 && (
-                          <button 
-                            onClick={() => removeTask(idx)} 
-                            className="remove-task-btn"
-                            title="Remove task"
+                        <div className="task-header-buttons">
+                          {/* Drag handle for reordering (always visible, only draggable on mobile) */}
+                          <span
+                            className="drag-handle"
+                            draggable={isMobile}
+                            onDragStart={isMobile ? (e) => handleDragStart(e, idx) : undefined}
+                            onDragOver={isMobile ? (e) => handleDragOver(e, idx) : undefined}
+                            onDragLeave={isMobile ? (e) => handleDragLeave(e, idx) : undefined}
+                            onDrop={isMobile ? (e) => handleDrop(e, idx) : undefined}
+                            onDragEnd={isMobile ? handleDragEnd : undefined}
+                            tabIndex={0}
+                            title="Drag to reorder"
+                            role="button"
+                            aria-label="Drag to reorder"
                           >
-                            <span className="btn-icon">×</span>
+                            {/* Unicode grip icon */}
+                            <span className="grip-icon">⋮⋮</span>
+                          </span>
+                          {/* Collapse/Expand and Remove buttons */}
+                          <button 
+                            onClick={() => toggleCollapse(idx)} 
+                            className="collapse-btn"
+                            title={collapsedTasks[idx] ? 'Expand task' : 'Collapse task'}
+                          >
+                            <span className="btn-icon">{collapsedTasks[idx] ? '▲' : '▼'}</span>
                           </button>
-                        )}
-                      </div>
-                      
-                      <div className="task-content">
-                        {/* Image Type Selection */}
-                        <div className="image-type-selector">
-                          <label className="image-type-option">
-                            <input
-                              type="radio"
-                              name={`imageType-${idx}`}
-                              value="upload"
-                              checked={item.imageType === 'upload'}
-                              onChange={() => handleTaskChange(idx, 'imageType', 'upload')}
-                              className="radio-input"
-                            />
-                            <div className="radio-custom small">
-                              <div className="radio-dot"></div>
-                            </div>
-                            <span className="option-label">Upload Image</span>
-                          </label>
-                          
-                          <label className="image-type-option">
-                            <input
-                              type="radio"
-                              name={`imageType-${idx}`}
-                              value="link"
-                              checked={item.imageType === 'link'}
-                              onChange={() => handleTaskChange(idx, 'imageType', 'link')}
-                              className="radio-input"
-                            />
-                            <div className="radio-custom small">
-                              <div className="radio-dot"></div>
-                            </div>
-                            <span className="option-label">Image URL</span>
-                          </label>
-                        </div>
-
-                        {/* Image Input */}
-                        <div className="image-input-container">
-                          {item.imageType === 'upload' ? (
-                            <div
-                              className={`file-upload-area ${dragStates[idx] ? 'drag-over' : ''}`}
-                              onDragEnter={(e) => handleDragEnter(e, idx)}
-                              onDragLeave={(e) => handleDragLeave(e, idx)}
-                              onDragOver={handleDragOver}
-                              onDrop={(e) => handleDrop(e, idx)}
+                          {tasks.length > 1 && (
+                            <button 
+                              onClick={() => removeTask(idx)} 
+                              className="remove-task-btn"
+                              title="Remove task"
                             >
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={e => handleImageUpload(idx, e.target.files[0])}
-                                className="file-input"
-                                id={`file-${idx}`}
-                              />
-                              <label htmlFor={`file-${idx}`} className="file-upload-label">
-                                {getImageSrc(item) ? (
-                                  <div className="image-preview">
-                                    <img src={getImageSrc(item)} alt="preview" />
-                                  </div>
-                                ) : (
-                                  <div className="upload-placeholder">
-                                    <span className="upload-icon">📷</span>
-                                    <span className="upload-text">
-                                      {dragStates[idx] ? 'Drop image here' : 'Choose Image or drag & drop'}
-                                    </span>
-                                  </div>
-                                )}
-                              </label>
-                            </div>
-                          ) : (
-                            <input
-                              type="text"
-                              value={item.imageUrl}
-                              onChange={e => handleTaskChange(idx, 'imageUrl', e.target.value)}
-                              placeholder="Paste image URL here..."
-                              className="url-input"
-                            />
+                              <span className="btn-icon">×</span>
+                            </button>
                           )}
                         </div>
-
-                        {/* Task Description */}
-                        <div className="task-description-container">
-                          <textarea
-                            value={item.task}
-                            onChange={e => handleTaskChange(idx, 'task', e.target.value)}
-                            placeholder="Describe this task..."
-                            className="task-description"
-                            rows="3"
-                          />
-                        </div>
                       </div>
+                      
+                                              {/* Collapsed View */}
+                        {collapsedTasks[idx] && (
+                          <div className="task-collapsed-view">
+                            <div className="collapsed-thumbnail">
+                              {getImageSrc(item) ? (
+                                <img src={getImageSrc(item)} alt="task thumbnail" />
+                              ) : (
+                                <div className="collapsed-placeholder">
+                                  <span className="placeholder-icon">🖼️</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="collapsed-text">
+                              <span className="collapsed-task-text">
+                                {item.task || 'No description'}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Expanded View */}
+                        {!collapsedTasks[idx] && (
+                          <div className="task-content">
+                            {/* Image Type Selection */}
+                            <div className="image-type-selector">
+                              <label className="image-type-option">
+                                <input
+                                  type="radio"
+                                  name={`imageType-${idx}`}
+                                  value="upload"
+                                  checked={item.imageType === 'upload'}
+                                  onChange={() => handleTaskChange(idx, 'imageType', 'upload')}
+                                  className="radio-input"
+                                />
+                                <div className="radio-custom small">
+                                  <div className="radio-dot"></div>
+                                </div>
+                                <span className="option-label">Upload Image</span>
+                              </label>
+                              
+                              <label className="image-type-option">
+                                <input
+                                  type="radio"
+                                  name={`imageType-${idx}`}
+                                  value="link"
+                                  checked={item.imageType === 'link'}
+                                  onChange={() => handleTaskChange(idx, 'imageType', 'link')}
+                                  className="radio-input"
+                                />
+                                <div className="radio-custom small">
+                                  <div className="radio-dot"></div>
+                                </div>
+                                <span className="option-label">Image URL</span>
+                              </label>
+                            </div>
+
+                            {/* Image Input */}
+                            <div className="image-input-container">
+                              {item.imageType === 'upload' ? (
+                                <div
+                                  className={`file-upload-area ${dragStates[idx] ? 'drag-over' : ''}`}
+                                  onDragEnter={(e) => handleImageDragEnter(e, idx)}
+                                  onDragLeave={(e) => handleImageDragLeave(e, idx)}
+                                  onDragOver={handleImageDragOver}
+                                  onDrop={(e) => handleImageDrop(e, idx)}
+                                >
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={e => handleImageUpload(idx, e.target.files[0])}
+                                    className="file-input"
+                                    id={`file-${idx}`}
+                                  />
+                                  <label htmlFor={`file-${idx}`} className="file-upload-label">
+                                    {getImageSrc(item) ? (
+                                      <div className="image-preview">
+                                        <img src={getImageSrc(item)} alt="preview" />
+                                      </div>
+                                    ) : (
+                                      <div className="upload-placeholder">
+                                        <span className="upload-icon">📷</span>
+                                        <span className="upload-text">
+                                          {dragStates[idx] ? 'Drop image here' : 'Choose Image or drag & drop'}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </label>
+                                </div>
+                              ) : (
+                                <input
+                                  type="text"
+                                  value={item.imageUrl}
+                                  onChange={e => handleTaskChange(idx, 'imageUrl', e.target.value)}
+                                  placeholder="Paste image URL here..."
+                                  className="url-input"
+                                />
+                              )}
+                            </div>
+
+                            {/* Task Description */}
+                            <div className="task-description-container">
+                              <textarea
+                                value={item.task}
+                                onChange={e => handleTaskChange(idx, 'task', e.target.value)}
+                                placeholder="Describe this task..."
+                                className="task-description"
+                                rows="3"
+                              />
+                            </div>
+                          </div>
+                        )}
                     </div>
                   ))}
                 </div>
