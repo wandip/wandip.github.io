@@ -1,6 +1,19 @@
-# Getting Started with Create React App
+# Routine Maker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A beautiful web application for creating custom routine charts with images and descriptions. Export your routines as PDF for printing and sharing.
+
+## Features
+
+- ✨ **Drag & Drop Image Upload**: Easily add images by dragging files directly onto upload areas
+- 📋 **Custom Task Descriptions**: Add detailed descriptions for each task in your routine
+- 🎨 **Multiple Layouts**: Choose between horizontal and vertical layouts
+- 📄 **PDF Export**: Export your routines as high-quality PDF files
+- 📱 **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
+- 🎯 **Live Preview**: See your routine as you build it
+
+## Getting Started
+
+This project was built with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
 

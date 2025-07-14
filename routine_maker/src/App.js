@@ -10,6 +10,7 @@ function App() {
   ]);
   const [layout, setLayout] = useState('horizontal');
   const [isExporting, setIsExporting] = useState(false);
+  const [dragStates, setDragStates] = useState({}); // Track drag state for each task
   const previewRef = useRef();
 
   const handleTitleChange = (e) => setTitle(e.target.value);
@@ -21,16 +22,79 @@ function App() {
     setTasks(updated);
   };
 
-  const addTask = () => setTasks([...tasks, { image: '', task: '', imageType: 'upload', imageUrl: '' }]);
+  const addTask = () => {
+    setTasks([...tasks, { image: '', task: '', imageType: 'upload', imageUrl: '' }]);
+    // Keep focus on the add task button after adding a new task
+    setTimeout(() => {
+      const addButton = document.querySelector('.add-task-btn-end');
+      if (addButton) {
+        addButton.focus();
+        // Smooth scroll to keep the button in view
+        addButton.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 0);
+  };
 
   const removeTask = (idx) => setTasks(tasks.filter((_, i) => i !== idx));
 
+  const clearAll = () => {
+    setTitle('');
+    setLayout('horizontal');
+    setTasks([{ image: '', task: '', imageType: 'upload', imageUrl: '' }]);
+  };
+
   const handleImageUpload = (idx, file) => {
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file.');
+      return;
+    }
+    
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image file size must be less than 5MB.');
+      return;
+    }
+    
     const reader = new FileReader();
     reader.onloadend = () => {
       handleTaskChange(idx, 'image', reader.result);
     };
-    if (file) reader.readAsDataURL(file);
+    reader.readAsDataURL(file);
+  };
+
+  // Drag and drop handlers
+  const handleDragEnter = (e, idx) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragStates(prev => ({ ...prev, [idx]: true }));
+  };
+
+  const handleDragLeave = (e, idx) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set to false if we're leaving the drop zone entirely
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setDragStates(prev => ({ ...prev, [idx]: false }));
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e, idx) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragStates(prev => ({ ...prev, [idx]: false }));
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleImageUpload(idx, files[0]);
+    }
   };
 
   const handleExportPDF = async () => {
@@ -45,7 +109,7 @@ function App() {
         previewClone.style.position = 'absolute';
         previewClone.style.left = '-9999px';
         previewClone.style.top = '0';
-        previewClone.style.width = isLandscape ? '1200px' : '800px';
+        previewClone.style.width = isLandscape ? '1000px' : '700px';
         previewClone.style.backgroundColor = '#ffffff';
         previewClone.style.padding = '40px';
         previewClone.style.margin = '0';
@@ -53,9 +117,9 @@ function App() {
         previewClone.style.boxShadow = 'none';
         document.body.appendChild(previewClone);
 
-        // Configure html2canvas for high quality
+        // Configure html2canvas for high quality with optimized settings
         const canvas = await html2canvas(previewClone, {
-          scale: 3, // Very high scale for crisp text and images
+          scale: 3, // High scale for crisp text and images
           useCORS: true,
           allowTaint: true,
           backgroundColor: '#ffffff',
@@ -94,15 +158,15 @@ function App() {
         const xOffset = (pageWidth - imgWidth) / 2;
         const yOffset = (pageHeight - imgHeight) / 2;
         
-        // Add first page
-        pdf.addImage(canvas, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+        // Add first page with optimized JPEG compression
+        pdf.addImage(canvas, 'JPEG', xOffset, yOffset, imgWidth, imgHeight, undefined, 'MEDIUM');
         
         // Create second page with empty text cells
         const emptyPreviewClone = previewRef.current.cloneNode(true);
         emptyPreviewClone.style.position = 'absolute';
         emptyPreviewClone.style.left = '-9999px';
         emptyPreviewClone.style.top = '0';
-        emptyPreviewClone.style.width = isLandscape ? '1200px' : '800px';
+        emptyPreviewClone.style.width = isLandscape ? '1000px' : '700px';
         emptyPreviewClone.style.backgroundColor = '#ffffff';
         emptyPreviewClone.style.padding = '40px';
         emptyPreviewClone.style.margin = '0';
@@ -170,7 +234,7 @@ function App() {
 
         // Add second page with empty text cells
         pdf.addPage();
-        pdf.addImage(emptyCanvas, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+        pdf.addImage(emptyCanvas, 'JPEG', xOffset, yOffset, imgWidth, imgHeight, undefined, 'MEDIUM');
         
         // If content is taller than one page, add additional pages for both copies
         if (imgHeight > pageHeight) {
@@ -181,7 +245,7 @@ function App() {
             pdf.addPage();
             const pageImgY = currentY + (imgHeight - remainingHeight);
             
-            pdf.addImage(canvas, 'PNG', xOffset, pageImgY, imgWidth, imgHeight);
+            pdf.addImage(canvas, 'JPEG', xOffset, pageImgY, imgWidth, imgHeight, undefined, 'MEDIUM');
             remainingHeight -= pageHeight;
             currentY -= pageHeight;
           }
@@ -194,7 +258,7 @@ function App() {
             pdf.addPage();
             const pageImgY = currentY + (imgHeight - remainingHeight);
             
-            pdf.addImage(emptyCanvas, 'PNG', xOffset, pageImgY, imgWidth, imgHeight);
+            pdf.addImage(emptyCanvas, 'JPEG', xOffset, pageImgY, imgWidth, imgHeight, undefined, 'MEDIUM');
             remainingHeight -= pageHeight;
             currentY -= pageHeight;
           }
@@ -231,16 +295,26 @@ function App() {
             <span className="title-icon">📋</span>
             Routine Maker
           </h1>
-          <button 
-            onClick={handleExportPDF} 
-            className="export-btn"
-            disabled={!title.trim() || isExporting}
-          >
-            <span className="btn-icon">
-              {isExporting ? '⏳' : '📄'}
-            </span>
-            {isExporting ? 'Generating PDF...' : 'Export PDF'}
-          </button>
+          <div className="header-buttons">
+            <button 
+              onClick={handleExportPDF} 
+              className="export-btn"
+              disabled={!title.trim() || isExporting}
+            >
+              <span className="btn-icon">
+                {isExporting ? '⏳' : '📄'}
+              </span>
+              {isExporting ? 'Generating PDF...' : 'Export PDF'}
+            </button>
+            <button 
+              onClick={clearAll} 
+              className="clear-btn"
+              disabled={!title.trim() && tasks.length === 1 && tasks[0].image === '' && tasks[0].task === ''}
+            >
+              <span className="btn-icon">🧹</span>
+              Clear All
+            </button>
+          </div>
         </div>
       </header>
 
@@ -323,112 +397,129 @@ function App() {
               <div className="tasks-header">
                 <label className="input-label">
                   <span className="label-icon">✅</span>
-                  Tasks
+                  Tasks ({tasks.length})
                 </label>
-                <button onClick={addTask} className="add-task-btn">
-                  <span className="btn-icon">+</span>
-                  Add Task
-                </button>
               </div>
               
               <div className="tasks-container">
-                {tasks.map((item, idx) => (
-                  <div key={idx} className="task-card">
-                    <div className="task-header">
-                      <span className="task-number">#{idx + 1}</span>
-                      {tasks.length > 1 && (
-                        <button 
-                          onClick={() => removeTask(idx)} 
-                          className="remove-task-btn"
-                          title="Remove task"
-                        >
-                          <span className="btn-icon">×</span>
-                        </button>
-                      )}
-                    </div>
-                    
-                    <div className="task-content">
-                      {/* Image Type Selection */}
-                      <div className="image-type-selector">
-                        <label className="image-type-option">
-                          <input
-                            type="radio"
-                            name={`imageType-${idx}`}
-                            value="upload"
-                            checked={item.imageType === 'upload'}
-                            onChange={() => handleTaskChange(idx, 'imageType', 'upload')}
-                            className="radio-input"
-                          />
-                          <div className="radio-custom small">
-                            <div className="radio-dot"></div>
-                          </div>
-                          <span className="option-label">Upload Image</span>
-                        </label>
-                        
-                        <label className="image-type-option">
-                          <input
-                            type="radio"
-                            name={`imageType-${idx}`}
-                            value="link"
-                            checked={item.imageType === 'link'}
-                            onChange={() => handleTaskChange(idx, 'imageType', 'link')}
-                            className="radio-input"
-                          />
-                          <div className="radio-custom small">
-                            <div className="radio-dot"></div>
-                          </div>
-                          <span className="option-label">Image URL</span>
-                        </label>
-                      </div>
-
-                      {/* Image Input */}
-                      <div className="image-input-container">
-                        {item.imageType === 'upload' ? (
-                          <div className="file-upload-area">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={e => handleImageUpload(idx, e.target.files[0])}
-                              className="file-input"
-                              id={`file-${idx}`}
-                            />
-                            <label htmlFor={`file-${idx}`} className="file-upload-label">
-                              {getImageSrc(item) ? (
-                                <div className="image-preview">
-                                  <img src={getImageSrc(item)} alt="preview" />
-                                </div>
-                              ) : (
-                                <div className="upload-placeholder">
-                                  <span className="upload-icon">📷</span>
-                                  <span className="upload-text">Choose Image</span>
-                                </div>
-                              )}
-                            </label>
-                          </div>
-                        ) : (
-                          <input
-                            type="text"
-                            value={item.imageUrl}
-                            onChange={e => handleTaskChange(idx, 'imageUrl', e.target.value)}
-                            placeholder="Paste image URL here..."
-                            className="url-input"
-                          />
+                <div className="tasks-list">
+                  {tasks.map((item, idx) => (
+                    <div key={idx} className="task-card">
+                      <div className="task-header">
+                        <span className="task-number">#{idx + 1}</span>
+                        {tasks.length > 1 && (
+                          <button 
+                            onClick={() => removeTask(idx)} 
+                            className="remove-task-btn"
+                            title="Remove task"
+                          >
+                            <span className="btn-icon">×</span>
+                          </button>
                         )}
                       </div>
+                      
+                      <div className="task-content">
+                        {/* Image Type Selection */}
+                        <div className="image-type-selector">
+                          <label className="image-type-option">
+                            <input
+                              type="radio"
+                              name={`imageType-${idx}`}
+                              value="upload"
+                              checked={item.imageType === 'upload'}
+                              onChange={() => handleTaskChange(idx, 'imageType', 'upload')}
+                              className="radio-input"
+                            />
+                            <div className="radio-custom small">
+                              <div className="radio-dot"></div>
+                            </div>
+                            <span className="option-label">Upload Image</span>
+                          </label>
+                          
+                          <label className="image-type-option">
+                            <input
+                              type="radio"
+                              name={`imageType-${idx}`}
+                              value="link"
+                              checked={item.imageType === 'link'}
+                              onChange={() => handleTaskChange(idx, 'imageType', 'link')}
+                              className="radio-input"
+                            />
+                            <div className="radio-custom small">
+                              <div className="radio-dot"></div>
+                            </div>
+                            <span className="option-label">Image URL</span>
+                          </label>
+                        </div>
 
-                      {/* Task Description */}
-                      <div className="task-description-container">
-                        <textarea
-                          value={item.task}
-                          onChange={e => handleTaskChange(idx, 'task', e.target.value)}
-                          placeholder="Describe this task..."
-                          className="task-description"
-                          rows="3"
-                        />
+                        {/* Image Input */}
+                        <div className="image-input-container">
+                          {item.imageType === 'upload' ? (
+                            <div
+                              className={`file-upload-area ${dragStates[idx] ? 'drag-over' : ''}`}
+                              onDragEnter={(e) => handleDragEnter(e, idx)}
+                              onDragLeave={(e) => handleDragLeave(e, idx)}
+                              onDragOver={handleDragOver}
+                              onDrop={(e) => handleDrop(e, idx)}
+                            >
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={e => handleImageUpload(idx, e.target.files[0])}
+                                className="file-input"
+                                id={`file-${idx}`}
+                              />
+                              <label htmlFor={`file-${idx}`} className="file-upload-label">
+                                {getImageSrc(item) ? (
+                                  <div className="image-preview">
+                                    <img src={getImageSrc(item)} alt="preview" />
+                                  </div>
+                                ) : (
+                                  <div className="upload-placeholder">
+                                    <span className="upload-icon">📷</span>
+                                    <span className="upload-text">
+                                      {dragStates[idx] ? 'Drop image here' : 'Choose Image or drag & drop'}
+                                    </span>
+                                  </div>
+                                )}
+                              </label>
+                            </div>
+                          ) : (
+                            <input
+                              type="text"
+                              value={item.imageUrl}
+                              onChange={e => handleTaskChange(idx, 'imageUrl', e.target.value)}
+                              placeholder="Paste image URL here..."
+                              className="url-input"
+                            />
+                          )}
+                        </div>
+
+                        {/* Task Description */}
+                        <div className="task-description-container">
+                          <textarea
+                            value={item.task}
+                            onChange={e => handleTaskChange(idx, 'task', e.target.value)}
+                            placeholder="Describe this task..."
+                            className="task-description"
+                            rows="3"
+                          />
+                        </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+                
+                {/* Add Task Button at the end */}
+                <div className="add-task-container">
+                  <div className="add-task-wrapper">
+                    <span className="task-counter">Tasks: {tasks.length}</span>
+                    <button onClick={addTask} className="add-task-btn-end">
+                      <span className="btn-icon">+</span>
+                      Add Another Task
+                    </button>
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>
