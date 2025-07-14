@@ -1,7 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import './App.css';
+import { 
+  initGA, 
+  logPageView, 
+  logRoutineCreation, 
+  logPDFExport, 
+  logTaskAdded, 
+  logTaskRemoved, 
+  logLayoutChange 
+} from './analytics';
 
 function App() {
   const [title, setTitle] = useState('');
@@ -17,6 +26,12 @@ function App() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const previewRef = useRef();
 
+  // Initialize Google Analytics
+  useEffect(() => {
+    initGA();
+    logPageView(window.location.pathname);
+  }, []);
+
   // Track screen size changes
   React.useEffect(() => {
     const handleResize = () => {
@@ -27,17 +42,33 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleTitleChange = (e) => setTitle(e.target.value);
+  const handleTitleChange = (e) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    
+    // Track routine creation when title is added and there are tasks
+    if (newTitle.trim() && tasks.length > 0 && tasks.some(task => task.task.trim() || task.image)) {
+      logRoutineCreation(tasks.length, layout);
+    }
+  };
 
   const handleTaskChange = (idx, field, value) => {
     const updated = tasks.map((item, i) =>
       i === idx ? { ...item, [field]: value } : item
     );
     setTasks(updated);
+    
+    // Track task modification when content is added
+    if (field === 'task' && value.trim() && title.trim()) {
+      logRoutineCreation(updated.length, layout);
+    }
   };
 
   const addTask = () => {
-    setTasks([...tasks, { image: '', task: '', imageType: 'upload', imageUrl: '' }]);
+    const newTasks = [...tasks, { image: '', task: '', imageType: 'upload', imageUrl: '' }];
+    setTasks(newTasks);
+    // Track task addition
+    logTaskAdded(newTasks.length);
     // Keep focus on the add task button after adding a new task
     setTimeout(() => {
       const addButton = document.querySelector('.add-task-btn-end');
@@ -49,13 +80,20 @@ function App() {
     }, 0);
   };
 
-  const removeTask = (idx) => setTasks(tasks.filter((_, i) => i !== idx));
+  const removeTask = (idx) => {
+    const newTasks = tasks.filter((_, i) => i !== idx);
+    setTasks(newTasks);
+    // Track task removal
+    logTaskRemoved(newTasks.length);
+  };
 
   const clearAll = () => {
     setTitle('');
     setLayout('horizontal');
     setTasks([{ image: '', task: '', imageType: 'upload', imageUrl: '' }]);
     setCollapsedTasks({});
+    // Track routine reset
+    logRoutineCreation(1, 'horizontal');
   };
 
   // Toggle collapse state for a task
@@ -165,6 +203,9 @@ function App() {
     if (previewRef.current && !isExporting) {
       try {
         setIsExporting(true);
+        
+        // Track PDF export
+        logPDFExport(tasks.length, layout);
 
         const isLandscape = layout === 'horizontal';
         
@@ -414,7 +455,10 @@ function App() {
                     name="layout"
                     value="horizontal"
                     checked={layout === 'horizontal'}
-                    onChange={() => setLayout('horizontal')}
+                    onChange={() => {
+                      setLayout('horizontal');
+                      logLayoutChange('horizontal');
+                    }}
                     className="radio-input"
                   />
                   <div className="radio-custom">
@@ -439,7 +483,10 @@ function App() {
                     name="layout"
                     value="vertical"
                     checked={layout === 'vertical'}
-                    onChange={() => setLayout('vertical')}
+                    onChange={() => {
+                      setLayout('vertical');
+                      logLayoutChange('vertical');
+                    }}
                     className="radio-input"
                   />
                   <div className="radio-custom">
