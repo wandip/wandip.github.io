@@ -12,6 +12,13 @@ import {
   logLayoutChange 
 } from './analytics';
 
+// Import AI Annotations Framework (JavaScript version)
+import { 
+  useAIAnnotation, 
+  createDynamicAnnotation,
+  setupAIAnnotations 
+} from './ai-annotations';
+
 function App() {
   const [title, setTitle] = useState('');
   const [tasks, setTasks] = useState([
@@ -30,6 +37,27 @@ function App() {
   useEffect(() => {
     initGA();
     logPageView(window.location.pathname);
+  }, []);
+
+  // Initialize AI Annotations Engine
+  useEffect(() => {
+    const engine = setupAIAnnotations({
+      observeChanges: true,
+      debounceDelay: 100
+    });
+    
+    // Log annotations for testing
+    const logAnnotations = () => {
+      const annotations = engine.exportForAI();
+      console.log('Current annotations:', annotations);
+    };
+    
+    // Log every 5 seconds for testing
+    const interval = setInterval(logAnnotations, 5000);
+    
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   // Track screen size changes
@@ -405,6 +433,16 @@ function App() {
               onClick={handleExportPDF} 
               className="export-btn"
               disabled={!title.trim() || isExporting}
+              {...useAIAnnotation({
+                purpose: 'download_action',
+                description: 'Click to export the current routine as a PDF file. Requires a title and at least one task to be enabled.',
+                nodeId: 'export-pdf-button',
+                metadata: { 
+                  action: 'export_pdf',
+                  hasTitle: !!title.trim(),
+                  taskCount: tasks.length 
+                }
+              })}
             >
               <span className="btn-icon">
                 {isExporting ? '⏳' : '📄'}
@@ -415,6 +453,15 @@ function App() {
               onClick={clearAll} 
               className="clear-btn"
               disabled={!title.trim() && tasks.length === 1 && tasks[0].image === '' && tasks[0].task === ''}
+              {...useAIAnnotation({
+                purpose: 'action_trigger',
+                description: 'Click to clear all routine data including title and all tasks. This action cannot be undone.',
+                nodeId: 'clear-all-button',
+                metadata: { 
+                  action: 'clear_all',
+                  hasContent: !!(title.trim() || tasks.some(t => t.image || t.task))
+                }
+              })}
             >
               <span className="btn-icon">🧹</span>
               Clear All
@@ -439,6 +486,16 @@ function App() {
                 onChange={handleTitleChange}
                 className="title-input"
                 placeholder="Enter your routine title..."
+                {...useAIAnnotation({
+                  purpose: 'user_input',
+                  description: 'Text input field for entering the routine title. This is required for exporting the routine as PDF.',
+                  nodeId: 'routine-title-input',
+                  metadata: { 
+                    fieldType: 'text',
+                    required: true,
+                    currentValue: title 
+                  }
+                })}
               />
             </div>
 
@@ -460,6 +517,16 @@ function App() {
                       logLayoutChange('horizontal');
                     }}
                     className="radio-input"
+                    {...useAIAnnotation({
+                      purpose: 'data_selection',
+                      description: 'Radio button to select horizontal layout. Tasks will be displayed side by side in a row format.',
+                      nodeId: 'layout-horizontal-radio',
+                      metadata: { 
+                        optionType: 'layout',
+                        value: 'horizontal',
+                        selected: layout === 'horizontal'
+                      }
+                    })}
                   />
                   <div className="radio-custom">
                     <div className="radio-dot"></div>
@@ -488,6 +555,16 @@ function App() {
                       logLayoutChange('vertical');
                     }}
                     className="radio-input"
+                    {...useAIAnnotation({
+                      purpose: 'data_selection',
+                      description: 'Radio button to select vertical layout. Tasks will be displayed stacked vertically in a column format.',
+                      nodeId: 'layout-vertical-radio',
+                      metadata: { 
+                        optionType: 'layout',
+                        value: 'vertical',
+                        selected: layout === 'vertical'
+                      }
+                    })}
                   />
                   <div className="radio-custom">
                     <div className="radio-dot"></div>
@@ -672,6 +749,16 @@ function App() {
                                 placeholder="Describe this task..."
                                 className="task-description"
                                 rows="3"
+                                {...createDynamicAnnotation({
+                                  purpose: 'user_input',
+                                  description: `Textarea for entering the description of task ${idx + 1}. Describe what needs to be done for this step in the routine.`,
+                                  nodeId: `task-description-${idx}`,
+                                  metadata: { 
+                                    fieldType: 'textarea',
+                                    taskIndex: idx,
+                                    currentValue: item.task 
+                                  }
+                                })}
                               />
                             </div>
                           </div>
@@ -684,7 +771,19 @@ function App() {
                 <div className="add-task-container">
                   <div className="add-task-wrapper">
                     <span className="task-counter">Tasks: {tasks.length}</span>
-                    <button onClick={addTask} className="add-task-btn-end">
+                    <button 
+                      onClick={addTask} 
+                      className="add-task-btn-end"
+                      {...useAIAnnotation({
+                        purpose: 'action_trigger',
+                        description: 'Click to add a new empty task to the routine. The new task will appear at the end of the current task list.',
+                        nodeId: 'add-task-button',
+                        metadata: { 
+                          action: 'add_task',
+                          currentTaskCount: tasks.length 
+                        }
+                      })}
+                    >
                       <span className="btn-icon">+</span>
                       Add Another Task
                     </button>
