@@ -24,22 +24,108 @@
   <meta name="twitter:title" content="{% if page.title == 'Home' %}{{ site.title }} &middot; {{ site.tagline }}{% else %}{{ page.title }} &middot; {{ site.title }}{% endif %}">
   <meta name="twitter:description" content="{% if page.description %}{{ page.description }}{% else %}In-depth analysis of LLMs, machine learning research, data science concepts, and technical notes. Weekly updates on AI papers, ML implementations, and tech insights.{% endif %}">
 
-  <!-- Schema.org markup for Google -->
+  <!-- Structured Data: WebSite + Organization on non-post pages -->
+  {% unless page.layout == 'post' %}
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "{% if page.layout == 'post' %}Article{% else %}WebSite{% endif %}",
-    "headline": "{% if page.title == 'Home' %}{{ site.title }} &middot; {{ site.tagline }}{% else %}{{ page.title }} &middot; {{ site.title }}{% endif %}",
-    "description": "{% if page.description %}{{ page.description }}{% else %}In-depth analysis of LLMs, machine learning research, data science concepts, and technical notes. Weekly updates on AI papers, ML implementations, and tech insights.{% endif %}",
+    "@type": "WebSite",
+    "name": "{{ site.title }}",
+    "url": "{{ site.url | append: site.baseurl }}",
+    "description": "{{ site.description | default: 'Personal site' }}",
+    "inLanguage": "en",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "{{ site.url | append: site.baseurl }}?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "{{ site.author.name | default: site.title }}",
+    "url": "{{ site.url | append: site.baseurl }}",
+    "email": "{{ site.author.email | default: '' }}",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ '/public/favicon.ico' | absolute_url }}"
+    },
+    "sameAs": [
+      {% assign sameas = '' %}
+      {% if site.github_username %}{% assign sameas = sameas | append: '"https://github.com/' | append: site.github_username | append: '"' %}{% endif %}
+      {% if site.twitter_username %}{% if sameas != '' %}{% assign sameas = sameas | append: ', ' %}{% endif %}{% assign sameas = sameas | append: '"https://twitter.com/' | append: site.twitter_username | append: '"' %}{% endif %}
+      {{ sameas }}
+    ]
+  }
+  </script>
+  {% endunless %}
+
+  <!-- Structured Data: BlogPosting on post pages -->
+  {% if page.layout == 'post' %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "{{ page.url | absolute_url }}"
+    },
+    "headline": "{{ page.title }}",
+    "description": "{{ page.description | default: site.description }}",
+    "keywords": "{% if page.keywords %}{{ page.keywords }}{% elsif page.tags %}{{ page.tags | join: ', ' }}{% else %}blog{% endif %}",
     "author": {
       "@type": "Person",
       "name": "{{ site.author.name }}"
     },
-    "keywords": "{% if page.keywords %}{{ page.keywords }}{% else %}LLMs, machine learning, artificial intelligence, data science, deep learning, neural networks, AI research, technical notes, paper reviews, ML implementation, data analysis, AI papers, weekly tech updates{% endif %}",
+    "publisher": {
+      "@type": "Organization",
+      "name": "{{ site.author.name | default: site.title }}",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ '/public/favicon.ico' | absolute_url }}"
+      }
+    },
     "url": "{{ page.url | absolute_url }}",
-    "datePublished": "{% if page.date %}{{ page.date | date_to_xmlschema }}{% else %}{{ site.time | date_to_xmlschema }}{% endif %}"
+    "datePublished": "{{ page.date | date_to_xmlschema }}",
+    "dateModified": "{{ page.last_modified_at | default: page.date | date_to_xmlschema }}",
+    {% if page.image %}
+    "image": ["{{ page.image | absolute_url }}"]
+    {% else %}
+    "image": ["{{ '/public/apple-touch-icon-144-precomposed.png' | absolute_url }}"]
+    {% endif %}
   }
   </script>
+  {% endif %}
+
+  <!-- Structured Data: Breadcrumbs when tags or categories exist -->
+  {% if page.categories or page.tags %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "{{ site.url | append: site.baseurl }}"
+      }{% if page.categories and page.categories.size > 0 %},{
+        "@type": "ListItem",
+        "position": 2,
+        "name": "{{ page.categories | first }}",
+        "item": "{{ site.url | append: '/tags/' | append: page.categories | first }}"
+      }{% endif %},{
+        "@type": "ListItem",
+        "position": {% if page.categories and page.categories.size > 0 %}3{% else %}2{% endif %},
+        "name": "{{ page.title }}",
+        "item": "{{ page.url | absolute_url }}"
+      }
+    ]
+  }
+  </script>
+  {% endif %}
 
   <title>
     {% if page.title == "Home" %}
