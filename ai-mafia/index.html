@@ -49,6 +49,29 @@
             position: relative;
         }
 
+        /* Title */
+        #page-title {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1002;
+            background: rgba(30, 30, 30, 0.9);
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 12px 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        #page-title h1 {
+            margin: 0;
+            color: #87CEEB;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+        }
+
         /* Controls overlay */
         .controls {
             position: fixed;
@@ -238,8 +261,21 @@
 
         /* Mobile responsive */
         @media (max-width: 768px) {
-            .controls {
+            #page-title {
                 top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 8px 16px;
+            }
+
+            #page-title h1 {
+                font-size: 16px;
+                white-space: normal;
+                line-height: 1.3;
+            }
+
+            .controls {
+                top: 70px;
                 right: 10px;
             }
 
@@ -282,6 +318,10 @@
     </div>
 
     <div id="canvas-container"></div>
+
+    <div id="page-title">
+        <h1>Tracing the roots of today's AI leaders back to Google</h1>
+    </div>
 
     <div class="controls">
         <button class="control-btn" onclick="viewer.resetView()">
@@ -327,6 +367,7 @@
             <a href="https://www.acquired.fm/episodes/google-the-ai-company" target="_blank" rel="noopener">
                 Acquired Google Podcast
             </a>
+            Credits to Ben and David.
         </p>
         <p>Click on any node to explore connections. Drag to pan, scroll to zoom.</p>
         <p style="margin-top: 20px;">

@@ -146,7 +146,7 @@ class CanvasViewer {
                     'text-halign': 'center',
                     'text-wrap': 'wrap',
                     'text-max-width': '250px',
-                    'font-size': '16px',
+                    'font-size': '18px',
                     'font-family': 'Inter, sans-serif',
                     'background-color': '#1d1d1d',
                     'color': '#e0e0e0',
@@ -201,7 +201,7 @@ class CanvasViewer {
                     'border-width': 3,
                     'border-style': 'dashed',
                     'shape': 'round-rectangle',
-                    'font-size': '18px',
+                    'font-size': '20px',
                     'font-weight': 'bold'
                 }
             },
@@ -232,7 +232,7 @@ class CanvasViewer {
                     'target-arrow-shape': 'triangle',
                     'curve-style': 'bezier',
                     'label': 'data(label)',
-                    'font-size': '11px',
+                    'font-size': '24px',
                     'text-rotation': 'autorotate',
                     'text-margin-y': -10,
                     'text-background-color': '#1a1a1a',
