@@ -11,6 +11,11 @@ class CanvasViewer {
     async init() {
         // Load canvas data
         const response = await fetch(this.canvasDataPath);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to load canvas data: ${response.status} ${response.statusText}`);
+        }
+        
         const canvasData = await response.json();
         
         // Parse and transform data
@@ -38,12 +43,14 @@ class CanvasViewer {
         const elements = { nodes: [], edges: [] };
         const nodeMap = new Map();
         
-        // First pass: create all nodes
+        // First pass: create all nodes (including groups)
         canvasData.nodes.forEach(node => {
-            if (node.type === 'text' || node.type === 'file') {
+            if (node.type === 'text' || node.type === 'file' || node.type === 'group') {
                 const cytoscapeNode = this.parseNode(node);
-                elements.nodes.push(cytoscapeNode);
-                nodeMap.set(node.id, cytoscapeNode);
+                if (cytoscapeNode) {
+                    elements.nodes.push(cytoscapeNode);
+                    nodeMap.set(node.id, cytoscapeNode);
+                }
             }
         });
 
@@ -105,6 +112,20 @@ class CanvasViewer {
             };
         }
         
+        // Handle group nodes
+        if (node.type === 'group') {
+            return {
+                data: {
+                    id: node.id,
+                    label: node.label || '',
+                    type: 'group',
+                    width: node.width || 300,
+                    height: node.height || 100
+                },
+                position: position
+            };
+        }
+        
         return null;
     }
 
@@ -125,14 +146,14 @@ class CanvasViewer {
                     'text-halign': 'center',
                     'text-wrap': 'wrap',
                     'text-max-width': '250px',
-                    'font-size': '14px',
+                    'font-size': '16px',
                     'font-family': 'Inter, sans-serif',
-                    'background-color': '#2d2d2d',
+                    'background-color': '#1d1d1d',
                     'color': '#e0e0e0',
                     'border-width': 2,
                     'border-color': '#444',
                     'shape': 'round-rectangle',
-                    'padding': '8px'
+                    'padding': '10px'
                 }
             },
             // Image nodes
@@ -145,8 +166,8 @@ class CanvasViewer {
                     'background-fit': 'contain',
                     'background-color': 'transparent',
                     'border-width': 0,
-                    'width': function(ele) { return ele.data('width') + 'px'; },
-                    'height': function(ele) { return ele.data('height') + 'px'; },
+                    'width': function(ele) { return (ele.data('width') * 1.1) + 'px'; },
+                    'height': function(ele) { return (ele.data('height') * 1.1) + 'px'; },
                     'label': '' // No label for image nodes
                 }
             },
@@ -167,6 +188,21 @@ class CanvasViewer {
                         };
                         return colorMap[color] || colorMap['default'];
                     }
+                }
+            },
+            // Group nodes
+            {
+                selector: 'node[type = "group"]',
+                style: {
+                    'width': function(ele) { return ele.data('width') + 'px'; },
+                    'height': function(ele) { return ele.data('height') + 'px'; },
+                    'background-color': 'rgba(74, 199, 201, 0.28)',
+                    'border-color': '#87CEEB',
+                    'border-width': 3,
+                    'border-style': 'dashed',
+                    'shape': 'round-rectangle',
+                    'font-size': '18px',
+                    'font-weight': 'bold'
                 }
             },
             // Selected node style

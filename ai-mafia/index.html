@@ -338,7 +338,7 @@
         let viewer;
 
         document.addEventListener('DOMContentLoaded', function() {
-            viewer = new CanvasViewer('canvas-container', 'AI Mafia/AI Mafia.canvas');
+            viewer = new CanvasViewer('canvas-container', 'canvas-data.json');
             
             viewer.init().then(() => {
                 document.getElementById('loading').classList.add('hidden');
