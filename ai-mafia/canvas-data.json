@@ -52,7 +52,7 @@
 		{"id":"9533efbab30bee98","type":"file","file":"AI Mafia/Gemini.png","x":7072,"y":1225,"width":89,"height":50},
 		{"id":"3b35d1468e8f16c2","type":"text","text":"Aidan Gomez","x":4771,"y":1838,"width":250,"height":60},
 		{"id":"e35a163105112c78","type":"file","file":"AI Mafia/Google.png","x":4962,"y":1839,"width":59,"height":59},
-		{"id":"d5973385b397fbf5","type":"file","file":"AI Mafia/adept ai.png","x":4488,"y":2141,"width":118,"height":59},
+		{"id":"d5973385b397fbf5","type":"file","file":"AI Mafia/adept.png","x":4488,"y":2141,"width":118,"height":59},
 		{"id":"3031e04f9e4f7fbb","type":"text","text":"John Giannandrea","x":3341,"y":1120,"width":250,"height":60},
 		{"id":"fe699dae942243e0","type":"text","text":"<p style=\"font-size: 48px\">Attention is All You Need<p>","x":4518,"y":1438,"width":733,"height":123,"color":"1"},
 		{"id":"0d4c703767b96ed4","type":"text","text":"Shane Legg - AGI","x":2918,"y":942,"width":250,"height":60},
@@ -68,7 +68,7 @@
 		{"id":"d83b5874ba639f66","type":"file","file":"AI Mafia/Google.png","x":5309,"y":1834,"width":59,"height":59},
 		{"id":"611968916162649e","type":"file","file":"AI Mafia/Google.png","x":6471,"y":1824,"width":59,"height":59},
 		{"id":"8610069cf8a28aab","type":"file","file":"AI Mafia/charai.png","x":6471,"y":2111,"width":59,"height":59},
-		{"id":"14cab363cb6ad723","type":"file","file":"AI Mafia/attention is all you need.png","x":5155,"y":1438,"width":96,"height":123},
+		{"id":"14cab363cb6ad723","type":"file","file":"AI Mafia/attention.png","x":5155,"y":1438,"width":96,"height":123},
 		{"id":"5c0677ca7c6d11d0","type":"text","text":"Mark Zuckerberg","x":5251,"y":-175,"width":250,"height":60},
 		{"id":"394bf11c271fd22a","type":"text","text":"John Giannandrea","x":5947,"y":4,"width":250,"height":60},
 		{"id":"cb01b28fc8a10168","type":"text","text":"Yann Le Cunn","x":5251,"y":-280,"width":250,"height":60},
@@ -123,7 +123,7 @@
 		{"id":"a5be6767641c1fa2","type":"text","text":"Niki Parmar","x":4367,"y":2522,"width":250,"height":60},
 		{"id":"0ffdfa02ab26ee10","type":"file","file":"AI Mafia/essentialai.png","x":4547,"y":2522,"width":70,"height":60},
 		{"id":"7a81c2ebbea5a5c0","type":"text","text":"Ashish Vaswani","x":3906,"y":2143,"width":250,"height":60},
-		{"id":"26bde757aff40d5a","type":"file","file":"AI Mafia/adept ai.png","x":4038,"y":2143,"width":118,"height":59}
+		{"id":"26bde757aff40d5a","type":"file","file":"AI Mafia/adept.png","x":4038,"y":2143,"width":118,"height":59}
 	],
 	"edges":[
 		{"id":"76562b2c2daadaee","fromNode":"27a8754c113c2993","fromSide":"left","toNode":"553408d32c7eec3e","toSide":"top"},
