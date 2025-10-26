@@ -43,6 +43,7 @@ exclude:
   - f1/vite.config.js
   - routine_maker/public
   - routine_maker/src
+  - ai-mafia/AI Mafia/
 
 google-analytics: UA-127095421-1
 github:
