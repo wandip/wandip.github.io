@@ -1,0 +1,87 @@
+name: Deploy Astro site to Pages
+
+on:
+  push:
+    branches: ["master"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Build F1 app
+        working-directory: ./f1
+        run: |
+          npm ci
+          npm run build
+          
+      - name: Build Routine Maker app
+        working-directory: ./routine_maker
+        run: |
+          npm ci
+          npm run build
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v4
+
+      - name: Prepare static project routes
+        run: |
+          mkdir -p public/f1 public/routine public/ai-mafia
+
+          if [ -d "f1/dist" ]; then
+            cp -r f1/dist/* public/f1/
+            mkdir -p public/f1/src/audio
+            cp f1/src/audio/f1_beep.mp3 public/f1/src/audio/f1_beep.mp3
+          else
+            echo "Error: f1/dist directory not found. Build failed."
+            exit 1
+          fi
+
+          if [ -d "routine_maker/build" ]; then
+            cp -r routine_maker/build/* public/routine/
+          else
+            echo "Error: routine_maker/build directory not found. Build failed."
+            exit 1
+          fi
+
+          cp -r ai-mafia/* public/ai-mafia/
+
+      - name: Build with Astro
+        run: npm run build
+          
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 

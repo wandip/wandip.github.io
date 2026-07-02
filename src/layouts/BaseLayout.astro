@@ -1,0 +1,87 @@
+---
+import "../styles/global.css";
+
+const {
+  title = "Dipak Wani",
+  description = "AI builder, data scientist, writer, reader, and founder-minded technologist.",
+  pathname = Astro.url.pathname
+} = Astro.props;
+
+const canonical = new URL(pathname, Astro.site ?? "https://dipakwani.com").toString();
+const pageTitle = title === "Dipak Wani" ? title : `${title} | Dipak Wani`;
+const nav = [
+  ["Work", "/work/"],
+  ["Writing", "/writing/"],
+  ["Reading", "/reading/"],
+  ["Signals", "/signals/"],
+  ["About", "/about/"]
+];
+const isHome = pathname === "/";
+---
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="alternate" type="application/rss+xml" title="Dipak Wani Writing" href="/feed.xml" />
+    <script is:inline>
+      const saved = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.dataset.theme = saved || (prefersDark ? "dark" : "light");
+    </script>
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      name: "Dipak Wani",
+      url: "https://dipakwani.com",
+      jobTitle: "Data Scientist",
+      alumniOf: "University of Southern California",
+      sameAs: [
+        "https://github.com/wandip",
+        "https://x.com/dpwxni",
+        "https://dipakwani.substack.com"
+      ]
+    })} />
+  </head>
+  <body class={isHome ? "home-page" : ""}>
+    <div class="site-frame">
+      <aside class="sidebar" aria-label="Site navigation">
+        <a class="sidebar-brand" href="/">Dipak Wani</a>
+        <nav class="sidebar-nav">
+          {nav.map(([label, href]) => (
+            <a class={Astro.url.pathname.startsWith(href) ? "active" : ""} href={href}>{label}</a>
+          ))}
+        </nav>
+        <div class="sidebar-connect">
+          <p>Connect</p>
+          <a href="https://github.com/wandip">GitHub</a>
+          <a href="https://x.com/dpwxni">X</a>
+          <a href="https://www.linkedin.com/in/dipakwani/">LinkedIn</a>
+          <a href="mailto:hello@dipakwani.com">hello@dipakwani.com</a>
+          <button class="theme-toggle" type="button" aria-label="Toggle theme" data-theme-toggle>◌</button>
+        </div>
+      </aside>
+      <main class="content">
+        <slot />
+      </main>
+    </div>
+    <script is:inline>
+      document.querySelector("[data-theme-toggle]")?.addEventListener("click", () => {
+        const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem("theme", next);
+      });
+    </script>
+  </body>
+</html>

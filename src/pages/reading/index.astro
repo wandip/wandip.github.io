@@ -1,0 +1,32 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const entries = await getCollection("reading");
+---
+<BaseLayout title="Reading" description="Books, podcasts, papers, and intellectual inputs that shape Dipak Wani's work.">
+  <section class="page-intro">
+    <p class="eyebrow">Reading and listening</p>
+    <h1>A map of the mind.</h1>
+    <p class="lede">This is where books, podcasts, papers, company histories, and market notes become infrastructure for better judgment. The point is not passive consumption. It is building a mental model of technology and business.</p>
+  </section>
+  <section class="section">
+    <div class="split">
+      {entries.map((entry) => (
+        <article class="panel">
+          <p class="eyebrow">{entry.data.theme}</p>
+          <h3>{entry.data.title}</h3>
+          <p><strong>Source:</strong> {entry.data.source}</p>
+          <p>{entry.data.takeaway}</p>
+          {entry.data.related && <p class="muted">Connects to: {entry.data.related}</p>}
+        </article>
+      ))}
+    </div>
+  </section>
+  <section class="section">
+    <div class="section-head">
+      <div><p class="eyebrow">Digest view</p><h2>Patterns over recency.</h2></div>
+      <p>Future updates should add specific books, podcast episodes, and notes under themes like what I have been reading, patterns across recent books, ideas that changed my mind, and business lessons collected so far.</p>
+    </div>
+  </section>
+</BaseLayout>

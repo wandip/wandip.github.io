@@ -1,0 +1,69 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const projects = (await getCollection("projects")).sort((a, b) => a.data.featured - b.data.featured);
+const writing = (await getCollection("writing")).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const slug = (id: string) => id.replace(/\.md$/, "");
+const localProjectHref = (id: string) => {
+  const key = slug(id);
+  if (key === "ai-mafia") return "/ai-mafia/";
+  if (key === "f1") return "/f1/";
+  if (key === "routine-maker") return "/routine/";
+  return "";
+};
+---
+<BaseLayout title="Dipak Wani" description="Dipak Wani is an AI builder, data scientist, writer, reader, and founder-minded technologist.">
+  <section class="home">
+    <header class="home-intro">
+      <p class="quiet-label">AI builder · data scientist · writer · founder minded</p>
+      <h1>Dipak Wani</h1>
+      <p>I study useful systems, beautiful ideas, and the people who build them. I build with AI, write to clarify, and collect taste through projects, papers, products, and business history.</p>
+      <p class="credentials">Data Scientist at IBM · MS CS, USC · Former USC Marshall RA · Former cofounder</p>
+    </header>
+
+    <section class="compact-section" aria-labelledby="work-title">
+      <h2 id="work-title">Work</h2>
+      <ul class="link-list project-list">
+        {projects.map((project) => {
+          const href = localProjectHref(project.id);
+          const content = (
+            <>
+              <strong>{project.data.title}</strong>
+              <span>{project.data.description}</span>
+              <em>{project.data.status} · {project.data.domain.slice(0, 2).join(", ")}</em>
+            </>
+          );
+          return (
+            <li>
+              <span class="mark">-</span>
+              {href ? <a href={href}>{content}</a> : <span class="disabled-link">{content}</span>}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+
+    <section class="compact-section writing-strip" aria-labelledby="writing-title">
+      <div>
+        <h2 id="writing-title">Writing</h2>
+        <ul class="writing-list">
+          {writing.slice(0, 3).map((post) => (
+            <li>
+              <a href={`/writing/${slug(post.id)}/`}>{post.data.title}</a>
+              <span>{post.data.date.getFullYear()} · {post.data.readingTime}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h2>Notes</h2>
+        <ul class="writing-list">
+          <li><a href="/writing/papers/">Paper walkthroughs</a><span>AI notes and technical digestion</span></li>
+          <li><a href="/reading/">Reading map</a><span>Books, podcasts, business inputs</span></li>
+          <li><a href="/signals/">Signals</a><span>Selected proof of work</span></li>
+        </ul>
+      </div>
+    </section>
+  </section>
+</BaseLayout>

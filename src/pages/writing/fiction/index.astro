@@ -1,0 +1,19 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+const posts = (await getCollection("writing")).filter((post) => post.data.type === "Fiction");
+const slug = (id: string) => id.replace(/\.md$/, "");
+---
+<BaseLayout title="Fiction" description="Fiction and essays from Dipak Wani.">
+  <section class="page-intro">
+    <p class="eyebrow">Fiction</p>
+    <h1>Observation with a little electricity.</h1>
+    <p class="lede">Fiction keeps the original spirit of the site: noticing details, preserving texture, and giving ordinary scenes a structure worth returning to.</p>
+  </section>
+  <section class="section">
+    <div class="archive-list">
+      {posts.map((post) => <a class="archive-row" href={`/writing/${slug(post.id)}/`}><span class="muted">{post.data.date.getFullYear()}</span><div><h3>{post.data.title}</h3><p>{post.data.abstract}</p></div><span class="muted">{post.data.readingTime}</span></a>)}
+    </div>
+  </section>
+</BaseLayout>

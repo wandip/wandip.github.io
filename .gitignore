@@ -12,6 +12,7 @@ yarn-error.log*
 # Build outputs
 dist/
 build/
+.astro/
 *.log
 
 # Environment files
@@ -28,7 +29,6 @@ build/
 public/.DS_Store
 
 # Dependencies
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 

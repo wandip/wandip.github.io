@@ -1,0 +1,36 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const projects = (await getCollection("projects")).sort((a, b) => a.data.featured - b.data.featured);
+const slug = (id: string) => id.replace(/\.md$/, "");
+const localProjectHref = (id: string) => {
+  const key = slug(id);
+  if (key === "ai-mafia") return "/ai-mafia/";
+  if (key === "f1") return "/f1/";
+  if (key === "routine-maker") return "/routine/";
+  return "";
+};
+---
+<BaseLayout title="Work" description="A curated product lab of AI, interaction, data, finance, and personal systems projects by Dipak Wani.">
+  <section class="page-intro">
+    <p class="eyebrow">Work</p>
+    <h1>Things I built.</h1>
+    <p class="lede">A compact map of public builds, prototypes, and applied AI/product experiments.</p>
+  </section>
+  <section class="section">
+    <ul class="link-list project-list full">
+      {projects.map((project) => {
+        const href = localProjectHref(project.id);
+        const content = (
+          <>
+            <strong>{project.data.title}</strong>
+            <span>{project.data.description}</span>
+            <em>{project.data.status} · {project.data.domain.join(", ")}</em>
+          </>
+        );
+        return <li><span class="mark">-</span>{href ? <a href={href}>{content}</a> : <span class="disabled-link">{content}</span>}</li>;
+      })}
+    </ul>
+  </section>
+</BaseLayout>

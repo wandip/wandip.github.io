@@ -1,0 +1,33 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = (await getCollection("writing")).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const lanes = ["Essay", "AI Note", "Paper Walkthrough", "Fiction", "Business Note"];
+const slug = (id: string) => id.replace(/\.md$/, "");
+---
+<BaseLayout title="Writing" description="Essays, AI notes, paper walkthroughs, fiction, and business notes by Dipak Wani.">
+  <section class="page-intro">
+    <p class="eyebrow">Writing</p>
+    <h1>A thinking archive.</h1>
+    <p class="lede">Writing is where I debug thoughts, study systems, and turn curiosity into structure. Long-form writing, short notes, and paper digests belong here.</p>
+    <div class="meta-row">
+      {lanes.map((lane) => <span class="pill">{lane}</span>)}
+    </div>
+  </section>
+  <section class="section">
+    <div class="archive-list">
+      {posts.map((post) => (
+        <a class="archive-row" href={`/writing/${slug(post.id)}/`}>
+          <span class="muted">{post.data.date.toLocaleDateString("en", { year: "numeric", month: "short", day: "numeric" })}</span>
+          <div>
+            <p class="eyebrow">{post.data.type}</p>
+            <h3>{post.data.title}</h3>
+            <p>{post.data.abstract}</p>
+          </div>
+          <span class="muted">{post.data.readingTime}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

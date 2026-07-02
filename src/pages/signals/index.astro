@@ -1,0 +1,27 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const signals = await getCollection("signals");
+---
+<BaseLayout title="Signals" description="Selected proof of work and credibility signals for Dipak Wani.">
+  <section class="page-intro">
+    <p class="eyebrow">Proof of work</p>
+    <h1>Selected signals.</h1>
+    <p class="lede">A few public markers from the path so far. This is evidence, not a trophy wall: work, study, research, public artifacts, hackathons, and company-building experience.</p>
+  </section>
+  <section class="section">
+    <div class="archive-list">
+      {signals.map((signal) => (
+        <div class="archive-row">
+          <span class="muted">{signal.data.category}</span>
+          <div>
+            <h3>{signal.data.link ? <a href={signal.data.link}>{signal.data.title}</a> : signal.data.title}</h3>
+            <p>{signal.data.description}</p>
+          </div>
+          <span class="muted">{signal.data.year}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

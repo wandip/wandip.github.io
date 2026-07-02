@@ -1,0 +1,23 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+const posts = (await getCollection("writing")).filter((post) => post.data.type === "Paper Walkthrough");
+const slug = (id: string) => id.replace(/\.md$/, "");
+---
+<BaseLayout title="Paper Walkthroughs" description="Paper notes and walkthroughs that unravel the beauty of technical ideas.">
+  <section class="page-intro">
+    <p class="eyebrow">Paper walkthroughs</p>
+    <h1>Unraveling the beauty of a paper.</h1>
+    <p class="lede">This lane is reserved for paper digests that explain the core question, the useful idea, and what the work changes about how to build.</p>
+  </section>
+  <section class="section">
+    {posts.length ? (
+      <div class="archive-list">
+        {posts.map((post) => <a class="archive-row" href={`/writing/${slug(post.id)}/`}><span class="muted">{post.data.readingTime}</span><div><h3>{post.data.title}</h3><p>{post.data.abstract}</p></div><span class="muted">Paper</span></a>)}
+      </div>
+    ) : (
+      <article class="panel"><h3>Paper notes are coming here.</h3><p>The structure is ready for walkthroughs that focus on the idea, the mechanism, and what the paper makes possible.</p></article>
+    )}
+  </section>
+</BaseLayout>
