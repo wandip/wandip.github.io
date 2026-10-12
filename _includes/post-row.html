@@ -1,0 +1,10 @@
+{%- comment -%} One row in a writing list. Usage: {% include post-row.html post=post %} {%- endcomment -%}
+{%- assign post = include.post -%}
+{%- assign type_key = post.type | default: 'essay' -%}
+{%- assign type_label = site.writing_types[type_key] | default: type_key -%}
+{%- assign fmt = include.format | default: '%b %Y' -%}
+<a class="post-row" href="{{ post.url | relative_url }}" data-type="{{ type_key }}">
+  <span class="post-row-title">{{ post.title }}</span>
+  <span class="post-row-meta">{{ type_label }} · {{ post.date | date: fmt }}</span>
+  {% if post.description %}<span class="post-row-desc">{{ post.description }}</span>{% endif %}
+</a>

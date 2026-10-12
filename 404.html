@@ -3,8 +3,20 @@ layout: default
 title: "404: Page not found"
 permalink: 404.html
 ---
+<div class="layout">
+  <aside class="aside">
+    <div class="section" style="border-top: 0; padding-top: 0; padding-bottom: 0;">
+      <h2 class="label">404</h2>
+    </div>
+  </aside>
 
-<div class="page">
-  <h1 class="page-title">404: Page not found</h1>
-  <p class="lead">Sorry, we've misplaced that URL or it's pointing to something that doesn't exist. <a href="{{ site.baseurl }}">Head back home</a> to try finding it again.</p>
+  <div class="content">
+    <section class="section" style="border-top: 0; padding-top: 0;">
+      <div class="prose">
+        <h2>Page not found</h2>
+        <p class="muted">Sorry, we've misplaced that URL or it's pointing to something that doesn't exist.</p>
+        <p><a href="{{ '/' | relative_url }}" class="link">Head back home <span class="arrow">→</span></a></p>
+      </div>
+    </section>
+  </div>
 </div>

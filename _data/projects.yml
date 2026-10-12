@@ -1,0 +1,61 @@
+# Projects shown on the homepage and on /projects/.
+#
+# To add a project, copy a block below. Fields:
+#   name        (required) Project name
+#   url         Live demo URL (relative for things hosted in this repo, absolute otherwise)
+#   repo        Source code URL
+#   year        Year or range, e.g. "2025" or "2024 – Present"
+#   status      Short status: Live, Shipped, WIP, Archived, Experiment ...
+#   tagline     One-liner shown under the name
+#   description 1–3 sentences: what it is and why it exists
+#   highlights  Optional bullet list of interesting engineering details
+#   stack       List of technologies
+#   featured    true → also shown on the homepage (order = order in this file)
+
+- name: AI Mafia
+  url: /ai-mafia/
+  repo: https://github.com/wandip/wandip.github.io/tree/master/ai-mafia
+  year: "2025"
+  status: Live
+  tagline: Tracing the roots of today's AI leaders back to Google.
+  description: >-
+    An interactive, zoomable canvas mapping how researchers from Google Brain,
+    DeepMind and the "Attention Is All You Need" paper went on to found and lead
+    the companies shaping AI today.
+  highlights:
+    - Custom pan / zoom canvas renderer in vanilla JS — no framework
+    - Graph data authored as a JSON Canvas file and rendered client-side
+  stack: [JavaScript, Canvas, JSON Canvas]
+  featured: true
+
+- name: F1 Racing
+  url: /f1/
+  repo: https://github.com/wandip/wandip.github.io/tree/master/f1
+  year: "2025"
+  status: Playable
+  tagline: A browser-based 3D Formula 1 game.
+  description: >-
+    A 3D racing game built from scratch with Three.js — car and wheel physics,
+    multiple camera views and a procedurally generated track, all running in the
+    browser.
+  highlights:
+    - Hand-written car + wheel physics (acceleration, drag, steering geometry)
+    - Procedural track generation with road markings
+    - Dynamic chase and top-down cameras
+  stack: [Three.js, JavaScript, Vite]
+  featured: true
+
+- name: Routine Maker
+  url: /routine/
+  repo: https://github.com/wandip/wandip.github.io/tree/master/routine_maker
+  year: "2025"
+  status: Live
+  tagline: Build printable visual routine charts in minutes.
+  description: >-
+    A small tool for creating picture-based routine charts — drag in images, add
+    task descriptions, pick a layout and export a print-ready PDF.
+  highlights:
+    - Drag-and-drop image upload with live preview
+    - Client-side PDF export, no backend
+  stack: [React, jsPDF, html2canvas]
+  featured: true

@@ -1,0 +1,18 @@
+{%- assign url = page.url -%}
+{%- assign section = '' -%}
+{%- if url contains '/projects' -%}{%- assign section = 'projects' -%}
+{%- elsif url contains '/writing' or url contains '/tags/' or page.layout == 'post' -%}{%- assign section = 'writing' -%}
+{%- elsif url contains '/about' -%}{%- assign section = 'about' -%}
+{%- endif -%}
+<header class="site-header">
+  <a class="brand" href="{{ '/' | relative_url }}">
+    {{ site.profile.name }},<br><span class="role">{{ site.profile.role }}</span>
+  </a>
+
+  <nav class="site-nav" aria-label="Primary">
+    <a href="{{ '/projects/' | relative_url }}"{% if section == 'projects' %} aria-current="page"{% endif %}>Projects</a>
+    <a href="{{ '/writing/' | relative_url }}"{% if section == 'writing' %} aria-current="page"{% endif %}>Writing</a>
+    <a href="{{ '/about/' | relative_url }}"{% if section == 'about' %} aria-current="page"{% endif %}>About</a>
+    <a href="mailto:{{ site.author.email }}">Contact</a>
+  </nav>
+</header>

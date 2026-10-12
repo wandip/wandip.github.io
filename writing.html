@@ -1,0 +1,52 @@
+---
+layout: default
+title: Writing
+permalink: /writing/
+---
+{%- assign posts = site.posts | where_exp: "p", "p.hidden != true" -%}
+{%- assign posts_by_year = posts | group_by_exp: "post", "post.date | date: '%Y'" -%}
+
+<div class="layout">
+  <aside class="aside">
+    <div class="section" style="border-top: 0; padding-top: 0; padding-bottom: 0;">
+      <h2 class="label">Writing</h2>
+      <div class="bio">
+        <p>Deep dives, paper reviews, systems engineering notes, and things learned in a fast-paced tech landscape where the rate of change is relentless.</p>
+        <p class="muted">Subscribe via <a href="{{ '/atom.xml' | relative_url }}" class="link">RSS</a> or check out my <a href="https://{{ site.substack_username }}.substack.com" target="_blank" rel="noopener" class="link">Substack</a>.</p>
+      </div>
+    </div>
+
+    <ul class="contact-list" aria-label="Elsewhere">
+      <li><a href="https://{{ site.substack_username }}.substack.com" target="_blank" rel="noopener">Substack <span class="arrow">↗</span></a></li>
+      <li><a href="{{ '/atom.xml' | relative_url }}">RSS Feed <span class="arrow">↗</span></a></li>
+      {% for l in site.profile.links %}
+      {% unless l.label == 'Substack' %}
+      <li><a href="{{ l.url }}"{% unless l.url contains 'mailto:' %} target="_blank" rel="noopener"{% endunless %}>{{ l.label }} <span class="arrow">↗</span></a></li>
+      {% endunless %}
+      {% endfor %}
+    </ul>
+  </aside>
+
+  <div class="content">
+    <section class="section" id="all-writing" aria-labelledby="writing-h">
+      <div class="section-head">
+        <h2 class="label" id="writing-h">Articles &amp; Notes<span class="count">{{ posts.size }}</span></h2>
+      </div>
+
+      {% if posts.size > 0 %}
+        {% for y in posts_by_year %}
+          <div class="year-group">
+            <span class="year">{{ y.name }}</span>
+            <div class="post-list">
+              {% for post in y.items %}
+                {% include post-row.html post=post format="%b %d" %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="empty-note">More articles and deep dives coming soon.</p>
+      {% endif %}
+    </section>
+  </div>
+</div>

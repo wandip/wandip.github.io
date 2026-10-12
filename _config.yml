@@ -6,24 +6,58 @@ highlighter:      rouge
 permalink:        pretty
 
 # Setup
-title:            Dipak
-tagline:          ''
-description:      'Curious'
+title:            Dipak Wani
+tagline:          'Builder · Data & AI'
+description:      'Dipak Wani builds AI and data products. Projects, deep dives, paper notes and things learnt in a fast-moving tech world.'
 url:              http://dipakwani.com
-baseurl:          '/'
+baseurl:          ''
 
 author:
   name:           'Dipak Wani'
   email:          'blog@dipakwani.com'
 
-paginate:         5
-
 # Custom vars
-version:          2.1.0
+version:          3.0.0
+
+# ---------------------------------------------------------------------------
+# Profile — drives the header, About column and footer of the new design.
+# Edit freely; no HTML changes needed.
+# ---------------------------------------------------------------------------
+profile:
+  name:   'Dipak Wani'
+  role:   'Builder, Data & AI'
+  location: 'San Francisco Bay Area'
+  bio: >-
+    I build things at the intersection of data, AI and everyday software, and
+    ship them in public. This site is my proof of work: projects I have built,
+    deep dives into ideas that matter, and notes on papers I have read while
+    trying to keep up with a field where the rate of change is the only constant.
+  # Things you are currently exploring — shown as "Now" on the homepage.
+  now:
+    - 'LLM systems: evals, agents and retrieval'
+    - 'Interactive visual explainers for technical ideas'
+    - 'Small, sharp tools that solve one problem well'
+  links:
+    - label: 'Email'
+      url:   'mailto:blog@dipakwani.com'
+    - label: 'GitHub'
+      url:   'https://github.com/wandip'
+    - label: 'X / Twitter'
+      url:   'https://twitter.com/dpwxni'
+    - label: 'Substack'
+      url:   'https://dipakwani.substack.com'
+    # - label: 'LinkedIn'
+    #   url:   'https://www.linkedin.com/in/<your-handle>'
+
+# Writing types — set `type:` in a post's front matter to one of these keys.
+writing_types:
+  deep-dive: 'Deep dive'
+  paper:     'Paper notes'
+  notes:     'Notes'
+  essay:     'Essay'
 
 # Plugins
 plugins:
-  - jekyll-paginate
   - jekyll-feed
   - jekyll-seo-tag
 
@@ -44,6 +78,10 @@ exclude:
   - routine_maker/public
   - routine_maker/src
   - ai-mafia/AI Mafia/
+  - dist
+  - .astro
+  - README.md
+  - wandip.github.io.code-workspace
 
 google-analytics: UA-127095421-1
 github:

@@ -1,6 +1,9 @@
 # Jekyll
 _site
 .jekyll-cache
+.jekyll-metadata
+.bundle/
+vendor/
 
 # Node.js
 node_modules/
