@@ -75,6 +75,8 @@ exclude:
   - f1/README.md
   - routine_maker/README.md
   - f1/vite.config.js
+  - routine_maker/vite.config.js
+  - routine_maker/index.html
   - routine_maker/public
   - routine_maker/src
   - ai-mafia/AI Mafia/
