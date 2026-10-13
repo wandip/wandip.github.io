@@ -1,8 +1,24 @@
 ---
 layout: default
 ---
+<div class="layout">
+  <aside class="aside">
+    <div class="section" style="border-top: 0; padding-top: 0; padding-bottom: 0;">
+      <h2 class="label">{{ page.title | default: "About" }}</h2>
+    </div>
 
-<div class="page">
-  <h1 class="page-title">{{ page.title }}</h1>
-  {{ content }}
+    <ul class="contact-list" aria-label="Elsewhere">
+      {% for l in site.profile.links %}
+      <li><a href="{{ l.url }}"{% unless l.url contains 'mailto:' %} target="_blank" rel="noopener"{% endunless %}>{{ l.label }} <span class="arrow">↗</span></a></li>
+      {% endfor %}
+    </ul>
+  </aside>
+
+  <div class="content">
+    <section class="section" style="border-top: 0; padding-top: 0;">
+      <div class="prose">
+        {{ content }}
+      </div>
+    </section>
+  </div>
 </div>

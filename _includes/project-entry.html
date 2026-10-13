@@ -1,0 +1,33 @@
+{%- comment -%} Renders one project. Usage: {% include project-entry.html project=p detailed=true %} {%- endcomment -%}
+{%- assign p = include.project -%}
+{%- assign primary = p.url | default: p.repo -%}
+{%- assign is_external = false -%}
+{%- if primary contains '://' -%}{%- assign is_external = true -%}{%- endif -%}
+<article class="entry reveal">
+  <div class="entry-meta">
+    <h3 class="entry-title">
+      {% if primary %}<a href="{{ primary }}"{% if is_external %} target="_blank" rel="noopener"{% endif %}>{{ p.name }} <span class="arrow">↗</span></a>{% else %}{{ p.name }}{% endif %}
+    </h3>
+    {% if p.tagline %}<span class="entry-sub">{{ p.tagline }}</span>{% endif %}
+    <span class="entry-sub">{{ p.year }}{% if p.status %} · <span class="status" data-status="{{ p.status }}">{{ p.status }}</span>{% endif %}</span>
+    <div class="entry-links">
+      {% if p.url %}<a href="{{ p.url }}"{% if is_external %} target="_blank" rel="noopener"{% endif %}>Live <span class="arrow">↗</span></a>{% endif %}
+      {% if p.repo %}<a href="{{ p.repo }}" target="_blank" rel="noopener">Source <span class="arrow">↗</span></a>{% endif %}
+      {% if p.writeup %}<a href="{{ p.writeup | relative_url }}">Write-up <span class="arrow">→</span></a>{% endif %}
+    </div>
+  </div>
+
+  <div class="entry-body">
+    {% if p.description %}<p>{{ p.description }}</p>{% endif %}
+    {% if include.detailed and p.highlights %}
+    <ul class="bullets">
+      {% for h in p.highlights %}<li>{{ h }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% if p.stack %}
+    <div class="tags">
+      {% for s in p.stack %}<span class="tag">{{ s }}</span>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</article>

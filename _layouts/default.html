@@ -4,16 +4,18 @@
   {% include head.html %}
 
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
 
-    {% include sidebar.html %}
+    <div class="shell">
+      {% include header.html %}
 
-    <div class="content container">
-      {{ content }}
+      <main id="main">
+        {{ content }}
+      </main>
+
+      {% include footer.html %}
     </div>
 
-    <script src="/public/js/themes.js"></script>
-
     {% include google-analytics.html %}
-    {% include newsletter-popup.html %}
   </body>
 </html>

@@ -2,6 +2,8 @@
 layout: post
 title: The unusual screen time
 tags: [magical realism]
+type: essay
+description: "Notifications, snoozed reminders and the quiet negotiation with my own screen time."
 ---
 
 I am usually not hard on myself. At least I like to think so. 

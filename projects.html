@@ -1,0 +1,38 @@
+---
+layout: default
+title: Projects
+permalink: /projects/
+---
+<div class="layout">
+  <aside class="aside">
+    <div class="section" style="border-top: 0; padding-top: 0; padding-bottom: 0;">
+      <h2 class="label">Projects</h2>
+      <div class="bio">
+        <p>Proof of work. Systems, interactive visualizers, tools, and technical experiments built and shipped in public.</p>
+        <p class="muted">More projects and repositories from GitHub will be added here regularly.</p>
+      </div>
+    </div>
+
+    <ul class="contact-list" aria-label="Elsewhere">
+      <li><a href="https://github.com/{{ site.github_username }}" target="_blank" rel="noopener">GitHub Profile <span class="arrow">↗</span></a></li>
+      {% for l in site.profile.links %}
+      {% unless l.label == 'GitHub' %}
+      <li><a href="{{ l.url }}"{% unless l.url contains 'mailto:' %} target="_blank" rel="noopener"{% endunless %}>{{ l.label }} <span class="arrow">↗</span></a></li>
+      {% endunless %}
+      {% endfor %}
+    </ul>
+  </aside>
+
+  <div class="content">
+    <section class="section" id="all-projects" aria-labelledby="all-projects-h">
+      <div class="section-head">
+        <h2 class="label" id="all-projects-h">All Projects<span class="count">{{ site.data.projects.size }}</span></h2>
+      </div>
+      <div class="entries">
+        {% for p in site.data.projects %}
+          {% include project-entry.html project=p detailed=true %}
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</div>

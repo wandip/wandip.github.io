@@ -1,36 +1,49 @@
 ---
 layout: default
+title: Post
 ---
+<article class="article">
+  <header class="article-header">
+    <div class="article-meta">
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %d, %Y" }}</time>
+      {% if page.type %}
+        <span>·</span>
+        <span class="mono">{{ site.writing_types[page.type] | default: page.type }}</span>
+      {% endif %}
+      {% if page.tags.size > 0 %}
+        <span>·</span>
+        <div class="tags" style="display: inline-flex;">
+          {% for tag in page.tags %}
+          <span class="tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
 
-<div class="post">
-  <h1 class="post-title">{{ page.title }}</h1>
-  <span class="post-date">{{ page.date | date_to_string }}</span>
-  {% if page.tags.size > 0 %}
-  <div class="post-tags">
-    {% for tag in page.tags %}
-    <a href="/tags/{{ tag }}" class="tag">{{ tag }}</a>
-    {% endfor %}
+    <h1>{{ page.title }}</h1>
+    {% if page.description %}
+      <p class="lede">{{ page.description }}</p>
+    {% endif %}
+  </header>
+
+  <div class="prose">
+    {{ content }}
   </div>
-  {% endif %}
-  {{ content }}
-</div>
 
-{% include share-buttons.html %}
+  <footer class="article-footer">
+    {% include share-buttons.html %}
 
-{% include newsletter.html %}
+    {% include newsletter.html %}
 
-<div class="related">
-  <h2>Related Posts</h2>
-  <ul class="related-posts">
-    {% for post in site.related_posts limit:3 %}
-      <li>
-        <h3>
-          <a href="{{ post.url }}">
-            {{ post.title }}
-            <small>{{ post.date | date_to_string }}</small>
-          </a>
-        </h3>
-      </li>
-    {% endfor %}
-  </ul>
-</div>
+    {% if site.related_posts.size > 0 %}
+    <div class="related-section">
+      <h3 class="label" style="margin-bottom: 20px;">Related</h3>
+      <div class="post-list">
+        {% for post in site.related_posts limit:3 %}
+          {% include post-row.html post=post %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </footer>
+</article>

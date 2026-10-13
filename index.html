@@ -2,36 +2,78 @@
 layout: default
 title: Home
 ---
+{%- assign featured = site.data.projects | where: "featured", true -%}
+{%- assign posts = site.posts | where_exp: "p", "p.hidden != true" -%}
 
-<div class="posts">
-  {% for post in paginator.posts %}
-  <div class="post">
-    <h1 class="post-title">
-      <a href="{{ post.url }}">
-        {{ post.title }}
-      </a>
-    </h1>
+<div class="layout">
+  <aside class="aside">
+    <div class="section" style="border-top: 0; padding-top: 0; padding-bottom: 0;">
+      <h2 class="label">About</h2>
+      <div class="bio">
+        <p>{{ site.profile.bio }}</p>
+      </div>
+    </div>
 
-    <span class="post-date">{{ post.date | date_to_string }}</span>
+    <ul class="contact-list" aria-label="Elsewhere">
+      {% for l in site.profile.links %}
+      <li><a href="{{ l.url }}"{% unless l.url contains 'mailto:' %} target="_blank" rel="noopener"{% endunless %}>{{ l.label }} <span class="arrow">↗</span></a></li>
+      {% endfor %}
+    </ul>
+  </aside>
 
-    {{ post.content }}
+  <div class="content">
+    <section class="section" id="projects" aria-labelledby="projects-h">
+      <div class="section-head">
+        <h2 class="label" id="projects-h">Selected projects<span class="count">{{ site.data.projects.size }}</span></h2>
+        <a class="label-link" href="{{ '/projects/' | relative_url }}">All projects <span class="arrow">→</span></a>
+      </div>
+      <div class="entries">
+        {% for p in featured limit: 4 %}
+          {% include project-entry.html project=p %}
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="section" id="writing" aria-labelledby="writing-h">
+      <div class="section-head">
+        <h2 class="label" id="writing-h">Writing<span class="count">{{ posts.size }}</span></h2>
+        <a class="label-link" href="{{ '/writing/' | relative_url }}">All writing <span class="arrow">→</span></a>
+      </div>
+      {% if posts.size > 0 %}
+      <div class="post-list">
+        {% for post in posts limit: 6 %}
+          {% include post-row.html post=post %}
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="empty-note">Deep dives and paper notes coming soon.</p>
+      {% endif %}
+    </section>
+
+    <section class="section" id="now" aria-labelledby="now-h">
+      <h2 class="label" id="now-h">Now</h2>
+      <div class="columns">
+        <div>
+          <h3>Exploring</h3>
+          <ul class="bullets muted">
+            {% for item in site.profile.now %}<li>{{ item }}</li>{% endfor %}
+          </ul>
+        </div>
+        <div>
+          <h3>What you'll find here</h3>
+          <ul class="bullets muted">
+            {% for t in site.writing_types %}<li>{{ t[1] }}</li>{% endfor %}
+          </ul>
+        </div>
+        <div>
+          <h3>Open to</h3>
+          <ul class="bullets muted">
+            <li>Conversations with builders &amp; investors</li>
+            <li>Collaborating on ambitious side projects</li>
+            <li>Paper / idea swaps over coffee</li>
+          </ul>
+        </div>
+      </div>
+    </section>
   </div>
-  {% endfor %}
-</div>
-
-<div class="pagination">
-  {% if paginator.next_page %}
-    <a class="pagination-item older" href="{{ site.baseurl }}page{{paginator.next_page}}">Older</a>
-  {% else %}
-    <span class="pagination-item older">Older</span>
-  {% endif %}
-  {% if paginator.previous_page %}
-    {% if paginator.page == 2 %}
-      <a class="pagination-item newer" href="{{ site.baseurl }}">Newer</a>
-    {% else %}
-      <a class="pagination-item newer" href="{{ site.baseurl }}page{{paginator.previous_page}}">Newer</a>
-    {% endif %}
-  {% else %}
-    <span class="pagination-item newer">Newer</span>
-  {% endif %}
 </div>

@@ -1,0 +1,10 @@
+<footer class="site-footer">
+  <div class="cta">
+    <a href="mailto:{{ site.author.email }}">Contact me <span class="arrow">↗</span></a>
+  </div>
+  <div class="fine">
+    {% for l in site.profile.links %}{% unless l.url contains 'mailto:' %}<a href="{{ l.url }}" target="_blank" rel="noopener">{{ l.label }}</a>{% endunless %}{% endfor %}
+    <a href="{{ '/atom.xml' | relative_url }}">RSS</a>
+    <span>© {{ site.time | date: '%Y' }} {{ site.author.name }}</span>
+  </div>
+</footer>
