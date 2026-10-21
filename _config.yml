@@ -10,7 +10,7 @@ future:           true
 title:            Dipak Wani
 tagline:          'Builder · Data & AI'
 description:      'Dipak Wani builds AI and data products. Projects, deep dives, paper notes and things learnt in a fast-moving tech world.'
-url:              http://dipakwani.com
+url:              https://dipakwani.com
 baseurl:          ''
 
 author:
