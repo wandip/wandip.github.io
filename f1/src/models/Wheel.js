@@ -1,6 +1,56 @@
 import * as THREE from 'three';
 import { CAR_DIMENSIONS, COLORS, MATERIALS } from '../utils/Constants';
 
+// Shared geometries and materials across all wheel instances to reduce GPU memory & draw overhead
+const sharedTireGeometry = new THREE.CylinderGeometry(
+    CAR_DIMENSIONS.WHEEL.radius,
+    CAR_DIMENSIONS.WHEEL.radius,
+    CAR_DIMENSIONS.WHEEL.width,
+    24
+);
+sharedTireGeometry.rotateZ(Math.PI / 2);
+
+const sharedRimGeometry = new THREE.CylinderGeometry(
+    CAR_DIMENSIONS.WHEEL.radius * 0.7,
+    CAR_DIMENSIONS.WHEEL.radius * 0.7,
+    CAR_DIMENSIONS.WHEEL.width + 0.01,
+    24
+);
+sharedRimGeometry.rotateZ(Math.PI / 2);
+
+const sharedRingGeometry = new THREE.TorusGeometry(
+    CAR_DIMENSIONS.WHEEL.radius + 0.01,
+    0.025,
+    12,
+    48
+);
+sharedRingGeometry.rotateY(Math.PI / 2);
+
+const sharedTireMaterial = new THREE.MeshStandardMaterial({
+    color: 0x111111,
+    roughness: MATERIALS.WHEELS.roughness,
+    metalness: MATERIALS.WHEELS.metalness
+});
+
+const sharedRimMaterial = new THREE.MeshStandardMaterial({
+    color: COLORS.WHEEL_RIM,
+    roughness: 0.2,
+    metalness: 0.9
+});
+
+const compoundMaterials = {};
+function getCompoundMaterial(compound) {
+    const colorHex = COLORS.TIRE_COMPOUNDS[compound] ?? COLORS.TIRE_COMPOUNDS.MEDIUM;
+    if (!compoundMaterials[compound]) {
+        compoundMaterials[compound] = new THREE.MeshStandardMaterial({
+            color: colorHex,
+            roughness: 0.3,
+            metalness: 0.7
+        });
+    }
+    return compoundMaterials[compound];
+}
+
 /**
  * Represents a wheel in the F1 car
  */
@@ -25,89 +75,68 @@ export class Wheel {
      * Creates the wheel mesh and container
      */
     createWheel() {
-        // Create tire
-        const tireGeometry = new THREE.CylinderGeometry(
-            CAR_DIMENSIONS.WHEEL.radius,
-            CAR_DIMENSIONS.WHEEL.radius,
-            CAR_DIMENSIONS.WHEEL.width,
-            32
-        );
-        
-        const tireMaterial = new THREE.MeshStandardMaterial({
-            color: 0x000000, // Black tire
-            roughness: MATERIALS.WHEELS.roughness,
-            metalness: MATERIALS.WHEELS.metalness
-        });
+        this.tire = new THREE.Mesh(sharedTireGeometry, sharedTireMaterial);
+        this.rim = new THREE.Mesh(sharedRimGeometry, sharedRimMaterial);
+        this.compoundRing = new THREE.Mesh(sharedRingGeometry, getCompoundMaterial(this.compound));
 
-        this.tire = new THREE.Mesh(tireGeometry, tireMaterial);
-        this.tire.rotation.z = Math.PI / 2;
-
-        // Create rim
-        const rimGeometry = new THREE.CylinderGeometry(
-            CAR_DIMENSIONS.WHEEL.radius * 0.7,
-            CAR_DIMENSIONS.WHEEL.radius * 0.7,
-            CAR_DIMENSIONS.WHEEL.width + 0.01,
-            32
-        );
-        
-        const rimMaterial = new THREE.MeshStandardMaterial({
-            color: COLORS.WHEEL_RIM,
-            roughness: 0.2,
-            metalness: 0.9
-        });
-
-        this.rim = new THREE.Mesh(rimGeometry, rimMaterial);
-        this.rim.rotation.z = Math.PI / 2;
-
-        // Remove the small disc indicator
-        // Add compound color ring (torus) at the outer edge of the tire
-        const ringGeometry = new THREE.TorusGeometry(
-            CAR_DIMENSIONS.WHEEL.radius + 0.01, // Slightly outside the tire
-            0.025, // Thin ring
-            16, // Radial segments
-            100 // Tubular segments
-        );
-        const ringMaterial = new THREE.MeshStandardMaterial({
-            color: COLORS.TIRE_COMPOUNDS[this.compound],
-            roughness: 0.3,
-            metalness: 0.7
-        });
-        this.compoundRing = new THREE.Mesh(ringGeometry, ringMaterial);
-        this.compoundRing.rotation.y = Math.PI / 2;
-
-        // Create wheel group
+        // Inner wheel group handles rolling spin around X-axis
         this.wheel = new THREE.Group();
         this.wheel.add(this.tire);
         this.wheel.add(this.rim);
         this.wheel.add(this.compoundRing);
 
-        if (this.isFront) {
-            // Create a container for front wheels to handle steering
-            this.container = new THREE.Group();
-            this.container.position.set(this.position.x, this.position.y, this.position.z);
-            this.wheel.position.set(0, 0, 0);
-            this.container.add(this.wheel);
-        } else {
-            this.wheel.position.set(this.position.x, this.position.y, this.position.z);
-        }
+        // Outer container handles position (including suspension Y travel) and steering rotation (Y-axis)
+        this.container = new THREE.Group();
+        this.container.position.set(this.position.x, this.position.y, this.position.z);
+        this.container.add(this.wheel);
     }
 
     /**
      * Updates wheel rotation for steering
-     * @param {number} targetRotation - Target rotation angle
+     * @param {number} targetRotation - Target rotation angle in radians
      */
     updateSteering(targetRotation) {
         if (this.isFront && this.container) {
-            // Continuous steering update for smooth wheel rotation
             this.container.rotation.y = targetRotation;
         }
     }
 
     /**
-     * Gets the wheel mesh or container
+     * Updates wheel rolling spin around its axle
+     * @param {number} spinAngle - Cumulative wheel rotation angle in radians
+     */
+    updateSpin(spinAngle) {
+        if (this.wheel) {
+            this.wheel.rotation.x = spinAngle;
+        }
+    }
+
+    /**
+     * Updates vertical wheel position from suspension compression
+     * @param {number} localY - Local Y position relative to car chassis
+     */
+    updateSuspensionY(localY) {
+        if (this.container) {
+            this.container.position.y = localY;
+        }
+    }
+
+    /**
+     * Updates the tire compound color ring
+     * @param {string} compound - 'SOFT' | 'MEDIUM' | 'HARD' | 'INTER' | 'WET'
+     */
+    setCompound(compound) {
+        this.compound = compound;
+        if (this.compoundRing) {
+            this.compoundRing.material = getCompoundMaterial(compound);
+        }
+    }
+
+    /**
+     * Gets the wheel container Object3D
      * @returns {THREE.Object3D} The wheel object
      */
     getObject() {
-        return this.isFront ? this.container : this.wheel;
+        return this.container;
     }
-} 
+}

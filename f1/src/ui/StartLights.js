@@ -11,15 +11,15 @@ export class StartLights {
         this.scene.add(this.group);
         this.isAnimating = false;
         
-        // Initialize audio components
-        this.audioListener = new THREE.AudioListener();
-        this.camera.add(this.audioListener);
-        this.beepSound = new THREE.Audio(this.audioListener);
-        this.audioLoader = new THREE.AudioLoader();
+        // Defer AudioListener / AudioContext creation until user gesture ('Start Race' click)
+        // Pre-fetch raw audio bytes via fetch() so no AudioContext is instantiated on page load
+        this.audioListener = null;
+        this.beepSound = null;
         this.audioInitialized = false;
         this.audioBuffer = null;
+        this.rawAudioData = null;
         
-        // Pre-load the audio file
+        // Pre-fetch the audio file bytes without touching AudioContext
         this.audioLoadPromise = this.loadAudioFile();
         
         // Create start message
@@ -105,13 +105,9 @@ export class StartLights {
 
     async loadAudioFile() {
         try {
-            this.audioBuffer = await new Promise((resolve, reject) => {
-                this.audioLoader.load('./src/audio/f1_beep.mp3', 
-                    (buffer) => resolve(buffer),
-                    undefined,
-                    (error) => reject(error)
-                );
-            });
+            const response = await fetch('./src/audio/f1_beep.mp3');
+            if (!response.ok) return false;
+            this.rawAudioData = await response.arrayBuffer();
             return true;
         } catch (error) {
             return false;
@@ -119,13 +115,22 @@ export class StartLights {
     }
 
     async initializeAudio() {
-        if (this.audioInitialized || !this.audioBuffer) return;
+        if (this.audioInitialized) return;
+        await this.audioLoadPromise;
+        if (!this.rawAudioData) return;
         
         try {
+            if (!this.audioListener) {
+                this.audioListener = new THREE.AudioListener();
+                this.camera.add(this.audioListener);
+                this.beepSound = new THREE.Audio(this.audioListener);
+            }
+
             if (this.audioListener.context.state === 'suspended') {
                 await this.audioListener.context.resume();
             }
-            
+
+            this.audioBuffer = await this.audioListener.context.decodeAudioData(this.rawAudioData.slice(0));
             this.beepSound.setBuffer(this.audioBuffer);
             this.beepSound.setVolume(1.0);
             this.audioInitialized = true;

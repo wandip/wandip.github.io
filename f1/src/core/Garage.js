@@ -8,24 +8,35 @@ import { DEFAULT_STEERING_SENSITIVITY } from '../physics/PhysicsConstants';
  */
 export class Garage {
     constructor() {
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
         this.controls = null;
-        this.car = new Car();
+        this.car = null;
+        this.isInitialized = false;
         this.isOpen = false;
         this.steeringSensitivity = undefined;
-        
-        this.init();
+        this.onCloseCallback = null;
+        this.boundOnWindowResize = this.onWindowResize.bind(this);
+        this.boundAnimate = this.animate.bind(this);
     }
 
     /**
-     * Initializes the garage scene
+     * Lazily initializes the garage scene on first open to save GPU resources at startup
      */
     init() {
+        if (this.isInitialized) return;
+        this.isInitialized = true;
+
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.car = new Car();
+
         // Setup renderer
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setClearColor(0x87ceeb); // Sky blue background for ceiling
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.setClearColor(0x87ceeb);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.domElement.style.position = 'fixed';
@@ -56,73 +67,44 @@ export class Garage {
         this.createGarageEnvironment();
 
         // Handle window resize
-        window.addEventListener('resize', this.onWindowResize.bind(this));
+        window.addEventListener('resize', this.boundOnWindowResize);
     }
 
     /**
-     * Sets up lighting for the garage scene
+     * Sets up efficient studio lighting for the garage scene
      */
     setupLighting() {
-        // Ambient light for overall garage illumination
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-        this.scene.add(ambientLight);
+        // Hemisphere light for smooth overhead-to-floor studio illumination
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8b8b8b, 1.1);
+        hemiLight.position.set(0, 10, 0);
+        this.scene.add(hemiLight);
 
-        // Multiple overhead garage lights (fluorescent-style)
-        const overheadLights = [
-            { x: -4, z: -4, intensity: 0.8 },
-            { x: 4, z: -4, intensity: 0.8 },
-            { x: -4, z: 4, intensity: 0.8 },
-            { x: 4, z: 4, intensity: 0.8 },
-            { x: 0, z: 0, intensity: 1.0 }, // Center light
-            { x: -2, z: 0, intensity: 0.7 },
-            { x: 2, z: 0, intensity: 0.7 },
-            { x: 0, z: -2, intensity: 0.7 },
-            { x: 0, z: 2, intensity: 0.7 }
-        ];
-
-        overheadLights.forEach(light => {
-            const overheadLight = new THREE.PointLight(0xffffff, light.intensity, 15);
-            overheadLight.position.set(light.x, 8, light.z);
-            overheadLight.castShadow = true;
-            overheadLight.shadow.mapSize.width = 1024;
-            overheadLight.shadow.mapSize.height = 1024;
-            overheadLight.shadow.camera.near = 0.5;
-            overheadLight.shadow.camera.far = 20;
-            this.scene.add(overheadLight);
-        });
-
-        // Main key light for car details
-        const keyLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        // Main key light with a single shadow map (replacing 9 shadow-casting point lights / 54 passes)
+        const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
         keyLight.position.set(5, 10, 5);
         keyLight.castShadow = true;
-        keyLight.shadow.mapSize.width = 2048;
-        keyLight.shadow.mapSize.height = 2048;
+        keyLight.shadow.mapSize.width = 1024;
+        keyLight.shadow.mapSize.height = 1024;
         keyLight.shadow.camera.near = 0.5;
-        keyLight.shadow.camera.far = 50;
-        keyLight.shadow.camera.left = -10;
-        keyLight.shadow.camera.right = 10;
-        keyLight.shadow.camera.top = 10;
-        keyLight.shadow.camera.bottom = -10;
+        keyLight.shadow.camera.far = 35;
+        keyLight.shadow.camera.left = -6;
+        keyLight.shadow.camera.right = 6;
+        keyLight.shadow.camera.top = 6;
+        keyLight.shadow.camera.bottom = -6;
         this.scene.add(keyLight);
 
-        // Fill lights from sides to reduce shadows
-        const leftFillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+        // Fill lights from sides and back for metallic highlights (no shadow maps)
+        const leftFillLight = new THREE.DirectionalLight(0xffffff, 0.45);
         leftFillLight.position.set(-8, 6, 0);
         this.scene.add(leftFillLight);
 
-        const rightFillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+        const rightFillLight = new THREE.DirectionalLight(0xffffff, 0.45);
         rightFillLight.position.set(8, 6, 0);
         this.scene.add(rightFillLight);
 
-        // Back lighting for depth
-        const backLight = new THREE.DirectionalLight(0xffffff, 0.2);
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.35);
         backLight.position.set(0, 5, -8);
         this.scene.add(backLight);
-
-        // Bottom fill light to reduce harsh shadows
-        const bottomLight = new THREE.DirectionalLight(0xffffff, 0.2);
-        bottomLight.position.set(0, -3, 0);
-        this.scene.add(bottomLight);
     }
 
     /**
@@ -138,7 +120,7 @@ export class Garage {
         });
         const floor = new THREE.Mesh(floorGeometry, floorMaterial);
         floor.rotation.x = -Math.PI / 2;
-        floor.position.y = -0.5;
+        floor.position.y = -0.02;
         floor.receiveShadow = true;
         this.scene.add(floor);
 
@@ -152,33 +134,36 @@ export class Garage {
         const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
         ceiling.rotation.x = Math.PI / 2;
         ceiling.position.y = 10;
-        ceiling.receiveShadow = true;
         this.scene.add(ceiling);
 
-        // Back wall
-        const backWallGeometry = new THREE.PlaneGeometry(30, 20);
+        // Walls
+        const wallGeometry = new THREE.PlaneGeometry(30, 20);
         const wallMaterial = new THREE.MeshStandardMaterial({
             color: 0xe0e0e0,
             roughness: 0.5,
             metalness: 0.1
         });
-        const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+        const backWall = new THREE.Mesh(wallGeometry, wallMaterial);
         backWall.position.set(0, 9.5, -15);
-        backWall.receiveShadow = true;
         this.scene.add(backWall);
 
-        // Side walls
-        const leftWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+        const leftWall = new THREE.Mesh(wallGeometry, wallMaterial);
         leftWall.rotation.y = Math.PI / 2;
         leftWall.position.set(-15, 9.5, 0);
-        leftWall.receiveShadow = true;
         this.scene.add(leftWall);
 
-        const rightWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+        const rightWall = new THREE.Mesh(wallGeometry, wallMaterial);
         rightWall.rotation.y = -Math.PI / 2;
         rightWall.position.set(15, 9.5, 0);
-        rightWall.receiveShadow = true;
         this.scene.add(rightWall);
+    }
+
+    /**
+     * Registers a callback invoked when the garage closes
+     * @param {Function} callback
+     */
+    setOnClose(callback) {
+        this.onCloseCallback = callback;
     }
 
     /**
@@ -186,32 +171,25 @@ export class Garage {
      */
     open() {
         if (this.isOpen) return;
-        
+
+        this.init();
         this.isOpen = true;
         document.body.appendChild(this.renderer.domElement);
-        
-        // Add steering sensitivity slider
+
         this.addSteeringSensitivitySlider();
-        
-        // Hide hamburger menu when garage is open
+
         const hamburgerMenu = document.getElementById('hamburger-menu');
         if (hamburgerMenu) {
             hamburgerMenu.style.display = 'none';
         }
-        
-        // Hide garage button when garage is open
+
         const garageBtn = document.getElementById('garage-btn');
         if (garageBtn) {
             garageBtn.style.display = 'none';
         }
-        
-        // Add close button
+
         this.addCloseButton();
-        
-        // Add instructions
         this.addInstructions();
-        
-        // Start animation loop
         this.animate();
     }
 
@@ -220,46 +198,37 @@ export class Garage {
      */
     close() {
         if (!this.isOpen) return;
-        
+
         this.isOpen = false;
-        
-        // Show hamburger menu when garage is closed
+
         const hamburgerMenu = document.getElementById('hamburger-menu');
         if (hamburgerMenu) {
             hamburgerMenu.style.display = 'block';
         }
-        
-        // Show garage button when garage is closed
+
         const garageBtn = document.getElementById('garage-btn');
         if (garageBtn) {
             garageBtn.style.display = 'block';
         }
-        
-        // Remove renderer from DOM
-        if (this.renderer.domElement.parentNode) {
+
+        if (this.renderer && this.renderer.domElement.parentNode) {
             this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
         }
-        
-        // Remove close button
-        const closeBtn = document.getElementById('garage-close-btn');
-        if (closeBtn) {
-            closeBtn.remove();
-        }
-        
-        // Remove instructions
-        const instructions = document.getElementById('garage-instructions');
-        if (instructions) {
-            instructions.remove();
-        }
 
-        // Remove steering sensitivity slider
+        const closeBtn = document.getElementById('garage-close-btn');
+        if (closeBtn) closeBtn.remove();
+
+        const instructions = document.getElementById('garage-instructions');
+        if (instructions) instructions.remove();
+
         const slider = document.getElementById('steering-sensitivity-container');
         if (slider) slider.remove();
+
+        if (typeof this.onCloseCallback === 'function') {
+            this.onCloseCallback();
+        }
     }
 
-    /**
-     * Adds a close button to the garage
-     */
     addCloseButton() {
         const closeBtn = document.createElement('button');
         closeBtn.id = 'garage-close-btn';
@@ -279,35 +248,28 @@ export class Garage {
             z-index: 1000;
             transition: background 0.3s;
         `;
-        
+
         closeBtn.addEventListener('mouseenter', () => {
             closeBtn.style.background = 'rgba(255, 0, 0, 0.8)';
         });
-        
+
         closeBtn.addEventListener('mouseleave', () => {
             closeBtn.style.background = 'rgba(0, 0, 0, 0.7)';
         });
-        
+
         closeBtn.addEventListener('click', () => {
             this.close();
         });
-        
+
         document.body.appendChild(closeBtn);
     }
 
-    /**
-     * Adds instructions for the garage controls
-     */
     addInstructions() {
-        // Detect mobile devices to hide instructions on phones
-        const isMobile = window.innerWidth <= 768 || 
-                        (window.innerWidth <= 1024 && window.innerHeight <= 768) || // Landscape phones
-                        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
-        // Don't show instructions on mobile devices
-        if (isMobile) {
-            return;
-        }
+        const isMobile = window.innerWidth <= 768 ||
+            (window.innerWidth <= 1024 && window.innerHeight <= 768) ||
+            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (isMobile) return;
 
         const instructions = document.createElement('div');
         instructions.id = 'garage-instructions';
@@ -330,28 +292,22 @@ export class Garage {
                 • Scroll: Zoom in/out
             </div>
         `;
-        
+
         document.body.appendChild(instructions);
     }
 
-    /**
-     * Adds a steering sensitivity slider to the garage UI
-     */
     addSteeringSensitivitySlider() {
-        // Remove if already exists
         const existing = document.getElementById('steering-sensitivity-container');
         if (existing) existing.remove();
 
-        // Detect device type for responsive design
-        const isMobile = window.innerWidth <= 768 || 
-                        (window.innerWidth <= 1024 && window.innerHeight <= 768) || // Landscape phones
-                        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isMobile = window.innerWidth <= 768 ||
+            (window.innerWidth <= 1024 && window.innerHeight <= 768) ||
+            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const isTablet = window.innerWidth <= 1024 && window.innerWidth > 768 && !isMobile;
 
         const container = document.createElement('div');
         container.id = 'steering-sensitivity-container';
-        
-        // Responsive positioning and sizing
+
         let containerStyles = '';
         if (isMobile) {
             containerStyles = `
@@ -360,7 +316,7 @@ export class Garage {
                 right: 15px;
                 background: rgba(0,0,0,0.85);
                 color: #fff;
-                padding: 12px 16px 12px 16px;
+                padding: 12px 16px;
                 border-radius: 8px;
                 z-index: 1001;
                 font-family: 'Orbitron', Arial, sans-serif;
@@ -376,7 +332,7 @@ export class Garage {
                 right: 20px;
                 background: rgba(0,0,0,0.85);
                 color: #fff;
-                padding: 15px 20px 15px 20px;
+                padding: 15px 20px;
                 border-radius: 10px;
                 z-index: 1001;
                 font-family: 'Orbitron', Arial, sans-serif;
@@ -392,7 +348,7 @@ export class Garage {
                 right: 30px;
                 background: rgba(0,0,0,0.85);
                 color: #fff;
-                padding: 18px 22px 18px 22px;
+                padding: 18px 22px;
                 border-radius: 12px;
                 z-index: 1001;
                 font-family: 'Orbitron', Arial, sans-serif;
@@ -401,7 +357,7 @@ export class Garage {
                 min-width: 260px;
             `;
         }
-        
+
         container.style.cssText = containerStyles;
 
         const label = document.createElement('label');
@@ -439,14 +395,9 @@ export class Garage {
         slider.addEventListener('input', () => {
             valueDisplay.innerText = slider.value;
             this.steeringSensitivity = parseFloat(slider.value);
-            if (this.steeringSensitivity < 0.25) {
-                warning.style.display = 'block';
-            } else {
-                warning.style.display = 'none';
-            }
+            warning.style.display = this.steeringSensitivity < 0.25 ? 'block' : 'none';
         });
 
-        // Set initial warning state
         if (parseFloat(slider.value) < 0.25) {
             warning.style.display = 'block';
         }
@@ -458,58 +409,38 @@ export class Garage {
         document.body.appendChild(container);
     }
 
-    /**
-     * Gets the current steering sensitivity value
-     */
     getSteeringSensitivity() {
         return this.steeringSensitivity !== undefined ? this.steeringSensitivity : DEFAULT_STEERING_SENSITIVITY;
     }
 
-    /**
-     * Handles window resize
-     */
     onWindowResize() {
+        if (!this.isInitialized) return;
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        
-        // Update steering sensitivity slider positioning if it exists
         this.updateSteeringSensitivitySliderPosition();
     }
 
-    /**
-     * Animation loop for the garage
-     */
     animate() {
         if (!this.isOpen) return;
-        
-        requestAnimationFrame(this.animate.bind(this));
-        
-        // Update controls
+        requestAnimationFrame(this.boundAnimate);
         this.controls.update();
-        
-        // Render scene
         this.renderer.render(this.scene, this.camera);
     }
 
-    /**
-     * Updates the steering sensitivity slider position for responsive design
-     */
     updateSteeringSensitivitySliderPosition() {
         const container = document.getElementById('steering-sensitivity-container');
         if (!container) return;
 
-        // Detect device type for responsive design
-        const isMobile = window.innerWidth <= 768 || 
-                        (window.innerWidth <= 1024 && window.innerHeight <= 768) || // Landscape phones
-                        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isMobile = window.innerWidth <= 768 ||
+            (window.innerWidth <= 1024 && window.innerHeight <= 768) ||
+            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const isTablet = window.innerWidth <= 1024 && window.innerWidth > 768 && !isMobile;
 
-        // Update container positioning and sizing
         if (isMobile) {
             container.style.top = '70px';
             container.style.right = '15px';
-            container.style.padding = '12px 16px 12px 16px';
+            container.style.padding = '12px 16px';
             container.style.borderRadius = '8px';
             container.style.fontSize = '12px';
             container.style.minWidth = '200px';
@@ -517,7 +448,7 @@ export class Garage {
         } else if (isTablet) {
             container.style.top = '80px';
             container.style.right = '20px';
-            container.style.padding = '15px 20px 15px 20px';
+            container.style.padding = '15px 20px';
             container.style.borderRadius = '10px';
             container.style.fontSize = '14px';
             container.style.minWidth = '240px';
@@ -525,20 +456,18 @@ export class Garage {
         } else {
             container.style.top = '90px';
             container.style.right = '30px';
-            container.style.padding = '18px 22px 18px 22px';
+            container.style.padding = '18px 22px';
             container.style.borderRadius = '12px';
             container.style.fontSize = '15px';
             container.style.minWidth = '260px';
             container.style.maxWidth = '';
         }
 
-        // Update slider width
         const slider = document.getElementById('steering-sensitivity-slider');
         if (slider) {
             slider.style.width = isMobile ? '140px' : isTablet ? '160px' : '180px';
         }
 
-        // Update warning text sizing
         const warning = document.getElementById('steering-sensitivity-warning');
         if (warning) {
             warning.style.fontSize = isMobile ? '11px' : isTablet ? '12px' : '13px';
@@ -547,17 +476,13 @@ export class Garage {
             warning.style.maxWidth = isMobile ? '180px' : isTablet ? '220px' : '230px';
         }
 
-        // Update label margin
         const label = container.querySelector('label');
         if (label) {
             label.style.marginBottom = isMobile ? '6px' : '8px';
         }
     }
 
-    /**
-     * Gets the car object for external manipulation
-     */
     getCar() {
         return this.car;
     }
-} 
+}

@@ -154,10 +154,8 @@ export class Game {
             this.raceStarted = true;
             this.onRaceStart();
         } else {
-            // Add StartLights to the scene
+            // Add StartLights to the scene (countdown starts when user clicks 'Start Race')
             this.startLights = new StartLights(this.scene.getScene(), this.camera.getCamera(), this.onRaceStart.bind(this));
-            // Animate the start lights at game start
-            this.startLights.animate();
             // Show controls UI until race starts
             this.controlsUI.show();
         }
@@ -236,6 +234,22 @@ export class Game {
                 garageBtn.style.color = '#b2eaff';
             };
             
+            // Register garage close handler once to avoid stacking closures
+            this.garage.setOnClose(() => {
+                this.mainUIElements.forEach(el => {
+                    if (el && !document.body.contains(el)) {
+                        document.body.appendChild(el);
+                    }
+                });
+                if (!this.raceStarted) {
+                    this.controlsUI.show();
+                }
+                if (!this.raceStarted && this.startLights && this.startLights.startMessage && !document.body.contains(this.startLights.startMessage)) {
+                    document.body.appendChild(this.startLights.startMessage);
+                }
+                this.updateUIPositioning();
+            });
+
             garageBtn.addEventListener('click', () => {
                 // Close the menu when garage is opened
                 const hamburgerIcon = document.getElementById('hamburger-icon');
@@ -245,27 +259,6 @@ export class Game {
                 
                 this.hideMainUI();
                 this.garage.open();
-                // When garage closes, show main UI again but don't show controls if race has started
-                const origClose = this.garage.close.bind(this.garage);
-                this.garage.close = () => {
-                    origClose();
-                    // Show main UI elements but don't show controls UI if race has started
-                    this.mainUIElements.forEach(el => {
-                        if (el && !document.body.contains(el)) {
-                            document.body.appendChild(el);
-                        }
-                    });
-                    // Only show controls UI if race hasn't started yet
-                    if (!this.raceStarted) {
-                        this.controlsUI.show();
-                    }
-                    // Show StartLights start message if race hasn't started and startLights exists
-                    if (!this.raceStarted && this.startLights && this.startLights.startMessage && !document.body.contains(this.startLights.startMessage)) {
-                        document.body.appendChild(this.startLights.startMessage);
-                    }
-                    // Update UI positioning to ensure proper layout
-                    this.updateUIPositioning();
-                };
             });
         } else {
             console.error('Garage button in menu not found!');
@@ -277,12 +270,15 @@ export class Game {
      */
     animate() {
         requestAnimationFrame(this.animate.bind(this));
-        if (this.stats) this.stats.begin();
         const deltaTime = this.clock.getDelta();
-        if (this.rapierPhysics) {
-            this.rapierPhysics.world.timestep = deltaTime;
-            this.rapierPhysics.step();
+
+        // Pause track simulation & rendering while full-screen Garage is open
+        if (this.garage && this.garage.isOpen) {
+            return;
         }
+
+        if (this.stats) this.stats.begin();
+
         // Sync steering sensitivity from garage to physicsCar and joystick
         if (this.garage && typeof this.garage.getSteeringSensitivity === 'function') {
             const sensitivity = this.garage.getSteeringSensitivity();
@@ -293,62 +289,65 @@ export class Game {
                 this.steeringWheelJoystick.setSteeringSensitivity(sensitivity);
             }
         }
+
         if (this.physicsCar && this.physicsCar.isPhysicsReady()) {
             this.physicsCar.updateCarControls();
-            try {
-                this.physicsCar.getVehicleController().updateVehicle(deltaTime);
-            } catch (e) {
-                // updateVehicle method not available
+            this.physicsCar.stepVehicle(deltaTime);
+            if (this.rapierPhysics) {
+                this.rapierPhysics.step(deltaTime);
             }
-            this.physicsCar.updatePhysicsWheels();
-            // Update visual car to match physics wireframe position
             this.physicsCar.updateVisualCar();
+            this.physicsCar.updatePhysicsWheels();
+        } else if (this.rapierPhysics) {
+            this.rapierPhysics.step(deltaTime);
         }
-        this.update();
+
+        this.update(deltaTime);
         this.render();
         if (this.stats) this.stats.end();
     }
 
-    update() {
+    update(deltaTime = 1 / 60) {
         // Use physicsCar for all physics-related state
         if (!this.physicsCar || !this.physicsCar.isPhysicsReady()) {
             const carObject = this.car.getObject();
-            // this.camera.update(carObject.position, carObject.rotation.y);
-            this.trackDashboard.update(carObject.position, this.road.getSegments(), carObject.rotation.y);
-            this.speedDashboard.updateDebug({
-                physicsReady: false,
-                position: { x: carObject.position.x.toFixed(2), y: carObject.position.y.toFixed(2), z: carObject.position.z.toFixed(2) },
-                velocity: { x: 'N/A', y: 'N/A', z: 'N/A' },
-                speed: 'N/A',
-                engineForce: 'N/A',
-                brakeForce: 'N/A',
-                input: { forward: 0, right: 0, brake: 0 },
-                wheelForces: ['N/A', 'N/A', 'N/A', 'N/A'],
-                suspension: ['N/A', 'N/A', 'N/A', 'N/A'],
-                deltaTime: this.clock.getDelta().toFixed(4),
-                vehicleState: 'Physics Not Ready',
-                groundContact: false
-            });
+            this.trackDashboard.update(carObject.position, carObject.rotation.y);
+            if (GAME_CONFIG.DEBUG_MODE) {
+                this.speedDashboard.updateDebug({
+                    physicsReady: false,
+                    position: { x: carObject.position.x.toFixed(2), y: carObject.position.y.toFixed(2), z: carObject.position.z.toFixed(2) },
+                    velocity: { x: 'N/A', y: 'N/A', z: 'N/A' },
+                    speed: 'N/A',
+                    engineForce: 'N/A',
+                    brakeForce: 'N/A',
+                    input: { forward: 0, right: 0, brake: 0 },
+                    wheelForces: ['N/A', 'N/A', 'N/A', 'N/A'],
+                    suspension: ['N/A', 'N/A', 'N/A', 'N/A'],
+                    deltaTime: deltaTime.toFixed(4),
+                    vehicleState: 'Physics Not Ready',
+                    groundContact: false
+                });
+            }
             return;
         }
         // Allow camera toggle at any time (not just after race start)
         if (this.controls.isCameraTogglePressed()) {
             this.camera.toggleView();
         }
-        // Sync visual car mesh with physics wireframe position
         const carObject = this.car.getObject();
-        const debugInfo = this.physicsCar.getPhysicsDebugInfo();
-        this.speedDashboard.updateDebug(debugInfo);
+        if (GAME_CONFIG.DEBUG_MODE) {
+            const debugInfo = this.physicsCar.getPhysicsDebugInfo();
+            debugInfo.deltaTime = deltaTime.toFixed(4);
+            this.speedDashboard.updateDebug(debugInfo);
+        }
         // Update speed dashboard with current car speed
         if (this.physicsCar.getChassisBody()) {
-            const velocity = this.physicsCar.getChassisBody().linvel();
-            const speed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
-            this.speedDashboard.update(speed);
+            this.speedDashboard.update(this.physicsCar.getSpeed());
         }
-        // Use physics car's rotation for camera to ensure proper following
+        // Use physics car's rotation for camera and minimap
         const carRotation = this.physicsCar.getCarRotation();
-        this.camera.update(carObject.position, carRotation);
-        this.trackDashboard.update(carObject.position, this.road.getSegments(), carRotation);
+        this.camera.update(carObject.position, carRotation, deltaTime);
+        this.trackDashboard.update(carObject.position, carRotation);
     }
 
     /**
@@ -460,7 +459,7 @@ export class Game {
 
         // Update movement every frame
         const originalUpdate = this.update.bind(this);
-        this.update = () => {
+        this.update = (deltaTime) => {
             updateMovement();
             
             // Check for restart key press
@@ -468,7 +467,7 @@ export class Game {
                 this.restart();
             }
             
-            originalUpdate();
+            originalUpdate(deltaTime);
         };
     }
 

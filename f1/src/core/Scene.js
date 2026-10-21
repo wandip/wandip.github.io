@@ -3,7 +3,6 @@ import { COLORS } from '../utils/Constants';
 import { Trees } from '../decorations/Trees';
 import { Mountains } from '../decorations/Mountains';
 import { Clouds } from '../decorations/Clouds';
-import { Moon } from '../decorations/Moon';
 
 /**
  * Manages the Three.js scene, including lighting and environment setup
@@ -83,11 +82,6 @@ export class Scene {
 
         const sky = new THREE.Mesh(skyGeo, skyMat);
         this.scene.add(sky);
-
-        // Add crescent moon
-        const moon = new Moon();
-        moon.mesh.position.set(100, 100, -100);
-        this.scene.add(moon.mesh);
 
         // Add fog with a more realistic color
         const fogColor = new THREE.Color(0x87ceeb); // Light blue fog

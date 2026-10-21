@@ -4,6 +4,7 @@ highlighter:      rouge
 
 # Permalinks
 permalink:        pretty
+future:           true
 
 # Setup
 title:            Dipak Wani
