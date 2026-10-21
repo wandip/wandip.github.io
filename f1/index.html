@@ -298,6 +298,33 @@
                 menuContent.classList.toggle('show');
             });
             
+            // Guide modal functionality
+            const guideToggleBtn = document.getElementById('guide-toggle-btn');
+            const guideCloseBtn = document.getElementById('guide-close-btn');
+            const guideModal = document.getElementById('physics-guide-modal');
+
+            if (guideToggleBtn && guideModal) {
+                guideToggleBtn.addEventListener('click', function() {
+                    guideModal.style.display = 'block';
+                    menuContent.classList.remove('show');
+                    hamburgerIcon.classList.remove('active');
+                });
+            }
+
+            if (guideCloseBtn && guideModal) {
+                guideCloseBtn.addEventListener('click', function() {
+                    guideModal.style.display = 'none';
+                });
+            }
+
+            if (guideModal) {
+                guideModal.addEventListener('click', function(e) {
+                    if (e.target === guideModal) {
+                        guideModal.style.display = 'none';
+                    }
+                });
+            }
+
             // Close menu when clicking outside
             document.addEventListener('click', function(event) {
                 if (!hamburgerIcon.contains(event.target) && !menuContent.contains(event.target)) {
@@ -318,9 +345,31 @@
         </div>
     </div>
     <div id="menu-content">
-        <h3>Credits</h3>
-        <a href="https://x.com/dpwxni" target="_blank" title="f1 icons">made with ❤️ by @dpwxni 𝕏</a>
-        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #444;">
+        <h3>Simulation & Devlog</h3>
+        <p style="margin: 0 0 10px 0; font-size: 13px; line-height: 1.4; color: #cbd5e1;">
+            Explore the engineering behind the Rapier3D physics engine and Three.js renderer.
+        </p>
+        <a href="/2026/10/21/f1-physics-engine-in-the-browser/" style="display: block; margin-bottom: 12px; color: #5fa8d3; font-weight: bold;">
+            📖 Physics Engine Deep Dive ↗
+        </a>
+        <a href="/" style="display: block; margin-bottom: 12px; color: #87ceeb;">
+            🏠 Home & Projects ↗
+        </a>
+        <button id="guide-toggle-btn" style="
+            background: #1e293b;
+            color: #38bdf8;
+            border: 1px solid #0284c7;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-family: 'Orbitron', Arial, sans-serif;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 12px;
+            text-align: center;
+        ">ℹ️ Physics & Controls Guide</button>
+
+        <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid #444;">
             <button id="garage-btn-menu" style="
                 background: #181c20;
                 color: #b2eaff;
@@ -338,8 +387,88 @@
                 text-transform: uppercase;
                 outline: none;
                 width: 100%;
-                margin-top: 10px;
+                margin-top: 5px;
             ">🏎️ Garage</button>
+        </div>
+
+        <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid #444; font-size: 12px;">
+            <h3 style="margin-bottom: 8px;">Credits</h3>
+            <a href="https://x.com/dpwxni" target="_blank" rel="noopener" title="Twitter @dpwxni">Built by @dpwxni 𝕏</a>
+        </div>
+    </div>
+
+    <!-- Crawlable, accessible Physics & About Guide Panel -->
+    <div id="physics-guide-modal" style="display: none; position: fixed; inset: 0; background: rgba(10, 15, 29, 0.85); backdrop-filter: blur(8px); z-index: 2000; overflow-y: auto; padding: 20px; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        <div style="max-width: 820px; margin: 40px auto; background: #0f172a; border: 1px solid #1e293b; border-radius: 14px; padding: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); position: relative; line-height: 1.6;">
+            <button id="guide-close-btn" aria-label="Close Guide" style="position: absolute; top: 18px; right: 20px; background: #1e293b; border: 1px solid #334155; color: #94a3b8; font-size: 20px; border-radius: 8px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+
+            <header style="border-bottom: 1px solid #334155; padding-bottom: 16px; margin-bottom: 24px;">
+                <span style="font-family: 'Orbitron', monospace; font-size: 12px; letter-spacing: 1.5px; color: #38bdf8; text-transform: uppercase; font-weight: 700;">Race Engineer Simulator</span>
+                <h1 style="font-size: 28px; margin: 6px 0 10px 0; color: #ffffff; font-family: 'Orbitron', Arial, sans-serif;">Formula 1 Browser Racing &amp; Physics Engine</h1>
+                <p style="color: #94a3b8; margin: 0; font-size: 15px;">
+                    A real-time 3D Formula 1 simulator built with Three.js and Rapier3D (WebAssembly). Map suspension stiffness, tire compounds, and aero downforce directly to real-world motorsport dynamics right in your browser.
+                </p>
+            </header>
+
+            <section style="margin-bottom: 24px;">
+                <h2 style="font-size: 20px; color: #38bdf8; margin-bottom: 10px; font-family: 'Orbitron', Arial, sans-serif;">How the Vehicle Physics Works</h2>
+                <p style="font-size: 15px; color: #cbd5e1; margin-bottom: 12px;">
+                    Unlike arcade games with scripted drift physics, this simulator utilizes a true <strong>Raycast Vehicle Controller</strong> powered by <strong>Rapier3D (WASM)</strong>. In a raycast vehicle model, the car's monocoque is represented as an 800 kg rigid body, while four downward rays measure road clearance at 60 Hz to compute instantaneous suspension travel and contact patch forces.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 16px 0;">
+                    <div style="background: #1e293b; padding: 16px; border-radius: 8px; border-left: 3px solid #38bdf8;">
+                        <h3 style="font-size: 15px; color: #f8fafc; margin-top: 0; margin-bottom: 6px;">Hooke's Law Suspension</h3>
+                        <p style="font-size: 13px; color: #94a3b8; margin: 0;">Calculates spring compression and damping rates per wheel to prevent bottoming out across curbs while maintaining high-speed chassis stability.</p>
+                    </div>
+                    <div style="background: #1e293b; padding: 16px; border-radius: 8px; border-left: 3px solid #ef4444;">
+                        <h3 style="font-size: 15px; color: #f8fafc; margin-top: 0; margin-bottom: 6px;">Tire Friction Circle</h3>
+                        <p style="font-size: 13px; color: #94a3b8; margin: 0;">Models lateral cornering grip vs. longitudinal braking and acceleration. Soft compounds yield higher peak grip with sharper thermal degradation.</p>
+                    </div>
+                    <div style="background: #1e293b; padding: 16px; border-radius: 8px; border-left: 3px solid #10b981;">
+                        <h3 style="font-size: 15px; color: #f8fafc; margin-top: 0; margin-bottom: 6px;">Aerodynamic Downforce</h3>
+                        <p style="font-size: 13px; color: #94a3b8; margin: 0;">Generates downward force proportional to velocity squared (v²), pressing the tires into the track at high speeds while inducing drag on long straights.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section style="margin-bottom: 24px;">
+                <h2 style="font-size: 20px; color: #38bdf8; margin-bottom: 10px; font-family: 'Orbitron', Arial, sans-serif;">Controls &amp; Driving Mechanics</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 14px;">
+                    <div style="background: #1e293b; padding: 14px; border-radius: 8px;">
+                        <strong style="color: #f8fafc;">Desktop Controls:</strong>
+                        <ul style="margin: 8px 0 0 18px; padding: 0; color: #cbd5e1;">
+                            <li><kbd style="background: #334155; padding: 2px 6px; border-radius: 4px;">W</kbd> or <kbd style="background: #334155; padding: 2px 6px; border-radius: 4px;">↑</kbd> : Throttle / Acceleration</li>
+                            <li><kbd style="background: #334155; padding: 2px 6px; border-radius: 4px;">S</kbd> or <kbd style="background: #334155; padding: 2px 6px; border-radius: 4px;">↓</kbd> : Brakes / Reverse</li>
+                            <li><kbd style="background: #334155; padding: 2px 6px; border-radius: 4px;">A</kbd> / <kbd style="background: #334155; padding: 2px 6px; border-radius: 4px;">D</kbd> or <kbd style="background: #334155; padding: 2px 6px; border-radius: 4px;">←</kbd> / <kbd style="background: #334155; padding: 2px 6px; border-radius: 4px;">→</kbd> : Steering</li>
+                            <li><kbd style="background: #334155; padding: 2px 6px; border-radius: 4px;">Space</kbd> : Handbrake / E-Brake</li>
+                        </ul>
+                    </div>
+                    <div style="background: #1e293b; padding: 14px; border-radius: 8px;">
+                        <strong style="color: #f8fafc;">Mobile Controls:</strong>
+                        <p style="margin: 8px 0 0 0; color: #cbd5e1;">
+                            On touch devices, an on-screen interactive Formula 1 steering wheel enables analog-style cornering alongside dedicated accelerator and brake pedals.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section style="margin-bottom: 24px;">
+                <h2 style="font-size: 20px; color: #38bdf8; margin-bottom: 10px; font-family: 'Orbitron', Arial, sans-serif;">The 3D Garage &amp; Telemetry</h2>
+                <p style="font-size: 15px; color: #cbd5e1; margin-bottom: 10px;">
+                    Click the <strong>🏎️ Garage</strong> button to inspect the chassis, adjust suspension stiffness, change tire compounds between soft, medium, and hard, and fine-tune your aerodynamic balance before setting a hot lap.
+                </p>
+            </section>
+
+            <footer style="border-top: 1px solid #334155; padding-top: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;">
+                <div>
+                    <a href="/2026/10/21/f1-physics-engine-in-the-browser/" style="color: #38bdf8; text-decoration: underline; font-weight: 600; font-size: 15px;">
+                        Read the full Engineering Deep Dive &amp; Devlog →
+                    </a>
+                </div>
+                <div style="font-size: 13px; color: #94a3b8;">
+                    Crafted by <a href="https://x.com/dpwxni" target="_blank" rel="noopener" style="color: #e2e8f0; text-decoration: underline;">@dpwxni</a> · <a href="/" style="color: #e2e8f0; text-decoration: underline;">dipakwani.com</a>
+                </div>
+            </footer>
         </div>
     </div>
 </body>

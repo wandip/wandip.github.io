@@ -393,13 +393,39 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* Top Studio Nav */}
+      <div className="top-nav-bar">
+        <div className="top-nav-content">
+          <a href="/" className="nav-brand-link">
+            <span className="nav-brand-icon">🎨</span>
+            <span className="nav-brand-name">PaperCraft Studio</span>
+            <span className="nav-brand-divider">/</span>
+            <span className="nav-brand-sub">by Dipak Wani</span>
+          </a>
+          <div className="top-nav-links">
+            <a href="/2026/10/22/building-papercraft-studio-and-routine-maker/" className="nav-pill-link highlight">
+              📖 The Story &amp; Vision ↗
+            </a>
+            <a href="/" className="nav-pill-link">
+              🏠 Home
+            </a>
+            <a href="https://x.com/dpwxni" target="_blank" rel="noopener noreferrer" className="nav-pill-link">
+              𝕏 @dpwxni
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="app-header">
         <div className="header-content">
-          <h1 className="app-title">
-            <span className="title-icon">📋</span>
-            Routine Maker
-          </h1>
+          <div className="app-title-group">
+            <h1 className="app-title">
+              <span className="title-icon">📋</span>
+              Routine Maker
+            </h1>
+            <span className="app-tagline">Visual Printable Routine Charts for Kids &amp; Families</span>
+          </div>
           <div className="header-buttons">
             <button 
               onClick={handleExportPDF} 
@@ -761,6 +787,203 @@ function App() {
           </div>
         </section>
       </div>
+
+      {/* Rich Educational Guide & SEO Section */}
+      <section className="seo-guide-section">
+        <div className="seo-guide-container">
+          <div className="seo-guide-header">
+            <span className="studio-pill">PaperCraft Studio</span>
+            <h2 className="seo-main-title">Why Visual Routine Charts Transform Daily Habits for Kids &amp; Families</h2>
+            <p className="seo-main-lead">
+              Getting out the door for school without tears or winding down for bedtime without power struggles is one of the toughest everyday parenting hurdles. Digital apps add screen time and blue light right when kids need calm. Routine Maker gives you a fast, zero-install, 100% private way to generate custom visual routine charts ready to print on real paper.
+            </p>
+          </div>
+
+          <div className="seo-features-grid">
+            <div className="seo-feature-card">
+              <div className="feature-icon-badge">🧠</div>
+              <h3 className="feature-title">Boosts Executive Function &amp; Independence</h3>
+              <p className="feature-desc">
+                Young children and toddlers cannot read clocks or grasp abstract time intervals. Visual schedules translate time into concrete spatial steps, allowing kids to take ownership of their morning and evening routines without constant parental reminders.
+              </p>
+            </div>
+
+            <div className="seo-feature-card">
+              <div className="feature-icon-badge">🛡️</div>
+              <h3 className="feature-title">100% Client-Side Privacy</h3>
+              <p className="feature-desc">
+                Your family photos and personal routine data never leave your browser. Images are processed locally in memory with HTML5 FileReader and exported directly to PDF. No accounts, no cloud database, and zero tracking.
+              </p>
+            </div>
+
+            <div className="seo-feature-card">
+              <div className="feature-icon-badge">✨</div>
+              <h3 className="feature-title">Zero Screen Distraction</h3>
+              <p className="feature-desc">
+                Unlike habit apps that tempt children toward YouTube or mobile games, a physical paper chart on the fridge or bathroom mirror reinforces habits in the physical world where life actually happens.
+              </p>
+            </div>
+
+            <div className="seo-feature-card">
+              <div className="feature-icon-badge">🧩</div>
+              <h3 className="feature-title">ADHD &amp; Neurodivergent Friendly</h3>
+              <p className="feature-desc">
+                Predictable, visual pacing provides emotional security and reduces transition anxiety for children with ADHD, autism spectrum needs, or sensory sensitivities by making each step visible in advance.
+              </p>
+            </div>
+          </div>
+
+          <div className="seo-content-block">
+            <h3 className="content-block-heading">How to Create &amp; Print Your Routine in 3 Simple Steps</h3>
+            <div className="steps-row">
+              <div className="step-item">
+                <span className="step-num">1</span>
+                <h4>Name Your Routine</h4>
+                <p>Give your chart an empowering title like <em>"Leo's Morning Launchpad"</em> or <em>"Maya's Cozy Bedtime Flow"</em>.</p>
+              </div>
+              <div className="step-item">
+                <span className="step-num">2</span>
+                <h4>Add Pictures &amp; Tasks</h4>
+                <p>Upload personal photos of your child doing the task or paste image URLs. Add clear, encouraging descriptions.</p>
+              </div>
+              <div className="step-item">
+                <span className="step-num">3</span>
+                <h4>Export &amp; Print</h4>
+                <p>Choose horizontal or vertical layout and click <strong>Export PDF</strong> to receive an instantly printable A4 or Letter document.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="seo-content-block">
+            <h3 className="content-block-heading">Everyday Routine Templates &amp; Ideas</h3>
+            <div className="routine-examples-grid">
+              <div className="routine-example-box">
+                <h4 className="example-title">☀️ Morning School Launchpad</h4>
+                <ul>
+                  <li><strong>Wake Up &amp; Stretch</strong> — Greet the day with a glass of water</li>
+                  <li><strong>Make Bed</strong> — Smooth sheets and arrange pillows</li>
+                  <li><strong>Eat Breakfast</strong> — Fuel up with healthy energy</li>
+                  <li><strong>Brush Teeth &amp; Wash Face</strong> — 2 minutes of fresh brushing</li>
+                  <li><strong>Get Dressed</strong> — Clothes, socks, and favorite sneakers</li>
+                  <li><strong>Pack Backpack</strong> — Homework folder, water bottle, and snack</li>
+                </ul>
+              </div>
+
+              <div className="routine-example-box">
+                <h4 className="example-title">🌙 Bedtime Wind-Down Journey</h4>
+                <ul>
+                  <li><strong>Toy Tidy-Up</strong> — 5 minutes to clear floor clutter</li>
+                  <li><strong>Warm Bath or Shower</strong> — Relax tired muscles and reset</li>
+                  <li><strong>Cozy Pajamas</strong> — Soft clothes ready for sleep</li>
+                  <li><strong>Brush Teeth &amp; Floss</strong> — Clean smile before pillow time</li>
+                  <li><strong>Bedtime Story &amp; Cuddles</strong> — 1–2 chapters with parents</li>
+                  <li><strong>Lights Out &amp; Sweet Dreams</strong> — Deep, restorative rest</li>
+                </ul>
+              </div>
+
+              <div className="routine-example-box">
+                <h4 className="example-title">🎒 After-School Reset Flow</h4>
+                <ul>
+                  <li><strong>Unpack School Bag</strong> — Lunchbox to sink, papers to counter</li>
+                  <li><strong>Healthy Afternoon Snack</strong> — Fruit, nuts, or smoothie</li>
+                  <li><strong>Homework &amp; Reading</strong> — 20 minutes focused learning</li>
+                  <li><strong>Outdoor Play / Free Time</strong> — Bike ride, playground, or drawing</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="seo-content-block">
+            <h3 className="content-block-heading">Pro-Tips for Making Your Routine Chart Last</h3>
+            <div className="tips-list">
+              <div className="tip-row">
+                <span className="tip-bullet">📌</span>
+                <div>
+                  <strong>Laminate for Dry-Erase Checkmarks:</strong> Run your printed chart through a thermal laminator or slide it into a clear plastic sleeve. Your child can check off items every day with a dry-erase pen and wipe it clean for tomorrow.
+                </div>
+              </div>
+              <div className="tip-row">
+                <span className="tip-bullet">🧷</span>
+                <div>
+                  <strong>The Clothespin Slider Technique:</strong> Clip wooden clothespins labeled with numbers or stickers along the left edge. As each task is finished, your child moves the pin to the right edge.
+                </div>
+              </div>
+              <div className="tip-row">
+                <span className="tip-bullet">🧲</span>
+                <div>
+                  <strong>Eye-Level Fridge Display:</strong> Hang the chart on the refrigerator or bathroom mirror at your child's eye level, transforming routines into a self-guided visual journey rather than parental nagging.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="seo-studio-banner">
+            <div className="studio-banner-content">
+              <span className="studio-badge">Welcome to PaperCraft Studio</span>
+              <h3 className="studio-banner-title">A Creative Corner for Everyday Tools That End on Real Paper</h3>
+              <p className="studio-banner-text">
+                Routine Maker is the flagship tool of <strong>PaperCraft Studio</strong>—an experimental workshop built by Dipak Wani focused on lightweight web creators that turn simple browser inputs into tactile, ready-to-print materials.
+              </p>
+              <div className="studio-upcoming-tools">
+                <div className="upcoming-tool-tag">📖 Custom Diary &amp; Journal Template Studio</div>
+                <div className="upcoming-tool-tag">🌳 Visual Family Tree &amp; Heritage Maker</div>
+                <div className="upcoming-tool-tag">🧠 Tactile Mind Map &amp; Concept Organizers</div>
+                <div className="upcoming-tool-tag">📦 Amazon KDP &amp; Etsy Printable Layouts</div>
+              </div>
+              <div className="studio-banner-actions">
+                <a href="/2026/10/22/building-papercraft-studio-and-routine-maker/" className="studio-action-btn primary">
+                  Read the PaperCraft Studio Story &amp; Devlog ↗
+                </a>
+                <a href="https://x.com/dpwxni" target="_blank" rel="noopener noreferrer" className="studio-action-btn secondary">
+                  Follow the Journey on 𝕏 (@dpwxni) ↗
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="seo-content-block">
+            <h3 className="content-block-heading">Frequently Asked Questions</h3>
+            <div className="faq-grid">
+              <div className="faq-card">
+                <h4>Is Routine Maker completely free?</h4>
+                <p>Yes, 100% free with no sign-ups, no subscriptions, and no paywalls. Built as a public tool to make family life easier.</p>
+              </div>
+              <div className="faq-card">
+                <h4>Are my photos uploaded to any servers?</h4>
+                <p>Never. Routine Maker operates entirely client-side inside your browser. Your images and text remain exclusively on your computer.</p>
+              </div>
+              <div className="faq-card">
+                <h4>What paper sizes work best?</h4>
+                <p>The PDF compiler generates standardized vector layouts that scale naturally to standard international A4 and US Letter sizes.</p>
+              </div>
+              <div className="faq-card">
+                <h4>Can I use this for classrooms or therapy?</h4>
+                <p>Absolutely! Teachers, occupational therapists, speech therapists, and homeschoolers are encouraged to print and share charts freely.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* App Footer */}
+      <footer className="app-main-footer">
+        <div className="footer-content">
+          <div className="footer-left">
+            <span className="footer-logo">🎨 PaperCraft Studio</span>
+            <p className="footer-tagline">Small, sharp web makers that turn into tangible paper tools.</p>
+          </div>
+          <div className="footer-links">
+            <a href="/2026/10/22/building-papercraft-studio-and-routine-maker/">The Story &amp; Vision</a>
+            <a href="/">All Projects</a>
+            <a href="https://x.com/dpwxni" target="_blank" rel="noopener noreferrer">𝕏 @dpwxni</a>
+            <a href="https://github.com/wandip" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="mailto:blog@dipakwani.com">Contact</a>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>© {new Date().getFullYear()} Dipak Wani · Built with React &amp; jsPDF · Privacy first, no cookies or backend</p>
+        </div>
+      </footer>
     </div>
   );
 }

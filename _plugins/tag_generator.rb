@@ -11,7 +11,7 @@ module Jekyll
     def initialize(site, base, tag, posts)
       @site = site
       @base = base
-      @dir  = File.join('tags', tag)
+      @dir  = File.join('tags', Utils.slugify(tag))
       @name = 'index.html'
       self.process(@name)
       self.read_yaml(File.join(base, '_layouts'), 'tag.html')

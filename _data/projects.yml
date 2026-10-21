@@ -49,17 +49,21 @@
   stack: [Three.js, Rapier3D, JavaScript, Vite]
   featured: true
 
-- name: Routine Maker
+- name: PaperCraft Studio · Routine Maker
   url: /routine/
   repo: https://github.com/wandip/wandip.github.io/tree/master/routine_maker
-  year: "2025"
+  year: "2025 – Present"
   status: Live
-  tagline: Build printable visual routine charts in minutes.
+  tagline: Printable visual routine charts for kids & families.
   description: >-
-    A small tool for creating picture-based routine charts — drag in images, add
-    task descriptions, pick a layout and export a print-ready PDF.
+    A lightweight, zero-install tool for designing picture-based routine charts — drag in
+    photos, choose horizontal or vertical orientations, and compile print-ready A4/Letter
+    PDFs entirely client-side. The flagship tool from PaperCraft Studio, a creative corner for
+    tactile everyday printables (diary templates, family trees, and mind maps). Read the
+    <a href="/2026/10/22/building-papercraft-studio-and-routine-maker/">origin story &amp; studio vision</a>.
   highlights:
-    - Drag-and-drop image upload with live preview
-    - Client-side PDF export, no backend
-  stack: [React, jsPDF, html2canvas]
+    - 100% in-browser client-side privacy (no images ever uploaded to a server)
+    - Dynamic horizontal & vertical layout engines with drag-and-drop reordering
+    - Vector PDF export via jsPDF and html2canvas for home printing and laminating
+  stack: [React, jsPDF, html2canvas, Vite]
   featured: true
