@@ -15,14 +15,17 @@
 - name: AI Mafia
   url: /ai-mafia/
   repo: https://github.com/wandip/wandip.github.io/tree/master/ai-mafia
+  hn: https://news.ycombinator.com/item?id=45715819
   year: "2025"
   status: Live
   tagline: Tracing the roots of today's AI leaders back to Google.
   description: >-
-    An interactive, zoomable canvas mapping how researchers from Google Brain,
+    An interactive, zoomable canvas mapping how <a href="/ai-mafia/">AI Mafia</a> researchers from Google Brain,
     DeepMind and the "Attention Is All You Need" paper went on to found and lead
-    the companies shaping AI today.
+    the companies shaping AI today. Posted on Y Combinator's <a href="https://news.ycombinator.com/item?id=45715819" target="_blank" rel="noopener">Hacker News</a>, where it trended at #1 on the front page for almost half a day — earning a wave of backlinks, features across multiple newsletters, and appreciation from the creators of the <a href="https://www.acquired.fm/episodes/google-the-ai-company" target="_blank" rel="noopener">Acquired podcast</a> on their internal Slack channel.
   highlights:
+    - Trended at <a href="https://news.ycombinator.com/item?id=45715819" target="_blank" rel="noopener">#1 on Y Combinator's Hacker News</a> for almost half a day, generating extensive backlinks and newsletter features
+    - Appreciated by the creators of the <a href="https://www.acquired.fm/episodes/google-the-ai-company" target="_blank" rel="noopener">Acquired podcast</a> on their internal Slack channel
     - Custom pan / zoom canvas renderer in vanilla JS — no framework
     - Graph data authored as a JSON Canvas file and rendered client-side
   stack: [JavaScript, Canvas, JSON Canvas]
@@ -31,18 +34,19 @@
 - name: F1 Racing
   url: /f1/
   repo: https://github.com/wandip/wandip.github.io/tree/master/f1
-  year: "2025"
+  year: "2025 – Present"
   status: Playable
-  tagline: A browser-based 3D Formula 1 game.
+  tagline: A browser-based 3D Formula 1 game to learn real F1 physics & race engineering.
   description: >-
-    A 3D racing game built from scratch with Three.js — car and wheel physics,
-    multiple camera views and a procedurally generated track, all running in the
-    browser.
+    A 3D Formula 1 racing game and interactive Race Engineer sandbox built with
+    Three.js and Rapier3D (WASM) — mapping rigid-body suspension, tire grip, and
+    vehicle dynamics to real-world F1 physics right in the browser. Read the
+    <a href="/2026/10/21/f1-physics-engine-in-the-browser/">engineering deep dive &amp; devlog</a>.
   highlights:
-    - Hand-written car + wheel physics (acceleration, drag, steering geometry)
-    - Procedural track generation with road markings
-    - Dynamic chase and top-down cameras
-  stack: [Three.js, JavaScript, Vite]
+    - Real-time 3D raycast vehicle physics powered by Rapier3D (WASM) and Three.js
+    - Interactive 3D Garage viewer, minimap telemetry, and mobile F1 steering wheel controls
+    - Optimized scene graph (~90 draw calls via InstancedMesh and merged track geometry)
+  stack: [Three.js, Rapier3D, JavaScript, Vite]
   featured: true
 
 - name: Routine Maker

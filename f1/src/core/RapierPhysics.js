@@ -94,7 +94,7 @@ function getShape( geometry ) {
 async function RapierPhysics() {
 
 	// Initialize Rapier
-	await RAPIER.init();
+	await RAPIER.init( {} );
 
 	// Docs: https://rapier.rs/docs/api/javascript/JavaScript3D/
 
@@ -295,11 +295,10 @@ async function RapierPhysics() {
 
 	//
 
-	const clock = new Clock();
+	function step( deltaTime = 1 / frameRate ) {
 
-	function step() {
-
-		world.timestep = clock.getDelta();
+		// Clamp timestep to avoid physics explosion on frame drops or tab switches
+		world.timestep = deltaTime > 0 ? Math.min( Math.max( deltaTime, 1 / 240 ), 1 / 30 ) : 1 / frameRate;
 		world.step();
 
 		//

@@ -7,7 +7,7 @@ export class Trees {
     }
 
     addTrees() {
-        // Create tree positions further from the track and outside the grid area
+        // Tree positions further from the track and outside the grid area
         const treePositions = [
             // Left side trees (near)
             { x: -70, z: 150 },
@@ -55,47 +55,70 @@ export class Trees {
             { x: 118, z: 650 }
         ];
 
-        treePositions.forEach(pos => {
-            // Add some randomness to tree positions while keeping them outside the grid
+        const foliageLayers = 3;
+        const trunkGeometry = new THREE.CylinderGeometry(0.5, 0.7, 6, 8);
+        const trunkMaterial = new THREE.MeshStandardMaterial({
+            color: 0x4d2926,
+            roughness: 0.9,
+            metalness: 0.1
+        });
+
+        const foliageGeometry = new THREE.ConeGeometry(3, 6, 8);
+        const foliageMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.8,
+            metalness: 0.2
+        });
+
+        const trunkInstanced = new THREE.InstancedMesh(trunkGeometry, trunkMaterial, treePositions.length);
+        const foliageInstanced = new THREE.InstancedMesh(foliageGeometry, foliageMaterial, treePositions.length * foliageLayers);
+
+        const dummy = new THREE.Object3D();
+        const color = new THREE.Color();
+
+        let foliageIndex = 0;
+        treePositions.forEach((pos, idx) => {
             const randomOffset = {
                 x: (Math.random() - 0.5) * 4,
                 z: (Math.random() - 0.5) * 4
             };
+            const trunkScaleY = 0.85 + Math.random() * 0.3;
 
-            // Tree trunk with more detail
-            const trunkGeometry = new THREE.CylinderGeometry(0.5, 0.7, 5 + Math.random() * 2, 8);
-            const trunkMaterial = new THREE.MeshStandardMaterial({
-                color: 0x4d2926,
-                roughness: 0.9,
-                metalness: 0.1
-            });
-            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-            trunk.position.set(
+            dummy.position.set(
                 pos.x + randomOffset.x,
-                2.5 + Math.random(),
+                3 * trunkScaleY,
                 pos.z + randomOffset.z
             );
-            this.scene.add(trunk);
+            dummy.rotation.set(0, (idx * 1.1) % (Math.PI * 2), 0);
+            dummy.scale.set(1, trunkScaleY, 1);
+            dummy.updateMatrix();
+            trunkInstanced.setMatrixAt(idx, dummy.matrix);
 
-            // Create multiple layers of foliage for more realistic trees
-            const foliageLayers = 3;
             for (let i = 0; i < foliageLayers; i++) {
-                const scale = 1 - (i * 0.2); // Each layer gets slightly smaller
-                const height = 7 + (i * 2); // Each layer gets higher
-                const topGeometry = new THREE.ConeGeometry(3 * scale, 6 * scale, 8);
-                const topMaterial = new THREE.MeshStandardMaterial({
-                    color: new THREE.Color(0x2d6a4f).offsetHSL(0, 0, (Math.random() - 0.5) * 0.1), // Slight color variation
-                    roughness: 0.8,
-                    metalness: 0.2
-                });
-                const top = new THREE.Mesh(topGeometry, topMaterial);
-                top.position.set(
+                const scale = 1 - i * 0.2;
+                const height = 7 + i * 2;
+                dummy.position.set(
                     pos.x + randomOffset.x + (Math.random() - 0.5) * 0.5,
                     height,
                     pos.z + randomOffset.z + (Math.random() - 0.5) * 0.5
                 );
-                this.scene.add(top);
+                dummy.scale.set(scale, scale, scale);
+                dummy.updateMatrix();
+                foliageInstanced.setMatrixAt(foliageIndex, dummy.matrix);
+
+                color.setHex(0x2d6a4f).offsetHSL(0, 0, (Math.random() - 0.5) * 0.1);
+                foliageInstanced.setColorAt(foliageIndex, color);
+                foliageIndex++;
             }
         });
+
+        trunkInstanced.instanceMatrix.needsUpdate = true;
+        trunkInstanced.computeBoundingSphere();
+        foliageInstanced.instanceMatrix.needsUpdate = true;
+        if (foliageInstanced.instanceColor) foliageInstanced.instanceColor.needsUpdate = true;
+        foliageInstanced.computeBoundingSphere();
+
+        this.scene.add(trunkInstanced);
+        this.scene.add(foliageInstanced);
     }
-} 
+}

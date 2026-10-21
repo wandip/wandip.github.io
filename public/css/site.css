@@ -199,9 +199,15 @@ main { flex: 1 0 auto; }
 .entry-links { display: flex; gap: 14px; margin-top: 10px; font-size: var(--fs-sm); }
 .entry-links a { color: var(--muted); }
 .entry-links a:hover { color: var(--fg); }
+.hn-link { display: inline-flex; align-items: center; gap: 5px; }
+.hn-icon { width: 12px; height: 12px; display: inline-block; vertical-align: middle; border-radius: 2px; flex-shrink: 0; }
+.gh-link { display: inline-flex; align-items: center; gap: 5px; }
+.gh-icon { width: 13px; height: 13px; display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
 .entry-body { display: flex; flex-direction: column; gap: 12px; }
 .entry-body p { max-width: 62ch; }
+.entry-body a { color: var(--fg); text-decoration: underline; text-decoration-color: var(--dim); text-underline-offset: 3px; transition: text-decoration-color .2s; }
+.entry-body a:hover { text-decoration-color: var(--fg); }
 
 .bullets li {
   position: relative;
