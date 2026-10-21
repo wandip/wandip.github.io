@@ -14,7 +14,7 @@ title: Post
         <span>·</span>
         <div class="tags" style="display: inline-flex;">
           {% for tag in page.tags %}
-          <span class="tag">{{ tag }}</span>
+          <a href="{{ tag | slugify | prepend: '/tags/' | append: '/' | relative_url }}" class="tag">{{ tag }}</a>
           {% endfor %}
         </div>
       {% endif %}
